@@ -30,6 +30,7 @@ GEM
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
     ffi (1.15.5)
+    ffi (1.15.5-x86-mingw32)
     forwardable-extended (2.6.0)
     gemoji (3.0.1)
     github-pages (228)
@@ -249,6 +250,7 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.8.2)
+    unf_ext (0.0.8.2-x86-mingw32)
     unicode-display_width (1.8.0)
     webrick (1.8.1)
 
@@ -257,6 +259,7 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
+  eventmachine
   github-pages
   webrick (~> 1.8)
 
