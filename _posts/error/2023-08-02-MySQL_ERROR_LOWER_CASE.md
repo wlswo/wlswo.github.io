@@ -19,7 +19,7 @@ tags: Error
 
 # 목표
 
-- 업무 중에 발생한 오류를 해결하는데 오류를 다시 정리합니다.
+- 업무 중에 발생한 오류를 다시 정리합니다.
 - 삽질을 겪으며 경험을 쌓아가고, 다양한 이슈를 해결하는 접근 방식을 개선해봅니다.  
 
 <br><br>
@@ -146,7 +146,7 @@ Employees는 view 테이블이며 해당 테이블에 접근 권한을 확인하
     일반적으로 **`UNDEFINED`**를 사용하면 MySQL이 최적의 알고리즘을 선택하도록 하기 때문에, 개발자가 직접 지정할 필요 없이 자동으로 처리됩니다. 이는 효율적인 쿼리 실행을 위해 MySQL이 최적의 방법을 선택하도록 하는 것입니다.
     
 
-눈 여겨 봐야할 옵션은 SQL 문의 **`CREATE ALGORITHM=UNDEFINED`** 부분 입니다. 
+눈 여겨 봐야할 옵션은 SQL 문의 **`DEFINER=`Auser@% SQL SECURITY DEFINER`** 부분 입니다. 
 
 **`DEFINER`** 및 **`SQL SECURITY`** 절은 MySQL 데이터베이스에서 VIEW(뷰)를 생성할 때 사용되는 옵션입니다. 이 옵션들은 VIEW의 접근 권한 및 보안 설정을 지정하는 데 사용됩니다.
 
@@ -157,9 +157,7 @@ Employees는 view 테이블이며 해당 테이블에 접근 권한을 확인하
 
 두 번째로 ‘Auser'@'abc' 유저의 권한을 확인했을때 CompanyDB 에 접근가능하며 해당 DB에 존재하는 모든 테이블에 접근 가능함을 확인할 수 있습니다. 
 
-**`Employees`** 테이블이 존재하는것을 확인했으며, 접근 유저 또한 올바른 권한이 부여된 걸 확인했습니다. 로그인 과정중 발생한 에러이기 때문에 입력 데이터가 틀렸을 가능성 도 있습니다. 
-
-다시한번 password를 확인하고 시도해봅니다. 
+**`Employees`** 테이블이 존재하는것을 확인했으며, 접근 유저 또한 올바른 권한이 부여된 걸 확인했습니다. 로그인 과정중 발생한 에러이기 때문에 ID,PW 데이터가 틀렸을 가능성을 생각해 다시한번 password를 확인하고 시도해봅니다. 
 
 ```bash
 # Employees table 확인
@@ -172,7 +170,7 @@ MariaDB [CompanyDB]> select * from Employees;
 1 row in set (0.002 sec)
 ```
 
-login_id 와 password 모두 network level 과 code level 에서 logging을 걸어 확인해보며 이상한 점을 발견할 수 있었습니다. 
+login_id 와 password 모두 network level 과 code level 에서 logging을 걸어 확인해보며 큰 흐름을 다시 생각해 보았습니다. 
 
 해당 로그인 Flow 는 아래와 같습니다. 
 
@@ -232,15 +230,15 @@ MariaDB [(none)]> show variables like 'lower%';
 ```
 
 - lower_case_table_names **0**
-    - CREATE TABLE이나 CREATE DATABASE 실행 시 디스크에 저장되는 테이블과 데이터베이스의 이름을 대소문자 구분하여 생성한다
-    - SELECT 나 INSERT 사용 시에도 대소문자를 구분해서 사용해야한다.
+    - CREATE TABLE이나 CREATE DATABASE 실행 시 디스크에 저장되는 테이블과 데이터베이스의 이름을 대소문자 구분하여 생성합니다.
+    - SELECT 나 INSERT 사용 시에도 대소문자를 구분해서 사용해야 합니다.
 - lower_case_table_names **1**
-    - 테이블과 DB 이름을 소문자로 생성하며 참조시에는 소문자로 변경하여 처리한다
+    - 테이블과 DB 이름을 소문자로 생성하며 참조시에는 소문자로 변경하여 처리합니다. 
     - 대소문자 구분 X
-    - 기존에 대문자가 포함되어 생성한 테이블과 DB는 문제가 될 수 있다
+    - 기존에 대문자가 포함되어 생성한 테이블과 DB는 문제가 될 수 있습니다. 
 - lower_case_table_names **2**
-    - CREATE TABLE이나 CREATE DATABASE 실행 시 디스크에 저장되는 테이블과 데이터베이스의 이름을 대소문자를 구분해서 생성한다
-    - 참조시에는 소문자로 변경한다 대소문자를 구분하지 않는 팡일 시스템을 가진 OS(Mac OS X)에서만 동작한다
+    - CREATE TABLE이나 CREATE DATABASE 실행 시 디스크에 저장되는 테이블과 데이터베이스의 이름을 대소문자를 구분해서 생성합니다. 
+    - 참조시에는 소문자로 변경한다 대소문자를 구분하지 않는 팡일 시스템을 가진 OS(Mac OS X)에서만 동작합니다. 
 
 ## 설정 변경
 
