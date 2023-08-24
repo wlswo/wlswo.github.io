@@ -129,7 +129,7 @@ MariaDB [CompanyDB]> show grants for 'Auser'@'abc';
 
 Employees는 view 테이블이며 해당 테이블에 접근 권한을 확인하기 위해  Employees 테이블의 생성 정의 쿼리를 확인합니다. 생성 정의 쿼리에는 해당 테이블의 상세 옵션을 담고 있습니다. 
 
-- **`CREATE ALGORITHM=UNDEFINED` 알아보기**
+- **`CREATE ALGORITHM=UNDEFINED` 란?**
     
     **`CREATE ALGORITHM=UNDEFINED`**  옵션은 MySQL의 VIEW(뷰) 생성 시 사용되는 옵션 중 하나입니다.
     
