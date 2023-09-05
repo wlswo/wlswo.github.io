@@ -100,3 +100,5 @@ QEMU
     - VM이 타입2에 속합니다.
 
 ![type2](https://raw.githubusercontent.com/wlswo/wlswo.github.io/2f360a98cebed137c65e72e150fa9041546f97a6/assets/images/Infra/virtualization-type2.png)
+
+

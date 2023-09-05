@@ -19,9 +19,13 @@ tags:
 - Docker Swarm을 간편하게 구성해 주는 Openstack Heat Service를 알아봅니다.
 - Heat를 이용하여 Docker Swarm을 구축합니다.
 
+<br/><br/><br/>
+
 ## 개요
 
 오픈스택을 이용하여 인프라가 구성되어 있다는걸 전제로 설명합니다. 오픈스택 인프라위에 오케스트레이션 서비스인 Heat를 사용하여 Docker Swarm을 구성하는 방법에 정리하는걸 목표로 합니다.
+
+<br/><br/>
 
 ### Openstack
 
@@ -39,37 +43,39 @@ AWS와 Openstack은 유사한 기능을 제공하는 서비스들이 존재합�
 
 여기서는 Openstack의 핵심 서비스들만 정리하였습니다.
 
-1. **Nova (Compute Service) - AWS EC2:**
+1. **Nova (Compute Service) - AWS EC2**
     - Nova는 가상 머신(VM)을 프로비저닝하고 관리하는 오픈스택의 서비스입니다.
     - AWS EC2는 비슷한 역할을 하는 서비스로, 가상 서버를 생성하고 실행합니다.
-2. **Neutron (Networking Service) - AWS VPC:**
+2. **Neutron (Networking Service) - AWS VPC**
     - Neutron은 네트워크를 가상화하고 관리하는 오픈스택의 서비스입니다.
     - AWS VPC는 가상 사설 클라우드 네트워크 환경을 제공하며, 네트워크 관리를 지원합니다.
-3. **Cinder (Block Storage Service) - AWS EBS:**
+3. **Cinder (Block Storage Service) - AWS EBS**
     - Cinder는 블록 스토리지를 제공하는 오픈스택의 서비스로, 가상 머신용 영구 스토리지를 관리합니다.
     - AWS EBS는 비슷한 역할을 하는 서비스로, EC2 인스턴스에 연결하여 블록 스토리지를 제공합니다.
-4. **Glance (Image Service) - AWS AMI:**
+4. **Glance (Image Service) - AWS AMI**
     - Glance는 가상 머신 이미지를 관리하는 오픈스택의 서비스입니다.
     - AWS AMI(Amazon Machine Image)는 EC2 인스턴스를 시작하기 위한 이미지를 정의하고 관리합니다.
-5. **Swift (Object Storage Service) - AWS S3:**
+5. **Swift (Object Storage Service) - AWS S3**
     - Swift는 객체 스토리지 서비스로, 대량의 비정형 데이터를 저장하고 검색합니다.
     - AWS S3는 비슷한 역할을 하는 서비스로, 객체 스토리지를 제공합니다.
-6. **Keystone (Identity Service) - AWS IAM:**
+6. **Keystone (Identity Service) - AWS IAM**
     - Keystone은 오픈스택에서 인증 및 인가를 관리하는 서비스입니다.
     - AWS IAM(Identity and Access Management)은 비슷한 역할을 하는 서비스로, 사용자 및 권한을 관리합니다.
-7. **Horizon (Dashboard) - AWS Management Console:**
+7. **Horizon (Dashboard) - AWS Management Console**
     - Horizon은 오픈스택의 웹 대시보드로, 사용자가 리소스를 관리하고 모니터링할 수 있도록 합니다.
     - AWS Management Console은 AWS 서비스를 관리하는 데 사용되는 웹 인터페이스입니다.
-8. **Heat (Orchestration Service) - AWS CloudFormation:**
+8. **Heat (Orchestration Service) - AWS CloudFormation**
     - Heat는 템플릿을 사용하여 리소스를 자동으로 프로비저닝하고 스택을 관리하는 오픈스택의 서비스입니다.
     - AWS CloudFormation은 비슷한 역할을 하는 서비스로, 리소스 및 인프라스트럭처를 정의하고 배포합니다.
-9. **Ceilometer (Telemetry Service) - AWS CloudWatch:**
+9. **Ceilometer (Telemetry Service) - AWS CloudWatch**
     - Ceilometer는 클라우드 환경에서 리소스 사용량 및 성능 데이터를 수집하고 모니터링하는 오픈스택의 서비스입니다.
     - AWS CloudWatch는 AWS 리소스 및 애플리케이션 성능을 모니터링하는 서비스입니다.
 
 이러한 서비스들로 AWS와 같은 클라우드 컴퓨팅 플랫폼을 구축할 수 있습니다.
 
 예를 들어 사용자가 요청한 사양에 맞게 VM을 생성하여 제공하고, 사용자가 직접 네트워크를 구성하여 현재 상황에 맞는 인프라 환경을 사용할 수 있도록 제공합니다.
+
+<br>
 
 # 환경
 
@@ -78,6 +84,8 @@ AWS와 Openstack은 유사한 기능을 제공하는 서비스들이 존재합�
 - Openstack 인프라를 구성하는 코어 서비스들로 이루어져 있으며 좀 더 복잡한 인프라 구성으로 되어 있지만 Docker Swarm을 구축하는데는 아래와 같은 환경으로도 가능합니다
 - Openstack Version은 2022년 10월에 릴리즈된 Zed 버전을 사용합니다.
 - 노드는 총 4대로 구성되어 있습니다.
+
+<br>
 
 ### System Architecture
 
@@ -102,6 +110,8 @@ AWS와 Openstack은 유사한 기능을 제공하는 서비스들이 존재합�
 |                       |     |                       |     |                       |     |                       |
 +-----------------------+     +-----------------------+     +-----------------------+     +-----------------------+
 ```
+
+<br><br>
 
 # Heat Service Install
 
@@ -314,7 +324,7 @@ extension_dirvers = port_security,qos
 
 - Heat는 yaml 형식의 템플릿 파일을 읽어 프로비저닝을 가능하게 합니다.
 - Openstack 공식문서에서 Heat Template Guide존재하며 자세하게 확인할 수 있습니다.
-    - https://docs.openstack.org/heat/pike/template_guide/hot_guide.html
+    - [https://docs.openstack.org/heat/pike/template_guide/hot_guide.html](https://docs.openstack.org/heat/pike/template_guide/hot_guide.html)
 
 - 아래는 제가 만들어본 Heat Template 입니다.
     - Docker Swarm Master 역할을 담당하는 VM을 생성하는 템플릿과 Worker역할을 하는 템플릿으로 구성되어 있습니다.
