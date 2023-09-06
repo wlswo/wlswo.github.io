@@ -71,9 +71,9 @@ AWS와 Openstack은 유사한 기능을 제공하는 서비스들이 존재합�
     - Ceilometer는 클라우드 환경에서 리소스 사용량 및 성능 데이터를 수집하고 모니터링하는 오픈스택의 서비스입니다.
     - AWS CloudWatch는 AWS 리소스 및 애플리케이션 성능을 모니터링하는 서비스입니다.
 
-이러한 서비스들로 AWS와 같은 클라우드 컴퓨팅 플랫폼을 구축할 수 있습니다.
+위와 같은 서비스들을 이용하여 AWS와 같은 클라우드 컴퓨팅 플랫폼을 구축할 수 있습니다.
 
-예를 들어 사용자가 요청한 사양에 맞게 VM을 생성하여 제공하고, 사용자가 직접 네트워크를 구성하여 현재 상황에 맞는 인프라 환경을 사용할 수 있도록 제공합니다.
+예를 들어 사용자가 요청한 사양에 맞게 VM을 생성하여 제공하고, 사용자가 직접 네트워크를 구성하여 사용하려는 작업에 맞는 인프라 환경을 사용할 수 있도록 제공합니다.
 
 <br>
 
@@ -323,17 +323,17 @@ extension_dirvers = port_security,qos
 ## Docker Swarm Template 생성
 
 - Heat는 yaml 형식의 템플릿 파일을 읽어 프로비저닝을 가능하게 합니다.
-- Openstack 공식문서에서 Heat Template Guide존재하며 자세하게 확인할 수 있습니다.
+- Openstack 공식문서에서 Heat Template 가이드가 존재하며 자세하게 확인할 수 있습니다.
     - [https://docs.openstack.org/heat/pike/template_guide/hot_guide.html](https://docs.openstack.org/heat/pike/template_guide/hot_guide.html)
 
 - 아래는 제가 만들어본 Heat Template 입니다.
-    - Docker Swarm Master 역할을 담당하는 VM을 생성하는 템플릿과 Worker역할을 하는 템플릿으로 구성되어 있습니다.
+    - Docker Swarm Master, Worker VM을 생성하는 템플릿으로 구성되어 있습니다.
 
 
 ### DockerSwarmMaster.yaml
 
 ```yaml
-heat_template_version: 2015-04-30
+heat_template_version: 2023-09-04
 description:  template to deploy dockerswarm-manager
 parameters:
   public_net:
@@ -505,8 +505,8 @@ outputs:
 ### DockerSwarmWorker.yaml
 
 ```yaml
-heat_template_version: 2015-04-30
-description:  template to deploy dockerswarm-manager
+heat_template_version: 2023-09-04
+description:  template to deploy dockerswarm-worker
 parameters:
   public_net:
     type: string
