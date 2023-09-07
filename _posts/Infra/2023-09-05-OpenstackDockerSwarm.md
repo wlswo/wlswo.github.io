@@ -673,3 +673,43 @@ outputs:
           site_ip: { get_attr: [ docker_server_floating_ip, floating_ip_address ] }
         template: http://site_ip
 ```
+
+![openstack1](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/Infra/openstack1.png?raw=true)
+
+- 프로젝트 탭 → Stack 탭으로 진입합니다.
+- Launch Stack 클릭합니다.
+
+![스크린샷 2023-09-06 오후 3.14.05.png](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/Infra/openstack2.png?raw=true)
+
+- 파일 선택 버튼을 클릭해 생성한 템플릿을 지정합니다.
+
+
+![stack.gif](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/Infra/openstack3.png?raw=true)
+
+- 템플릿에 Default 값으로 설정되어 있는 값들을 자신의 환경에 맞는 값으로 바꿔줍니다.
+
+![스크린샷 2023-09-06 오후 3.27.55.png](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/Infra/stack.gif?raw=true)
+
+- 해당 정보로 새로운 stack이 생성됩니다.
+
+
+![스크린샷 2023-09-06 오후 3.27.55.png](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/Infra/docker_terminal.png?raw=true)
+
+- 생성한 Master, Worker 노드에 SSH 접속하여 Docker Swarm을 구성합니다. 
+
+```bash
+# Master Node 접속 
+docker swarm init 
+
+docker swarm join \
+--token SWTKN-1-1usdfnjenfk9so93o3fo9sjfo9s3jf30f3sf-7qndnjwnszccsco2
+172.27.1.105.2377
+```
+
+```bash
+# Workder Node 접속 
+docker swarm join \
+--token SWTKN-1-1usdfnjenfk9so93o3fo9sjfo9s3jf30f3sf-7qndnjwnszccsco2
+172.27.1.105.2377
+
+```
