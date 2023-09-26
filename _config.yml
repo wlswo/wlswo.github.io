@@ -4,7 +4,7 @@
 # ---------------------------------------------------------------
 
 # Site
-title:  Z2 Blog
+title:  JJ`s Blog
 subtitle: Solving Blog
 repository: wlswo/wlswo.github.io
 subtitle:
@@ -217,7 +217,7 @@ font:
 # Value is the target link (E.g. GitHub: https://github.com/iissnan)
 social:
   GitHub: https://github.com/wlswo
-  #LinkLabel: Link
+  LinkedIn: https://www.linkedin.com/in/jaejinbyun/
 
 
 # Social Links Icons
