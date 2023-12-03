@@ -10,7 +10,6 @@ categories:
 
 tags: 
 
-- Project
 - Springboot
 - Migration
 
