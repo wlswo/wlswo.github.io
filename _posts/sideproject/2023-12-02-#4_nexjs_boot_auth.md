@@ -148,8 +148,8 @@ Spring Boot 입장에서 인증이 시작되는 첫 시작은 NEXT.js 에서 넘
 
 하나의 메소드에서 두 개의 다른 응답을 반환하기 위해서 아래와 같은 방법이 존재했습니다.
 
-- ResponseEntity<Object> 로 작성하여 다양한 반환 값을 가질 수 있게 열어둔다.
-- 응답으로 보낼 DTO를 추상화하여 반환 값이 다른 두 개의 dto 클래스를 생성하여 상속받는다. ✅
+- ResponseEntity의 타입을 Object로 열어두어 다양한 타입을 반환한다.
+- 응답 DTO를 추상화하여 반환 값이 다른 두 개의 dto 클래스를 생성하여 상속받는다. ✅
 
 Object로 열어두는 것 보다 추상 클래스의 상속 클래스의 타입만 들어올 수 있도록 제한하였습니다.
 
@@ -174,9 +174,9 @@ Json, XML, String 응답을 받을 수 있으며 유저 정보는 Json 문자열
 
  Json 구조의 문자열이기 때문에 Java객체로 직렬화를 위해 `GsonBuilder`를 사용합니다. 
 
-`setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)` ****를 호출하여 Gson이 사용할 필드 네이밍 규칙을 설정합니다. 필드 이름을 소문자 및 언더스코어(_)로 변환하였습니다.
+`setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)` 를 호출하여 Gson이 사용할 필드 네이밍 규칙을 설정합니다. 필드 이름을 소문자 및 언더스코어(_)로 변환하였습니다.
 
-**`gson.fromJson(response.getBody(), OauthUserInfoDto.UserInfo.class)`**를 사용하여 Gson을 통해 JSON 문자열을 Java 객체로 변환하며 타겟 클래스를 OauthUserInfoDto.UserInfo.class 로 설정합니다.
+`gson.fromJson(response.getBody(), OauthUserInfoDto.UserInfo.class)`를 사용하여 Gson을 통해 JSON 문자열을 Java 객체로 변환하며 타겟 클래스를 OauthUserInfoDto.UserInfo.class 로 설정합니다.
 
 UserInfo.Class 는 Dto와 같은 역할을 합니다.  id값만을 필요로 하기 때문에 문자열 타입의 필드를 설정합니다.
 
