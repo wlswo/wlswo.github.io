@@ -54,11 +54,10 @@ $selection-color              : white;
 // Typography
 // Font, line-height, and elements colors.
 // --------------------------------------------------
-@font-face {
-  font-family: 'GangwonEdu_OTFBoldA';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
+@import url(//fonts.googleapis.com/earlyaccess/notosanskr.css);
+
+.notosanskr * { 
+ font-family: 'Noto Sans KR', sans-serif;
 }
 
 
@@ -68,7 +67,7 @@ $selection-color              : white;
 }
 
 // Font families.
-$font-family-chinese      : "GangwonEdu_OTFBoldA"; //"PingFang SC", "Microsoft YaHei";
+$font-family-chinese      : "Noto Sans KR";   //"PingFang SC", "Microsoft YaHei";
 
 $font-family-base         : $font-family-chinese, sans-serif;
 $font-family-base         : if(get_font_family('global'), (get_font_family('global'), $font-family-chinese, sans-serif), $font-family-base);
