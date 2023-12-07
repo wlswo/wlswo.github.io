@@ -64,6 +64,61 @@ oauth2Login()를 활성화
 
 이처럼 쉽지 않은 Flow들을 시큐리티가 대신 처리해주는 장점이 존재합니다. Oauth2 인증 흐름을 개발자가 전부 구현해도 되지 않는 이점이 있습니다. 러닝 커브가 있는 프레임워크 이지만 서블릿, 필터 같은 스프링 컨테이너 외부 영역에 대한 보안 처리를 스프링 시큐리티를 이용해서 유연하게 처리할 수 있습니다. 단일 Spring 애플리케이션이라면 시큐리티는 좋은 옵션이 될 수 있습니다. 
 
+
+<br><br>
+
+## 단점
+
+HTTP는 상태를 가지지지 않는 Stateless한 비접속형 프로토콜입니다. 서버는 로그인한 사용자라는 걸 알기 위해서 이전 요청의 상태를 기억해야 합니다. <br>
+
+Session은 이전 요청의 상태를 기억할 수 있는 방법입니다. 톰캣의 고유한 세션 ID(JESSIONID)를 웹 브라우저 쿠키로 전달하고, 클라이언트는 세선ID (JSESSIONID)를 헤더에 담아 함께 전달합니다. <br>
+
+서버는 전달받은 SessionID를 서버에 저장되어 있는 ID와 비교하여 클라이언트의 상태를 지속적으로 유지합니다. HttpSession 인터페이스의 getId() 메서드를 호출하면 JSESSIONID 쿠키의 정보를 확인할 수 있습니다.
+
+아래 그림과 같이 서버는 세션 정보를 저장하고, 클라이언트는 발급받은 세션 ID를 헤더에 담아 요청합니다. 서버는 헤더에 담긴 세선 ID로 사용자를 식별하게 됩니다.
+
+![session1](https://raw.githubusercontent.com/wlswo/wlswo.github.io/aa3500cfea40f3e8adaa3c53d2deda49bbb556c7/assets/images/SideProject/side%234/session1.png)
+
+해당 방식의 문제점은 서버를 확장하거나 축소하는 스케일링이 진행될 때 **세션 정보가 일치하지 않는 상황**이 발생합니다. 나아가 서버의 메모리에 세션 데이터를 저장하므로 많은 사용자가 동시에 접속하면 서버 부하가 증가할 수 있습니다.  <br>
+
+
+트래픽 증가로 인해 서버를 증설한다고 가정한다면 아래 그림과 같은 상황이 발생할 수 있습니다. 프론트엔드에서는 NginX로 API 요청을 하고 NginX는 두 대의 백엔드 서버에 요청을 분산하여 호출합니다.  <br>
+
+각각의 백엔드 서버에서 관리하는 세션 정보는 서로 공유하고 있지 않기 때문에 Server 2 에서 발급한 세션 ID를 가지고 서버 1에 요청될 경우 세션 정보가 일치하지 않는 상황이 발생합니다. 
+
+![session2](https://raw.githubusercontent.com/wlswo/wlswo.github.io/aa3500cfea40f3e8adaa3c53d2deda49bbb556c7/assets/images/SideProject/side%234/session2.png)
+
+이런 경우 보통 Sticky Session을 사용하거나, 공유 Session 저장소를 별도로 두어 해결하곤 합니다.
+
+<br>
+
+### AWS ELB의 Sticky Session
+
+Sticky Session이란 특정 세션의 요청을 처음 처리한 서버로만 전송하는 것을 의미합니다. <br>
+
+자신의 세션 ID를 가지고 있는 특정 백엔드 서버로만 요청하기 때문에 세션 불일치 문제를 해소할 수 있습니다. 하지만 특정 서버로만 요청이 몰릴수 있는 상황이 있고, 서버가 다운되면 해당 서버에 붙어 있는 세션들이 소실될 수 있습니다.
+
+- [AWS Elastic Load Balancing Feature: Sticky Sessions](https://aws.amazon.com/ko/blogs/aws/new-elastic-load-balancing-feature-sticky-sessions/)
+
+<br>
+
+## Redis를 이용한 Session 저장소 공유
+
+세션 저장소를 별도로 둔다면 아래 그림과 같은 아키텍처를 구성할 수 있습니다. Spring Session를 이용하면 세션 공유 저장소를 이용할 수 있습니다. 
+
+![session3](https://raw.githubusercontent.com/wlswo/wlswo.github.io/aa3500cfea40f3e8adaa3c53d2deda49bbb556c7/assets/images/SideProject/side%234/session3.png)
+
+이러한 세션 저장소를 이용하는 일반적인 사용자 인증 방법에는 단점도 존재합니다. 세션 저장소는 요청을 식별하기 위해 상태를 저장하는 공간입니다. <br>
+
+하지만 한가지 단점이 존재하는데, 모든 요청이 세션 저장소에 매번 조회를 해야된다는 사실입니다. 모든 요청이 세션저장소와 강한 의존성을 띠게 됩니다. <br>
+
+최근 많이 등장하는 MSA 환경에서도 공유 세션 저장소를 이용한다면 각 마이크로 서비스들이 세션 저장소 한 곳을 바라보게 됩니다. 즉 세션 저장소에 대한 부하관리, 세션 저장소 확장성에 있어서 관리 포인트가 증가할 수 있게됩니다. <br>
+
+세션 저장소를 매번 조회하지 않고 인증 기능을 구현할 수 있는 방법으로 JWT를 이용하여 해결할 수 있습니다.
+
+아래 NEXT.js 도입으로 프로젝트에서 진행한 JWT 인증방식에 대해 알아봅니다.
+
+
 <br><br>
 
 # NEXT.js 도입
