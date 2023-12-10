@@ -205,7 +205,7 @@ Spring Boot 입장에서 인증이 시작되는 첫 시작은 NEXT.js 에서 넘
 ```json
 {
 	"id": "kakao38129381",
-	"result" : true
+	"result" : false
 }
 ```
 
