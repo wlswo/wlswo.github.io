@@ -16,7 +16,7 @@ tags:
 
 ---
 
-## Public과 Private API를 분리, 공통 관심사의 중복 코드 제거하는 전략
+## Public과 Private API를 분리, 공통 관심사의 중복 코드 제거
 > 사이드 프로젝트에 적용한 API 디자인과 Argument Resolver를 적용한 과정을 정리합니다.
 
 <br><br>
@@ -32,7 +32,7 @@ tags:
 
 # 개요
 
-MoCo2는 로그인이 된 사용자만 호출할 수 있는 API와 누구든 호출할 수 있는 API가 나뉘어 존재합니다. 이에 API를 분리한 방법을 설명하고 그에 따른 인증 로직과 로그인한 유저 정보를 가져오는 관심사를 분리한 경험을 정리해봅니다. 
+MoCo2는 로그인이 된 사용자만 호출할 수 있는 API와 누구든 호출할 수 있는 API가 나뉘어 존재합니다. 이에 API를 분리한 방법을 설명하고 그에 따른 인증 로직과 로그인한 유저 정보를 가져오는 관심사를 분리한 경험을 정리해 봅니다. 
 
 <br><br>
 
@@ -60,7 +60,7 @@ MoCo2는 로그인이 된 사용자만 호출할 수 있는 API와 누구든 호
 
 일반적으로 REST API 설계의 관례에서 인증이 필요하거나 특정 권한이 필요한 경우 **`/private/~`** 또는 **`/api/v1/private/~`**와 같이 경로를 지정합니다. 예를 들면 로그인한 사용자에게만 허용되는 리소스에 해당합니다.
 
-누구나 접근 가능하며 인증이 필요하지 않은 경우, **`/public/~`** 또는 **`/api/v1/public/~`**와 같은 경로를 사용합니다. 예를 들면, 공용 정보를 제공하는 리소스에 해당합니다.
+누구나 접근할 수 있으며 인증이 필요하지 않은 경우, **`/public/~`** 또는 **`/api/v1/public/~`**와 같은 경로를 사용합니다. 예를 들면, 공용 정보를 제공하는 리소스에 해당합니다.
 
 이러한 REST API 가이드라인을 따르면서 아래와 같은 사항을 고려했습니다. 이에 따라 저희는 아래 표와 같은 방식으로 API 경로를 분리했습니다.
 
@@ -102,7 +102,7 @@ Public API에 대해서는 이러한 인증 과정을 생략해야 합니다.  �
 
 shouldNotFilter는 API Path을 검사하여 excludPath로 설정한 문자열로 시작할 경우 true를 반환하여 해당 필터를 거치지 않습니다. 
 
-두번째는 Security Context Holder에 익명 사용자 권한을 저장하여 요청이 허용될 수 있어야 합니다. 이 작업은 Security 의 permitAll()을 이용하여 처리할 수 있습니다. 
+두 번째는 Security Context Holder에 익명 사용자 권한을 저장하여 요청이 허용될 수 있어야 합니다. 이 작업은 Security 의 permitAll()을 이용하여 처리할 수 있습니다. 
 
 ![security3.png](https://raw.githubusercontent.com/wlswo/wlswo.github.io/a62e08de87782f0f8abcc9cacb5fa27eed10c213/assets/images/SideProject/side%235/security3.png)
 
@@ -138,7 +138,7 @@ shouldNotFilter는 API Path을 검사하여 excludPath로 설정한 문자열로
 
 ![security4.png](https://raw.githubusercontent.com/wlswo/wlswo.github.io/a62e08de87782f0f8abcc9cacb5fa27eed10c213/assets/images/SideProject/side%235/security4.png)
 
-위처럼 Security Context에 쉽게 접근할 수 있지만 이는 공통된 관심사항으로 중복 코드가 발생합니다. Spring은 이러한 문제를 해결하기 위해 소스 코드에 퍼져 있는 공통 관심사항을 한 곳에 모아 별도의 기능으로 분리시킬수 있는 기능을 제공합니다. 대표적으로 AOP가 존재합니다. 
+위처럼 Security Context에 쉽게 접근할 수 있지만 이는 공통된 관심 사항으로 중복 코드가 발생합니다. Spring은 이러한 문제를 해결하기 위해 소스 코드에 퍼져 있는 공통 관심 사항을 한 곳에 모아 별도의 기능으로 분리시킬수 있는 기능을 제공합니다. 대표적으로 AOP가 존재합니다. 
 
 AOP 말고도 **Argument Resolve** 라는 것이 존재합니다. 이 둘은 두 기술 모두 코드의 모듈화와 재사용성을 증가시키는 것에 공통점을 가지고 있지만 사용하는 목적에 있어 그 방향이 다릅니다. 
 
@@ -182,10 +182,10 @@ Context에 있는 유저의 ID와 권한을 가져와 UserInfo 에 담아줍니�
 
 ### **HandlerMethodArgumentResolver 인터페이스**
 
-Argument Resolver를 만들기 위해서는 클래스가 **`HandlerMethodArgumentResolver`** 를 구현해야 합니다.  **`HandlerMethodArgumentResolver`** 는 두개의 메소드를 가지고 있다.
+Argument Resolver를 만들기 위해서는 클래스가 **`HandlerMethodArgumentResolver`** 를 구현해야 합니다.  **`HandlerMethodArgumentResolver`** 는 두개의 메소드를 가지고 있습니다.
 
-- **`supportsParameter()`** : 주어진 메소드의 파라미터가 이 Argument Resolver에서 지원하는 타입인지 검사한다. 지원한다면 **`true`** 를, 그렇지 않다면 **`false`** 를 반환한다.
-- **`resolveArgument()`** : 이 메소드의 반환값이 대상이 되는 메소드의 파라미터에 바인딩된다.
+- **`supportsParameter()`** : 주어진 메소드의 파라미터가 이 Argument Resolver에서 지원하는 타입인지 검사합니다. 지원한다면 **`true`** 를, 그렇지 않다면 **`false`** 를 반환한다.
+- **`resolveArgument()`** : 이 메소드의 반환값이 대상이 되는 메소드의 파라미터에 바인딩됩니다.
 
 <br><br>
 
