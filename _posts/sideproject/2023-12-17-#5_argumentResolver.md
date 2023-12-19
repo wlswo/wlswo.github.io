@@ -62,6 +62,8 @@ MoCo2는 로그인이 된 사용자만 호출할 수 있는 API와 누구든 호
 
 누구나 접근할 수 있으며 인증이 필요하지 않은 경우, **`/public/~`** 또는 **`/api/v1/public/~`**와 같은 경로를 사용합니다. 예를 들면, 공용 정보를 제공하는 리소스에 해당합니다.
 
+API 디자인 및 보안 요소를 효과적으로 구현하기 위해서는 다양한 요구사항을 고려해야 했습니다. 특히, Private 및 Public API를 분리하고 인증 전략 구성에서 설계의 복잡성이 증가했습니다.
+
 이러한 REST API 가이드라인을 따르면서 아래와 같은 사항을 고려했습니다. 이에 따라 저희는 아래 표와 같은 방식으로 API 경로를 분리했습니다.
 
 - 명확한 의미를 가져야 한다.
@@ -71,10 +73,18 @@ MoCo2는 로그인이 된 사용자만 호출할 수 있는 API와 누구든 호
 - 버전 관리
     - API 버전을 명시적으로 관리하는 것도 중요합니다. **`/api/v1/private/~`**와 같은 방식으로 버전을 명시하면 이후 변경에 유연하게 대응할 수 있습니다.
 
+ex) 게시글 API 
+
 | 구분 | API URL | 설명 |
 | --- | --- | --- |
-| Private API | /api/v1/private/~ | 로그인된 유저만 호출할 수 있다. |
-| Public API | /api/v1/public/~ | 누구든 호출 할 수 있다. |
+| Private API 🔒 | /api/v1/private/~ | 로그인된 유저만 호출 가능 |
+|  | [POST] /api/v1/private/posts/{postId} | 게시글 작성 |
+|  | [PUT] /api/v1/private/posts/{postId} | 게시글 수정 |
+|  | [DELETE] /api/v1/private/posts/{postId} | 게시글 삭제 |
+| Public API ✅ | /api/v1/public/~ | 누구든 호출 가능 |
+|  | [GET] /api/v1/public/posts | 게시글 목록 조회 |
+|  | [GET] /api/v1/public/posts/{postId} | 게시글 상세 조회 |
+
 
 <br><br>
 
