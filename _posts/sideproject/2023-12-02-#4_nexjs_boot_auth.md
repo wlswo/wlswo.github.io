@@ -211,10 +211,10 @@ Spring Boot 입장에서 인증이 시작되는 첫 시작은 NEXT.js 에서 넘
 
 하나의 메소드에서 두 개의 다른 응답을 반환하기 위해서 아래와 같은 방법이 존재했습니다.
 
-- ResponseEntity의 타입을 Object로 열어두어 다양한 타입을 반환한다.
+- ResponseEntity의 타입을 Object로 열어두거나 제네릭의 `<?>`를 이용하여 다양한 타입을 반환한다.
 - 응답 DTO를 추상화하여 반환 값이 다른 두 개의 dto 클래스를 생성하여 상속받는다. ✅
 
-Object로 열어두는 것 보다 추상 클래스의 상속 클래스의 타입만 들어올 수 있도록 제한하였습니다.
+Object 열어두는 것과 제네릭의 와일드카드를 사용하여 타입 제한을 넓게 가져가는 것 보다 추상 클래스의 상속 클래스의 타입만 들어올 수 있도록 제한하였습니다.
 
 ![응답DTO](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/SideProject/side%234/response.png?raw=true)
 
