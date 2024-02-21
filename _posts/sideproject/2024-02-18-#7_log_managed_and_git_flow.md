@@ -76,7 +76,7 @@ Logback의 기본적인 구조는 위의 사진과 같습니다. **configuration
 
 아래 사진은 EC2에서 로그 레벨별로 디렉토리가 생성되고, 각 레벨별로 로그 파일이 생성된 모습을 확인할 수 있습니다.
 
-![ec-log](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/SideProject/side%237/script.png?raw=true)
+![ec-log](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/SideProject/side%237/ec2-log.png?raw=true)
 
 
 <br><br>
