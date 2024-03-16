@@ -95,7 +95,7 @@ ERROR 로그가 발생했다는 것은 중대한 로직 오류 등 심각한 문
 
 ![slack-log](https://github.com/wlswo/wlswo.github.io/blob/main/assets/images/SideProject/side%237/slack-log.png?raw=true)
 
-위의 사진의 `SlackAppender`를 통해 ERROR 로그를 실시간으로 Slack으로 전송할 수 있습니다. 이 설정은 다음과 같은 요소로 구성되는데요.
+위의 사진의 `SlackAppender`를 통해 ERROR 로그를 실시간으로 Slack으로 전송할 수 있습니다. 이 설정은 다음과 같은 요소로 구성됩니다.
 
 - Webhook URI: Slack Incoming Webhook을 설정하여 얻은 URI를 사용하여 Logback에서 Slack으로 메시지를 전송할
 - Channel: 로그 메시지가 전송될 Slack 채널을 지정
