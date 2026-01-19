@@ -1,0 +1,221 @@
+
+ @font-face {
+    font-family: 'GMarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');
+    font-weight: 200;
+    font-display: swap;
+}
+
+ @font-face {
+    font-family: 'GMarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+    font-weight: 500;
+    font-display: swap;
+}
+
+ @font-face {
+    font-family: 'GMarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+    font-weight: 700;
+    font-display: swap;
+}
+
+@import "variables";
+
+body {
+  background-color: #fff;
+  font-family: $font-family-sans-serif;
+  color: $color-text;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-family-serif;
+  font-weight: 500;
+}
+
+a {
+  color: $color-text;
+  text-decoration: none;
+}
+
+// Blog Index
+.blog-index {
+  padding: 2rem 2rem 1rem 4rem; // Increased bottom padding
+  min-height: 850px;
+  
+  .post-item {
+    margin-bottom: 0rem;
+
+    .post-title {
+      font-size: 30px;
+      font-weight: 390;
+      margin-bottom: 0.3rem;
+      a {
+        color: $color-text;
+      }
+    }
+
+    .post-excerpt {
+      margin-bottom: 0.3rem;
+      font-weight: 300;
+    }
+
+    .post-meta {
+      .post-date {
+        color: #888;
+        font-size: 1.05rem;
+      }
+    }
+  }
+}
+
+// Pagination
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 0rem;
+  margin-bottom: 5rem;
+
+  a, span {
+    background-color: transparent;
+    padding: 0.35rem 0.7rem;
+    margin: 0 0.175rem;
+    border: none;
+    border-radius: 4px;
+    color: #000;
+    font-size: 1.2rem; // Increased font size
+
+    &.current {
+      background-color: transparent;
+      color: #000;
+      font-weight: bold;
+      text-decoration: underline;
+      text-underline-offset: 5px; // Added offset
+    }
+    
+    &:hover {
+        background-color: #f0f0f0;
+    }
+  }
+}
+
+
+.back-arrow-standalone {
+  margin-bottom: 1rem;
+}
+
+// Post Page
+.post-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.post-header {
+  margin-bottom: 1.75rem;
+  width: 100%;
+
+  .post-title-area {
+    width: 100%;
+        h1 {
+          font-size: 30px;
+          margin-bottom: 0.56rem;
+        }    .post-date {
+      color: #888;
+      font-size: 1.8rem;
+    }
+  }
+}
+
+.post-content {
+  line-height: 1.7;
+  font-size: 22px;
+
+  strong, b {
+    font-weight: 500;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    overflow-x: auto;
+    display: block;
+    margin-top: 2rem;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.6rem;
+  }
+
+  th {
+    background-color: #f9f9f9;
+    font-weight: 500;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 2.5rem;
+    margin-bottom: -0.5rem;
+  }
+
+  p {
+    margin-bottom: 0.7rem;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5rem auto;
+  }
+
+  blockquote {
+    margin: 1rem 0;
+    padding: 10px 10px; /* 아주 미세한 여백만 남김 */
+    border-left: 5px solid #ccc;
+    color: #555;
+    background-color: #f9f9f9;
+  }
+
+  blockquote p {
+      margin: 0; /* 내부 문단의 마진을 모두 제거해야 패딩 조절이 눈에 잘 보입니다 */
+  }
+
+  ul, ol {
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    padding-left: 2.2rem;
+  }
+
+  pre {
+    padding: 0.4rem 0.7rem;
+    border-radius: 5px;
+    display: block;
+    overflow-x: auto;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  code {
+    background-color: #eee;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 14px;
+  }
+
+  pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+}
+
+.giscus-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}

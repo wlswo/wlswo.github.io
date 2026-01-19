@@ -1,3 +1,40 @@
 ---
-layout: category
+layout: minimal_page
+title: Categories
 ---
+
+<ul class="category-list">
+  {% for category in site.categories %}
+    <li>
+      <a href="{{ '/categories/' | relative_url }}#{{ category | first | slugify }}">
+        {{ category | first }} <span class="count">({{ category | last | size }})</span>
+      </a>
+      
+      <!-- Optional: List posts in category -->
+      <!--
+      <ul>
+        {% for post in category.last %}
+          <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+        {% endfor %}
+      </ul>
+      -->
+    </li>
+  {% endfor %}
+</ul>
+
+<div id="category-posts">
+  {% for category in site.categories %}
+    <h2 id="{{ category | first | slugify }}">{{ category | first }}</h2>
+    <ul>
+      {% for post in category.last %}
+        <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</div>
+
+<style>
+.category-list {
+  margin-bottom: 2rem;
+}
+</style>

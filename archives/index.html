@@ -1,3 +1,31 @@
 ---
-layout: archive
+layout: minimal_page
+title: Archives
 ---
+
+<ul class="archive-list">
+  {% for post in site.posts %}
+    <li>
+      <span class="date">{{ post.date | date: "%Y-%m-%d" }}</span>
+      <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    </li>
+  {% endfor %}
+</ul>
+
+<style>
+.archive-list {
+  list-style: none;
+  padding: 0;
+}
+.archive-list li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: baseline;
+}
+.archive-list .date {
+  margin-right: 1rem;
+  color: #888;
+  font-size: 0.9rem;
+  min-width: 100px;
+}
+</style>

@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="{{ site.language | default: "en" }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site.title }} - {{ site.subtitle }}</title>
+  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+</head>
+<body>
+
+
+
+    <main class="blog-index">
+      <h1>Posts</h1>
+      {% for post in paginator.posts %}
+        <article class="post-item">
+          <h2 class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+
+          <div class="post-meta">
+            <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+          </div>
+        </article>
+      {% endfor %}
+    </main>
+
+    <div class="pagination">
+      {% if paginator.previous_page %}
+        <a href="{{ paginator.previous_page_path | relative_url }}">&lt;</a>
+      {% else %}
+        <span>&lt;</span>
+      {% endif %}
+
+      {% if paginator.total_pages <= 5 %}
+        {% for page in (1..paginator.total_pages) %}
+          {% if page == paginator.page %}
+            <span class="current">{{ page }}</span>
+          {% elsif page == 1 %}
+            <a href="{{ '/' | relative_url }}">{{ page }}</a>
+          {% else %}
+            <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', page }}">{{ page }}</a>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        
+        {% if paginator.page == 1 %}
+          <span class="current">1</span>
+        {% else %}
+          <a href="{{ '/' | relative_url }}">1</a>
+        {% endif %}
+
+        {% assign start_window = paginator.page | minus: 1 %}
+        {% assign end_window = paginator.page | plus: 1 %}
+        
+        {% if start_window > 2 %}
+          <span>...</span>
+        {% endif %}
+
+        {% for page in (2..paginator.total_pages) %}
+           {% if page == paginator.total_pages %}
+             {% continue %}
+           {% endif %}
+           
+           {% if page >= start_window and page <= end_window %}
+             {% if page == paginator.page %}
+               <span class="current">{{ page }}</span>
+             {% else %}
+               <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', page }}">{{ page }}</a>
+             {% endif %}
+           {% endif %}
+        {% endfor %}
+
+        {% assign total_minus_one = paginator.total_pages | minus: 1 %}
+        {% if end_window < total_minus_one %}
+          <span>...</span>
+        {% endif %}
+
+        {% if paginator.page == paginator.total_pages %}
+          <span class="current">{{ paginator.total_pages }}</span>
+        {% else %}
+          <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', paginator.total_pages }}">{{ paginator.total_pages }}</a>
+        {% endif %}
+
+      {% endif %}
+
+      {% if paginator.next_page %}
+        <a href="{{ paginator.next_page_path | relative_url }}">&gt;</a>
+      {% else %}
+        <span>&gt;</span>
+      {% endif %}
+    </div>
+
+
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="{{ site.language | default: "en" }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }} - {{ site.title }}</title>
+  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+  <link rel="stylesheet" href="{{ "/assets/css/syntax.css" | relative_url }}">
+</head>
+<body>
+  <div class="post-container">
+    <a href="javascript:history.back()" class="back-arrow-standalone">
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+    <header class="post-header">
+      <div class="post-title-area">
+        <h1>{{ page.title }}</h1>
+        <span class="post-date">{{ page.date | date: "%Y-%m-%d" }}</span>
+      </div>
+    </header>
+
+    <main class="post-content">
+      {{ content }}
+    </main>
+  </div>
+  <div class="giscus-container">
+    <script src="https://giscus.app/client.js"
+    data-repo="wlswo/wlswo.github.io"
+    data-repo-id="R_kgDOJnfIAg"
+    data-category="Comments"
+    data-category-id="DIC_kwDOJnfIAs4CbzpJ"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="light_high_contrast"
+    data-lang="ko"
+    data-loading="lazy"
+    crossorigin="anonymous"
+    async>
+  </script>
+  <div class="giscus"> 
+  </div>
+</div>
+</body>
+</html>

@@ -1,3 +1,35 @@
 ---
-layout: tag
+layout: minimal_page
+title: Tags
 ---
+
+<div class="tag-cloud">
+  {% for tag in site.tags %}
+    {% assign tag_name = tag | first | append: "" %}
+    <a href="#{{ tag_name | slugify }}" style="font-size: {{ tag | last | size | times: 4 | plus: 80 }}%;">
+      {{ tag_name }}
+    </a>
+  {% endfor %}
+</div>
+
+<div id="tag-posts">
+  {% for tag in site.tags %}
+    {% assign tag_name = tag | first | append: "" %}
+    <h2 id="{{ tag_name | slugify }}">{{ tag_name }}</h2>
+    <ul>
+      {% for post in tag.last %}
+        <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</div>
+
+<style>
+.tag-cloud {
+  line-height: 2;
+  margin-bottom: 2rem;
+}
+.tag-cloud a {
+  margin-right: 0.5rem;
+}
+</style>

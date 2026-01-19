@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="{{ site.language | default: "en" }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }} - {{ site.title }}</title>
+  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+  <link rel="stylesheet" href="{{ "/assets/css/syntax.css" | relative_url }}">
+</head>
+<body>
+  <div class="post-container">
+    <a href="{{ '/' | relative_url }}" class="back-arrow-standalone">
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+    <header class="post-header">
+      <div class="post-title-area">
+        <h1>{{ page.title }}</h1>
+      </div>
+    </header>
+
+    <main class="post-content">
+      {{ content }}
+    </main>
+  </div>
+</body>
+</html>
