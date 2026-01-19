@@ -20,6 +20,34 @@
     font-display: swap;
 }
 
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/JetBrainsMono-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+
 @import "variables";
 
 body {
@@ -109,7 +137,7 @@ a {
 // Post Page
 .post-container {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -122,18 +150,19 @@ a {
   .post-title-area {
     width: 100%;
         h1 {
-          font-size: 30px;
+          font-size: 34px; // approx 2.0x body
           margin-bottom: 0.56rem;
         }    .post-date {
       color: #888;
-      font-size: 1.8rem;
+      font-size: 1.1rem; // Adjusted to balance with body
     }
   }
 }
 
 .post-content {
   line-height: 1.7;
-  font-size: 22px;
+  font-size: 17px;
+  letter-spacing: 0;
 
   strong, b {
     font-weight: 500;
@@ -158,13 +187,31 @@ a {
     font-weight: 500;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    margin-top: 2.5rem;
+  h1 {
+    font-size: 2em; // 34px
+    margin-top: 5rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  h2 {
+    font-size: 1.5em; // 25.5px
+    margin-top: 5rem;
     margin-bottom: -0.5rem;
+  }
+  
+  h3 {
+    font-size: 1.25em; // 21.25px
+    margin-top: 5rem;
+    margin-bottom: 0rem;
+  }
+
+  h4, h5, h6 {
+    margin-top: 5rem;
+    margin-bottom: 0rem;
   }
 
   p {
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.5em;
   }
 
   img {
@@ -187,35 +234,39 @@ a {
   }
 
   ul, ol {
-    margin-top: -0.5rem;
+    margin-top: 0rem;
     margin-bottom: 1rem;
     padding-left: 2.2rem;
   }
 
   pre {
-    padding: 0.4rem 0.7rem;
+    padding: 0.8rem 1rem;
     border-radius: 5px;
     display: block;
     overflow-x: auto;
-    font-size: 15px;
-    line-height: 1.45;
+    font-size: 16px;
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
   code {
     background-color: #eee;
     padding: 0.2rem 0.4rem;
     border-radius: 3px;
-    font-size: 14px;
+    font-size: 16px;
+    font-family: $font-family-sans-serif;
+    font-weight: 300;
   }
 
   pre code {
     background-color: transparent;
     padding: 0;
+    font-family: inherit;
   }
 }
 
 .giscus-container {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
 }
