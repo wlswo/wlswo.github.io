@@ -18,7 +18,7 @@
           <h2 class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
 
           <div class="post-meta">
-            <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+            <span class="post-date">{{ post.date | date: "%Y-%m-%d" }} {% assign w = post.date | date: "%u" | minus: 1 %}{% assign days = "월요일,화요일,수요일,목요일,금요일,토요일,일요일" | split: "," %}{{ days[w] }}</span>
           </div>
         </article>
       {% endfor %}

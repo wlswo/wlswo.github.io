@@ -289,23 +289,27 @@ a {
     padding-left: 2.2rem;
   }
 
+  u {
+    text-underline-offset: 3px;
+  }
+
   pre {
     padding: 0.8rem 1rem;
     border-radius: 5px;
     display: block;
     overflow-x: auto;
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.3;
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
   code {
     background-color: #eee;
-    padding: 0.2rem 0.4rem;
+    padding: 0.1rem 0.4rem;
     border-radius: 3px;
-    font-size: 16px;
+    font-size: 14px;
     font-family: $font-family-sans-serif;
-    font-weight: 300;
+    font-weight: 200;
   }
 
   pre code {
