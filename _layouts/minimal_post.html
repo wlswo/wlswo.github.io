@@ -24,6 +24,10 @@
       {{ content }}
     </main>
   </div>
+  
+  <div id="toc-wrapper" class="toc-wrapper">
+  </div>
+
   <div class="giscus-container">
     <script src="https://giscus.app/client.js"
     data-repo="wlswo/wlswo.github.io"
@@ -44,5 +48,56 @@
   <div class="giscus"> 
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tocWrapper = document.getElementById('toc-wrapper');
+    const content = document.querySelector('.post-content');
+    if (!content || !tocWrapper) return;
+
+    const headers = content.querySelectorAll('h1, h2');
+    if (headers.length === 0) return;
+
+    const ul = document.createElement('ul');
+    headers.forEach(header => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      
+      // Ensure id exists
+      if (!header.id) {
+          header.id = header.textContent.trim().replace(/\s+/g, '-').toLowerCase();
+      }
+      
+      a.href = '#' + header.id;
+      a.textContent = header.textContent;
+      a.classList.add('toc-link', 'toc-' + header.tagName.toLowerCase());
+      
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+
+    tocWrapper.appendChild(ul);
+
+    // Scroll Spy
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px 0px -70% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          document.querySelectorAll('.toc-link').forEach(link => link.classList.remove('active'));
+          const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
+          if (activeLink) activeLink.classList.add('active');
+        }
+      });
+    }, observerOptions);
+
+    headers.forEach(header => observer.observe(header));
+  });
+</script>
 </body>
 </html>
