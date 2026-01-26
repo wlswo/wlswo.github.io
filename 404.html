@@ -1,18 +1,56 @@
-<!DOCTYPE HTML>
-<html>
+---
+permalink: /404.html
+---
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta http-equiv="content-type" content="text/html;charset=utf-8;"/>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="robots" content="all" />
-  <meta name="robots" content="index,follow"/>
-  <link rel="stylesheet" type="text/css" href="https://qzone.qq.com/gy/404/style/404style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>페이지를 찾을 수 없습니다</title>
+  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #fff;
+      text-align: center;
+      font-family: "Pretendard", "Inter", "Helvetica", system-ui, sans-serif;
+    }
+    .not-found-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 500;
+      margin: 0;
+      color: #111;
+    }
+    .back-link {
+      font-size: 1.1rem;
+      color: #555;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      cursor: pointer;
+      font-weight: 300;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .back-link:hover {
+      color: #000;
+    }
+  </style>
 </head>
 <body>
-  <script type="text/plain" src="http://www.qq.com/404/search_children.js"
-          charset="utf-8" homePageUrl="/"
-          homePageName="回到我的主页">
-  </script>
-  <script src="https://qzone.qq.com/gy/404/data.js" charset="utf-8"></script>
-  <script src="https://qzone.qq.com/gy/404/page.js" charset="utf-8"></script>
+  <div class="not-found-container">
+    <h1>없는 페이지 입니다.</h1>
+    <button class="back-link" onclick="history.back()">뒤로가기</button>
+  </div>
 </body>
 </html>

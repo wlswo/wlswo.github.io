@@ -1,5 +1,4 @@
-
- @font-face {
+@font-face {
     font-family: 'Pretendard';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Thin.woff2') format('woff2');
     font-weight: 100;
@@ -115,6 +114,26 @@ a {
   padding: 2rem 2rem 1rem 4rem; // Increased bottom padding
   min-height: 850px;
   
+  .posts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2rem;
+    
+    h1 {
+      margin-bottom: 0;
+      font-size: 30px;
+    }
+
+    .digital-clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.2rem;
+      color: #999;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+    }
+  }
+
   .post-item {
     margin-bottom: 0rem;
 
