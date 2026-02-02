@@ -35,7 +35,7 @@ tags: [태그1, 태그2]
 Front Matter 아래에 일반적인 마크다운 문법으로 내용을 작성하시면 됩니다.
 
 #### 주요 기능 및 스타일
-*   **폰트**: GMarketSans 폰트가 적용되어 있습니다 (Light 본문, Medium 제목/볼드).
+*   **폰트**: Pretendard (본문/제목), JetBrains Mono (코드 블럭)
 *   **코드 블럭**:
     ```java
     public class HelloWorld {
