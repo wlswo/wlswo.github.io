@@ -17,9 +17,24 @@
 
     <main class="blog-index">
       <div class="posts-header">
-        <h1>Posts</h1>
+        <h1 class="sticker-text">Posts</h1>
+        
+        <!-- SVG Filter Definition -->
+        <svg class="sr-only">
+          <filter id="sticker" color-interpolation-filters="sRGB">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="blur"></feGaussianBlur>
+            <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0" specularExponent="40" lighting-color="#E0E5E9" result="specular">
+                <fePointLight x="0" y="0" z="80"></fePointLight>
+            </feSpecularLighting>
+            <feComposite in="specular" in2="SourceAlpha" operator="in" result="specularMasked"></feComposite>
+            <feComposite in="SourceGraphic" in2="specularMasked" operator="arithmetic" k1="0.5" k2="1" k3="1" k4="0"></feComposite>
+          </filter>
+        </svg>
+
         <div id="digital-clock" class="digital-clock"></div>
       </div>
+      <script src="{{ "/assets/js/sticker-effect.js" | relative_url }}"></script>
+
       {% for post in paginator.posts %}
         <article class="post-item">
           <h2 class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
