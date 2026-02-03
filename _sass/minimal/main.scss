@@ -91,8 +91,12 @@
 
 @import "variables";
 
-body {
+html {
   background-color: #fff;
+}
+
+body {
+  background-color: transparent;
   font-family: $font-family-sans-serif;
   color: $color-text;
   line-height: 1.6;
