@@ -93,6 +93,10 @@
         if (now - lastSpawnTime > 30) {
             boids.push(new Boid(x, y));
             lastSpawnTime = now;
+            
+            if (boids.length >= 20) {
+                document.body.classList.add('underwater-active');
+            }
         }
     }
 
