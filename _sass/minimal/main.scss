@@ -1,3 +1,5 @@
+@use "variables" as *;
+
 @font-face {
     font-family: 'Pretendard';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Thin.woff2') format('woff2');
@@ -88,8 +90,6 @@
   font-weight: 500;
   font-style: normal;
 }
-
-@import "variables";
 
 html {
   background-color: #fff;
