@@ -1,4 +1,4 @@
-@import "variables";
+@use "variables" as *;
 
 @font-face {
     font-family: 'Pretendard';
@@ -299,6 +299,8 @@ a {
     font-weight: 500;       /* ExtraBold */
     margin-top: 4rem;
     margin-bottom: 2rem;
+    padding-bottom: 0.5rem; /* 밑줄과의 간격 */
+    border-bottom: 1px solid #e5e5e5; /* 섹션 구분선 */
     letter-spacing: -0.02em;
   }
   
@@ -307,8 +309,6 @@ a {
     font-weight: 400;       /* Bold */
     margin-top: 4.5rem;     /* 시원한 상단 여백 */
     margin-bottom: 1.5rem;  /* 본문과의 간격 확보 */
-    padding-bottom: 0.5rem; /* 밑줄과의 간격 */
-    border-bottom: 1px solid #e5e5e5; /* 섹션 구분선 */
     letter-spacing: -0.01em;
   }
   
