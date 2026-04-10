@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------
 title: Ephemeris
 subtitle: 
-description:
+description: JaeJin의 기술 블로그 - 개발, 컴퓨터 과학, 소프트웨어 엔지니어링에 대한 글을 씁니다.
 author: JaeJin
 language: ko
 email: 
@@ -28,6 +28,7 @@ plugins:
   - jemoji
   - jekyll-sitemap
   - jekyll-feed
+  - jekyll-seo-tag
 
 # ---------------------------------------------------------------
 # Exclude
