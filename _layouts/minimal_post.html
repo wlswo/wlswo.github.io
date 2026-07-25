@@ -79,7 +79,15 @@
       a.href = '#' + header.id;
       a.textContent = header.textContent;
       a.classList.add('toc-link', 'toc-' + header.tagName.toLowerCase());
-      
+
+      // 해시가 히스토리에 쌓이면 뒤로가기가 이전 페이지 대신 직전 섹션으로 가므로,
+      // 기본 동작 대신 직접 스크롤하고 주소만 교체한다.
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + header.id);
+      });
+
       li.appendChild(a);
       ul.appendChild(li);
     });
