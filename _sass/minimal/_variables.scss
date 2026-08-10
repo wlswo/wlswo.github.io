@@ -1,14 +1,30 @@
 
 // Typography
-$font-family-serif: "Pretendard", "Merriweather", "Georgia", serif;
-$font-family-sans-serif: "Pretendard", "Inter", "Helvetica", system-ui, sans-serif;
+// 한글·라틴 한 벌로 통일. 제목/본문 모두 동일 패밀리.
+$font-family-display: "IBM Plex Sans KR", "Pretendard", sans-serif;
+$font-family-serif: $font-family-display;
+$font-family-sans-serif: "IBM Plex Sans KR", "Pretendard", system-ui, sans-serif;
 
-// Colors
-$color-background: #ffffff;
-$color-container-background: #FFFFFF;
-$color-text: #111111;
+// Colors — paper palette
+$color-paper:        #F9F8F5; // 종이 바탕 (off-white / warm grey)
+$color-paper-deep:   #EFEDE8; // 한 톤 어두운 종이 (테이블 헤더, 코드 배경)
+$color-background: $color-paper;
+$color-container-background: $color-paper;
+$color-text: #000000;        // 선명한 잉크 블랙
+$color-text-muted: #6E6B64;  // 연필 회색
 $color-accent: #29B6F6;
-$color-border: #000000;
+$color-border: rgba(0, 0, 0, 0.16); // 종이 위 흐린 괘선
+
+// 구겨진 종이
+$crumple-tile: 700;          // 타일 한 변 (px). 크면 반복이 덜 티남
+$crumple-frequency: 0.006;   // 낮을수록 주름이 크고 완만, 높을수록 잘고 촘촘
+$crumple-octaves: 3;         // 주름의 디테일 층수
+$crumple-depth: 3;           // 요철 깊이. 키우면 확 구겨짐
+$crumple-azimuth: 235;       // 빛이 오는 방향 (도)
+$crumple-strength: 0.14;     // 그림자 세기 ← 세기는 이것만 조절 (0.1 ~ 1.0)
+
+// 평면부를 정확히 흰색(=multiply 시 무변화)으로 맞추는 보정값. 건드릴 필요 없음.
+$crumple-intercept: 1 - 0.5 * $crumple-strength;
 
 // Layout
 $container-max-width: 1000px;

@@ -91,8 +91,29 @@
   font-style: normal;
 }
 
+// ── 구겨진 종이 ─────────────────────────────────────────────────
+// fractalNoise 를 높이맵 삼아 feDiffuseLighting 으로 비스듬히(azimuth 235°)
+// 빛을 준다. 직선 접선이 아니라 불규칙한 요철이 생기고, 빛을 받는 마루와
+// 그늘진 골이 저절로 갈린다.
+//
+// elevation 30° 에서 평평한 면은 중간회색(0.5)으로 떨어진다. 이 상태로
+// multiply 하면 종이가 절반으로 어두워지므로, feComponentTransfer 로
+// 0.5 → 1.0 이 되도록 선형 보정한다(slope=strength, intercept=1-0.5*slope).
+// 그러면 평면부는 흰색이라 multiply 해도 종이색이 그대로 남고,
+// 골만 그림자로 찍힌다 — 흰 구김종이가 실제로 보이는 방식 그대로.
+$crumple: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='#{$crumple-tile}' height='#{$crumple-tile}'%3E%3Cfilter id='c' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='#{$crumple-frequency}' numOctaves='#{$crumple-octaves}' seed='11' stitchTiles='stitch' result='n'/%3E%3CfeDiffuseLighting in='n' lighting-color='%23ffffff' surfaceScale='#{$crumple-depth}' result='l'%3E%3CfeDistantLight azimuth='#{$crumple-azimuth}' elevation='30'/%3E%3C/feDiffuseLighting%3E%3CfeComponentTransfer in='l'%3E%3CfeFuncR type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3CfeFuncG type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3CfeFuncB type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='#{$crumple-tile}' height='#{$crumple-tile}' filter='url(%23c)'/%3E%3C/svg%3E";
+
 html {
-  background-color: #fff;
+  background-color: $color-paper;
+  background-image:
+    // 위에서 내려오는 부드러운 광
+    radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 60%),
+    // 구김
+    url("#{$crumple}");
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100vh, #{$crumple-tile}px #{$crumple-tile}px;
+  background-attachment: fixed, fixed;
+  background-blend-mode: normal, multiply;
 }
 
 body {
@@ -100,7 +121,11 @@ body {
   font-family: $font-family-sans-serif;
   color: $color-text;
   line-height: 1.6;
-  font-weight: 300;
+  font-weight: 400;
+}
+
+@media print {
+  html { background-image: none; }
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -113,17 +138,177 @@ a {
   text-decoration: none;
 }
 
+// ── 톰 리들의 일기장 ────────────────────────────────────────────
+// 잉크가 번지며 배어 나왔다가(blur → sharp), 다시 번지며 종이에
+// 스며들어 사라진다(sharp → blur). 잉크색은 순검정이 아니라 살짝
+// 푸른 기가 도는 만년필 잉크.
+.ink-diary {
+  // 헤더 아래 독립 밴드. 높이를 고정해서 문장이 길든 짧든 아래 목록이 흔들리지 않는다.
+  height: 7rem;
+  margin: 0.25rem 0 2.5rem;
+  padding-right: 2rem; // .blog-index 의 좌우 패딩(4rem/2rem) 비대칭을 상쇄해 광학 중앙에 놓는다
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  user-select: none;
+
+  .ink-line {
+    font-family: "Caveat", cursive;
+    font-size: 1.85rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: #23233B;
+    margin: 0;
+    max-width: 42rem;
+  }
+
+  .ink-word {
+    display: inline-block; // 단어 중간에서 줄바꿈되지 않게
+    white-space: pre;
+  }
+
+  .ink-char {
+    opacity: 0;
+    filter: blur(5px);
+    will-change: opacity, filter;
+
+    &.is-inked {
+      animation: ink-bleed 1100ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+
+    &.is-soaking {
+      animation: ink-soak 1800ms ease-in forwards;
+    }
+  }
+
+  // 출처. 비어 있을 때도 자리를 차지해야 문장이 위로 밀리지 않는다.
+  .ink-attrib {
+    font-family: $font-family-display;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    line-height: 1.2rem;
+    height: 1.2rem;
+    color: $color-text-muted;
+    margin: 0.7rem 0 0;
+    opacity: 0;
+    transition: opacity 1200ms ease;
+
+    &.is-visible { opacity: 1; }
+  }
+}
+
+@keyframes ink-bleed {
+  0%   { opacity: 0;    filter: blur(5px); }
+  55%  { opacity: 0.85; filter: blur(1.2px); }
+  100% { opacity: 1;    filter: blur(0); }
+}
+
+@keyframes ink-soak {
+  0%   { opacity: 1; filter: blur(0); }
+  100% { opacity: 0; filter: blur(4px); }
+}
+
+// ── 도둑들의 지도 ───────────────────────────────────────────────
+// 페이지를 돌아다니며 발자국을 남긴다. 문서 좌표에 절대 배치되므로
+// 스크롤해도 자국은 종이 위 제자리에 남고, z-index -1 이라 본문 '아래'에
+// 깔려서 글자를 가리지 않는다.
+.marauder-tracks {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0; // 자식은 절대배치라 높이가 필요 없다. 문서 높이를 늘리지 않게 0.
+  z-index: -1;
+  pointer-events: none;
+}
+
+.footprint {
+  position: absolute;
+  width: 15px;
+  height: 25px;
+  opacity: 0;
+  animation: footprint 900ms ease-out forwards;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    fill: #16162A;
+  }
+}
+
+// 잉크가 번지며 배어 나온 뒤 그대로 남는다 — 사라지지 않는다.
+@keyframes footprint {
+  0%   { opacity: 0;    filter: blur(3px); }
+  100% { opacity: 0.42; filter: blur(0); }
+}
+
+// ── 잉크 방울 ───────────────────────────────────────────────────
+// 종이가 젖으며 잉크가 번진다. 발자국과 같은 평면(z-index -1)이라
+// 본문 아래에 깔리고, 문서 좌표에 놓이므로 스크롤해도 제자리에 있다.
+.ink-blots {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.ink-blot {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(0.12);
+  opacity: 0;
+  // 지속시간은 JS 가 넣는다 (ink-blots.js 의 LIFETIME).
+  animation-name: ink-blot;
+  animation-timing-function: cubic-bezier(0.12, 0.72, 0.24, 1);
+  animation-fill-mode: forwards;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    fill: #16162A;
+  }
+}
+
+// 처음엔 확 번지다가 섬유 저항에 걸려 서서히 멎고(0 → 16%),
+// 젖은 채로 머물다(→ 72%), 마지막에 마르면서 지워진다(→ 100%).
+@keyframes ink-blot {
+  0%   { transform: translate(-50%, -50%) scale(0.12); opacity: 0; }
+  6%   { opacity: 0.2; }
+  16%  { transform: translate(-50%, -50%) scale(0.92); opacity: 0.18; }
+  40%  { transform: translate(-50%, -50%) scale(1);    opacity: 0.16; }
+  72%  { transform: translate(-50%, -50%) scale(1.01); opacity: 0.15; }
+  100% { transform: translate(-50%, -50%) scale(1.05); opacity: 0; }
+}
+
 // Blog Index
 .blog-index {
-  padding: 2rem 2rem 1rem 4rem; // Increased bottom padding
+  // 상단 4.9rem = 고정 헤더(2.9rem) + 그 아래 여백
+  padding: 4.9rem 2rem 1rem 4rem;
   min-height: 850px;
   
+  // 화면 최상단에 고정되는 얇은 머리띠. 본문은 이 아래로 흐른다.
   .posts-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    height: 2.9rem;
+    padding: 0 1.6rem;
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 2rem;
-    
+    align-items: center;
+    margin-bottom: 0;
+    background-color: $color-paper;
+    border-bottom: 1px solid $color-border;
+
     h1 {
       margin-bottom: 0;
       font-size: 30px;
@@ -131,30 +316,23 @@ a {
 
     .digital-clock {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.2rem;
-      color: #999;
+      font-size: 0.78rem;
+      color: $color-text-muted;
       font-weight: 300;
       letter-spacing: 0.05em;
     }
 
-    // Sticker Text Effect
+    // 낡은 타자기로 찍어낸 글자 — 잉크가 고르지 않게 먹은 활자 느낌
     .sticker-text {
       margin-bottom: 0;
-      font-size: 50px;
-      font-weight: 900;
-      font-family: "Montserrat", sans-serif;
-      
-      // Metallic base gradient
-      background: linear-gradient(180deg, #bdc3c7 0%, #2c3e50 50%, #bdc3c7 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      color: transparent;
-
-      filter: url('#sticker');
+      font-size: 0.95rem;
+      font-weight: 400;
+      font-family: "Special Elite", "Courier New", monospace;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: $color-text;
       display: inline-block;
-      // Slight transition for smoother interaction
-      will-change: filter; 
+      filter: none;
     }
 
     svg {
@@ -183,8 +361,10 @@ a {
     margin-bottom: 0rem;
 
     .post-title {
+      font-family: $font-family-display;
       font-size: 27px;
-      font-weight: 390;
+      font-weight: 400;
+      letter-spacing: 0.01em;
       margin-bottom: 0.3rem;
       a {
         color: $color-text;
@@ -198,8 +378,10 @@ a {
 
     .post-meta {
       .post-date {
-        color: #888;
+        font-family: $font-family-display;
+        color: $color-text-muted;
         font-size: 1.05rem;
+        letter-spacing: 0.04em;
       }
     }
   }
@@ -213,24 +395,25 @@ a {
   margin-bottom: 5rem;
 
   a, span {
+    font-family: $font-family-display;
     background-color: transparent;
     padding: 0.35rem 0.7rem;
     margin: 0 0.175rem;
     border: none;
     border-radius: 4px;
-    color: #000;
+    color: $color-text;
     font-size: 1.2rem; // Increased font size
 
     &.current {
       background-color: transparent;
-      color: #000;
+      color: $color-text;
       font-weight: bold;
       text-decoration: underline;
       text-underline-offset: 5px; // Added offset
     }
     
     &:hover {
-        background-color: #f0f0f0;
+        background-color: rgba(26, 25, 23, 0.06);
     }
   }
 }
@@ -260,7 +443,7 @@ a {
           font-size: 34px; // approx 2.0x body
           margin-bottom: 0.56rem;
         }    .post-date {
-      color: #888;
+      color: $color-text-muted;
       font-size: 1.1rem; // Adjusted to balance with body
     }
   }
@@ -285,12 +468,12 @@ a {
   }
 
   th, td {
-    border: 1px solid #ddd;
+    border: 1px solid $color-border;
     padding: 0.6rem;
   }
 
   th {
-    background-color: #f9f9f9;
+    background-color: rgba(26, 25, 23, 0.045);
     font-weight: 500;
   }
 
@@ -300,7 +483,7 @@ a {
     margin-top: 4rem;
     margin-bottom: 2rem;
     padding-bottom: 0.5rem; /* 밑줄과의 간격 */
-    border-bottom: 1px solid #e5e5e5; /* 섹션 구분선 */
+    border-bottom: 1px solid $color-border; /* 섹션 구분선 */
     letter-spacing: -0.02em;
   }
   
@@ -339,9 +522,9 @@ a {
   blockquote {
     margin: 1rem 0;
     padding: 10px 10px; /* 아주 미세한 여백만 남김 */
-    border-left: 5px solid #ccc;
-    color: #555;
-    background-color: #f9f9f9;
+    border-left: 3px solid rgba(26, 25, 23, 0.28);
+    color: #4A4741;
+    background-color: rgba(26, 25, 23, 0.035);
   }
 
   blockquote p {
@@ -360,7 +543,8 @@ a {
 
   pre {
     padding: 0.8rem 1rem;
-    border-radius: 5px;
+    border: 1px solid $color-border;
+    border-radius: 2px;
     display: block;
     overflow-x: auto;
     font-size: 16px;
@@ -369,9 +553,9 @@ a {
   }
 
   code {
-    background-color: #eee;
+    background-color: rgba(26, 25, 23, 0.07);
     padding: 0.1rem 0.4rem;
-    border-radius: 3px;
+    border-radius: 2px;
     font-size: 14px;
     font-family: $font-family-sans-serif;
     font-weight: 200;
@@ -404,7 +588,7 @@ a {
     list-style: none;
     padding: 0;
     margin: 0;
-    border-left: 1px solid #e0e0e0;
+    border-left: 1px solid $color-border;
   }
   
   li {
@@ -413,7 +597,7 @@ a {
   
   a {
     display: block;
-    color: #999;
+    color: $color-text-muted;
     text-decoration: none;
     padding: 0.4rem 0 0.4rem 1rem;
     line-height: 1.4;
@@ -425,7 +609,7 @@ a {
     }
     
     &.active {
-      color: #000;
+      color: $color-text;
       font-weight: 600;
       border-left: 2px solid #000;
       margin-left: -1px;
@@ -438,7 +622,7 @@ a {
     margin-top: 0.5rem;
     
     &.active {
-      color: #000;
+      color: $color-text;
     }
   }
   
@@ -457,22 +641,50 @@ a {
 
 // Mobile Responsiveness
 @media (max-width: 768px) {
+  // iOS Safari 는 background-attachment: fixed 를 제대로 그리지 못해
+  // 질감이 문서 높이만큼 늘어나 뭉개진다. 좁은 화면에선 스크롤 배경으로.
+  html {
+    background-attachment: scroll, scroll;
+  }
+
+  .ink-diary {
+    // 좁은 폭에선 같은 문장이 4~5줄까지 늘어나므로 높이를 더 잡는다.
+    height: 9.5rem;
+    padding-right: 0;
+    margin: 0.25rem 0 1.25rem;
+
+    .ink-line {
+      font-size: 1.15rem;
+      max-width: none;
+    }
+
+    .ink-attrib {
+      font-size: 0.72rem;
+    }
+  }
+
+  // 작은 화면에서 큰 자국은 과하다.
+  .footprint {
+    width: 13px;
+    height: 21px;
+  }
+
   // Blog Index
   .blog-index {
-    padding: 1.5rem 1rem; // Reduce padding
-    
+    padding: 4.2rem 1rem 1.5rem;
+
+    // 좁은 화면에서도 고정 머리띠는 한 줄로 유지한다.
     .posts-header {
-      flex-direction: column;
-      align-items: flex-start;
-      
-      h1 {
-        font-size: 24px;
-        margin-bottom: 0.5rem;
+      height: 2.6rem;
+      padding: 0 1rem;
+
+      .sticker-text {
+        font-size: 0.85rem;
+        letter-spacing: 0.18em;
       }
-      
+
       .digital-clock {
-        font-size: 1rem;
-        margin-top: 0.5rem;
+        font-size: 0.7rem;
       }
     }
 
