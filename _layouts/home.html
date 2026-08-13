@@ -13,7 +13,7 @@
   <link rel="manifest" href="{{ "/assets/logo.ico/site.webmanifest" | relative_url }}" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Special+Elite&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
   {% seo %}
 </head>
@@ -40,30 +40,51 @@
       </div>
       <script src="{{ "/assets/js/sticker-effect.js" | relative_url }}"></script>
 
-      <!-- 톰 리들의 일기장: 잉크가 배어 나왔다가 종이에 스며들어 사라진다 -->
-      <div class="ink-diary" aria-hidden="true">
-        <p class="ink-line" id="ink-line"></p>
-        <p class="ink-attrib" id="ink-attrib"></p>
-      </div>
-      <script src="{{ "/assets/js/ink-diary.js" | relative_url }}" defer></script>
+      <svg display="none" aria-hidden="true">
+        <symbol id="arrow" viewBox="0 0 24 24">
+          <polyline points="7 10,12 15,17 10" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+        </symbol>
+      </svg>
 
-      <!-- 도둑들의 지도: 누군가 페이지를 돌아다니며 발자국을 남긴다 -->
-      <div class="marauder-tracks" id="marauder-tracks" aria-hidden="true"></div>
-      <script src="{{ "/assets/js/marauders-map.js" | relative_url }}" defer></script>
+      <div id="timeline" class="timeline">
+        <div class="timeline__controls">
+          <button class="timeline__btn" type="button" data-action="expand">전체 열기</button>
+          <button class="timeline__btn" type="button" data-action="collapse">전체 닫기</button>
+        </div>
 
-      <!-- 잉크 방울: 종이가 젖으며 잉크가 번져 나간다 -->
-      <div class="ink-blots" id="ink-blots" aria-hidden="true"></div>
-      <script src="{{ "/assets/js/ink-blots.js" | relative_url }}" defer></script>
-
-      {% for post in paginator.posts %}
-        <article class="post-item">
-          <h2 class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
-
-          <div class="post-meta">
-            <span class="post-date">{{ post.date | date: "%Y-%m-%d" }} {% assign w = post.date | date: "%u" | minus: 1 %}{% assign days = "월요일,화요일,수요일,목요일,금요일,토요일,일요일" | split: "," %}{{ days[w] }}</span>
+        {% for post in paginator.posts %}
+          {% assign n = forloop.index %}
+          {% assign w = post.date | date: "%u" | minus: 1 %}
+          {% assign days = "월요일,화요일,수요일,목요일,금요일,토요일,일요일" | split: "," %}
+          <div class="timeline__item">
+            <div class="timeline__item-header">
+              <button class="timeline__arrow" type="button" id="item{{ n }}"
+                      aria-labelledby="item{{ n }}-name" aria-expanded="false"
+                      aria-controls="item{{ n }}-ctrld" data-item="{{ n }}"
+                      data-key="{{ post.url }}">
+                <span class="sr-only">{{ post.title }} 요약 펼치기</span>
+                <svg class="timeline__arrow-icon" viewBox="0 0 24 24" width="24px" height="24px" aria-hidden="true">
+                  <use href="#arrow" />
+                </svg>
+              </button>
+              <span class="timeline__dot"></span>
+              <span id="item{{ n }}-name" class="timeline__meta">
+                <time class="timeline__date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y-%m-%d" }} {{ days[w] }}</time><br>
+                <a class="timeline__title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+              </span>
+            </div>
+            <div class="timeline__item-body" id="item{{ n }}-ctrld" role="region"
+                 aria-labelledby="item{{ n }}" aria-hidden="true">
+              <div class="timeline__item-body-content">
+                <p class="timeline__item-p">{{ post.excerpt | strip_html | strip_newlines | truncate: 200 }}</p>
+              </div>
+            </div>
           </div>
-        </article>
-      {% endfor %}
+        {% endfor %}
+      </div>
+      <script src="{{ "/assets/js/timeline.js" | relative_url }}" defer></script>
+      <script src="{{ "/assets/js/page-transition.js" | relative_url }}" defer></script>
+
     </main>
 
     <div class="pagination">

@@ -104,6 +104,10 @@
 $crumple: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='#{$crumple-tile}' height='#{$crumple-tile}'%3E%3Cfilter id='c' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='#{$crumple-frequency}' numOctaves='#{$crumple-octaves}' seed='11' stitchTiles='stitch' result='n'/%3E%3CfeDiffuseLighting in='n' lighting-color='%23ffffff' surfaceScale='#{$crumple-depth}' result='l'%3E%3CfeDistantLight azimuth='#{$crumple-azimuth}' elevation='30'/%3E%3C/feDiffuseLighting%3E%3CfeComponentTransfer in='l'%3E%3CfeFuncR type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3CfeFuncG type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3CfeFuncB type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='#{$crumple-tile}' height='#{$crumple-tile}' filter='url(%23c)'/%3E%3C/svg%3E";
 
 html {
+  // 스크롤바 자리를 항상 비워둔다. 이게 없으면 항목을 펼쳐 문서가 길어지는
+  // 순간 스크롤바가 생기면서 뷰포트 폭이 줄고, 가운데 정렬된 페이지네이션이
+  // 스크롤바 절반만큼 옆으로 튄다.
+  scrollbar-gutter: stable;
   background-color: $color-paper;
   background-image:
     // 위에서 내려오는 부드러운 광
@@ -138,161 +142,11 @@ a {
   text-decoration: none;
 }
 
-// ── 톰 리들의 일기장 ────────────────────────────────────────────
-// 잉크가 번지며 배어 나왔다가(blur → sharp), 다시 번지며 종이에
-// 스며들어 사라진다(sharp → blur). 잉크색은 순검정이 아니라 살짝
-// 푸른 기가 도는 만년필 잉크.
-.ink-diary {
-  // 헤더 아래 독립 밴드. 높이를 고정해서 문장이 길든 짧든 아래 목록이 흔들리지 않는다.
-  height: 7rem;
-  margin: 0.25rem 0 2.5rem;
-  padding-right: 2rem; // .blog-index 의 좌우 패딩(4rem/2rem) 비대칭을 상쇄해 광학 중앙에 놓는다
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  user-select: none;
-
-  .ink-line {
-    font-family: "Caveat", cursive;
-    font-size: 1.85rem;
-    font-weight: 500;
-    line-height: 1.4;
-    color: #23233B;
-    margin: 0;
-    max-width: 42rem;
-  }
-
-  .ink-word {
-    display: inline-block; // 단어 중간에서 줄바꿈되지 않게
-    white-space: pre;
-  }
-
-  .ink-char {
-    opacity: 0;
-    filter: blur(5px);
-    will-change: opacity, filter;
-
-    &.is-inked {
-      animation: ink-bleed 1100ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-    }
-
-    &.is-soaking {
-      animation: ink-soak 1800ms ease-in forwards;
-    }
-  }
-
-  // 출처. 비어 있을 때도 자리를 차지해야 문장이 위로 밀리지 않는다.
-  .ink-attrib {
-    font-family: $font-family-display;
-    font-size: 0.8rem;
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    line-height: 1.2rem;
-    height: 1.2rem;
-    color: $color-text-muted;
-    margin: 0.7rem 0 0;
-    opacity: 0;
-    transition: opacity 1200ms ease;
-
-    &.is-visible { opacity: 1; }
-  }
-}
-
-@keyframes ink-bleed {
-  0%   { opacity: 0;    filter: blur(5px); }
-  55%  { opacity: 0.85; filter: blur(1.2px); }
-  100% { opacity: 1;    filter: blur(0); }
-}
-
-@keyframes ink-soak {
-  0%   { opacity: 1; filter: blur(0); }
-  100% { opacity: 0; filter: blur(4px); }
-}
-
-// ── 도둑들의 지도 ───────────────────────────────────────────────
-// 페이지를 돌아다니며 발자국을 남긴다. 문서 좌표에 절대 배치되므로
-// 스크롤해도 자국은 종이 위 제자리에 남고, z-index -1 이라 본문 '아래'에
-// 깔려서 글자를 가리지 않는다.
-.marauder-tracks {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 0; // 자식은 절대배치라 높이가 필요 없다. 문서 높이를 늘리지 않게 0.
-  z-index: -1;
-  pointer-events: none;
-}
-
-.footprint {
-  position: absolute;
-  width: 15px;
-  height: 25px;
-  opacity: 0;
-  animation: footprint 900ms ease-out forwards;
-
-  svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    fill: #16162A;
-  }
-}
-
-// 잉크가 번지며 배어 나온 뒤 그대로 남는다 — 사라지지 않는다.
-@keyframes footprint {
-  0%   { opacity: 0;    filter: blur(3px); }
-  100% { opacity: 0.42; filter: blur(0); }
-}
-
-// ── 잉크 방울 ───────────────────────────────────────────────────
-// 종이가 젖으며 잉크가 번진다. 발자국과 같은 평면(z-index -1)이라
-// 본문 아래에 깔리고, 문서 좌표에 놓이므로 스크롤해도 제자리에 있다.
-.ink-blots {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.ink-blot {
-  position: absolute;
-  transform: translate(-50%, -50%) scale(0.12);
-  opacity: 0;
-  // 지속시간은 JS 가 넣는다 (ink-blots.js 의 LIFETIME).
-  animation-name: ink-blot;
-  animation-timing-function: cubic-bezier(0.12, 0.72, 0.24, 1);
-  animation-fill-mode: forwards;
-
-  svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    fill: #16162A;
-  }
-}
-
-// 처음엔 확 번지다가 섬유 저항에 걸려 서서히 멎고(0 → 16%),
-// 젖은 채로 머물다(→ 72%), 마지막에 마르면서 지워진다(→ 100%).
-@keyframes ink-blot {
-  0%   { transform: translate(-50%, -50%) scale(0.12); opacity: 0; }
-  6%   { opacity: 0.2; }
-  16%  { transform: translate(-50%, -50%) scale(0.92); opacity: 0.18; }
-  40%  { transform: translate(-50%, -50%) scale(1);    opacity: 0.16; }
-  72%  { transform: translate(-50%, -50%) scale(1.01); opacity: 0.15; }
-  100% { transform: translate(-50%, -50%) scale(1.05); opacity: 0; }
-}
-
 // Blog Index
 .blog-index {
-  // 상단 4.9rem = 고정 헤더(2.9rem) + 그 아래 여백
-  padding: 4.9rem 2rem 1rem 4rem;
-  min-height: 850px;
-  
+  // 아래는 떠 있는 페이지네이션에 마지막 글이 가리지 않도록 띄운다.
+  padding: $header-height + $content-top $gutter ($footer-offset + $footer-height + $gutter);
+
   // 화면 최상단에 고정되는 얇은 머리띠. 본문은 이 아래로 흐른다.
   .posts-header {
     position: fixed;
@@ -300,8 +154,9 @@ a {
     left: 0;
     right: 0;
     z-index: 50;
-    height: 2.9rem;
-    padding: 0 1.6rem;
+    height: $header-height;
+    // 본문과 같은 좌우 여백을 써야 POSTS·시각이 아래 내용과 세로로 맞는다.
+    padding: 0 $gutter;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -322,12 +177,11 @@ a {
       letter-spacing: 0.05em;
     }
 
-    // 낡은 타자기로 찍어낸 글자 — 잉크가 고르지 않게 먹은 활자 느낌
     .sticker-text {
       margin-bottom: 0;
       font-size: 0.95rem;
-      font-weight: 400;
-      font-family: "Special Elite", "Courier New", monospace;
+      font-weight: 500;
+      font-family: $font-family-display;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: $color-text;
@@ -357,52 +211,258 @@ a {
     border-width: 0;
   }
 
-  .post-item {
-    margin-bottom: 0rem;
+}
 
-    .post-title {
-      font-family: $font-family-display;
-      font-size: 27px;
-      font-weight: 400;
-      letter-spacing: 0.01em;
-      margin-bottom: 0.3rem;
-      a {
-        color: $color-text;
-      }
-    }
+// ── 타임라인 ────────────────────────────────────────────────────
+// 세로선 위에 점을 찍고, 화살표를 누르면 요약이 펼쳐진다.
+// 원본: https://codepen.io/jkantner/pen/NWoVGXx
+$tl-arrow: 2em; // 화살표 버튼 폭
+$tl-gap: 0.25em; // 버튼과 점 사이
+$tl-dot: 0.75em; // 점 지름
+// 선은 점의 한가운데를 지나야 한다.
+$tl-line: $tl-arrow + $tl-gap + $tl-dot * 0.5;
 
-    .post-excerpt {
-      margin-bottom: 0.3rem;
-      font-weight: 300;
-    }
+.timeline {
+  max-width: 44em;
+  margin-top: 0.5rem;
+  margin-left: $list-indent;
 
-    .post-meta {
-      .post-date {
-        font-family: $font-family-display;
-        color: $color-text-muted;
-        font-size: 1.05rem;
-        letter-spacing: 0.04em;
-      }
+  // 페이지를 넘길 때 목록만 갈아 끼워지는 전환.
+  // 클래스는 JS 가 붙인다. JS 가 없으면 아무 일도 일어나지 않고 그냥 보인다.
+  &.is-entering {
+    animation: list-in 320ms ease-out both;
+  }
+
+  &.is-leaving {
+    animation: list-out 220ms ease-in both;
+  }
+
+  &__controls {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__btn {
+    font: inherit;
+    font-family: $font-family-display;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: $color-text-muted;
+    padding: 0.3em 0.7em;
+    border: 1px solid $color-border;
+    border-radius: 2px;
+    background-color: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 150ms linear, color 150ms linear;
+
+    &:hover,
+    &:focus-visible {
+      background-color: rgba(0, 0, 0, 0.05);
+      color: $color-text;
     }
   }
+
+  &__item {
+    position: relative;
+    padding-bottom: 2.25em;
+
+    // 마지막 항목 아래로는 선이 이어지지 않는다.
+    &:not(:last-child)::before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 1em;
+      left: $tl-line;
+      width: 1px;
+      height: 100%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  &__item-header {
+    display: flex;
+  }
+
+  &__arrow {
+    // <button> 은 폰트를 상속하지 않고 브라우저 기본값(약 13.3px)을 쓴다.
+    // 그대로 두면 버튼의 em 이 항목의 em 보다 작아져서, 계산으로 잡은
+    // 선 위치($tl-line)와 실제 점 중심이 몇 px 어긋난다.
+    font: inherit;
+    flex-shrink: 0;
+    width: $tl-arrow;
+    height: $tl-arrow;
+    margin-inline-end: $tl-gap;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background-color: transparent;
+    color: $color-text-muted;
+    cursor: pointer;
+    outline: transparent;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 150ms linear, color 300ms;
+
+    &:focus-visible,
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.07);
+      color: $color-text;
+    }
+
+    &[aria-expanded="true"] .timeline__arrow-icon {
+      transform: rotate(0);
+    }
+  }
+
+  &__arrow-icon {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none; // 클릭 대상이 항상 버튼이 되도록
+    transform: rotate(-90deg);
+    transition: transform 300ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  &__dot {
+    flex-shrink: 0;
+    display: inline-block;
+    width: $tl-dot;
+    height: $tl-dot;
+    margin: 0.625em 1em 0.625em 0;
+    border-radius: 50%;
+    background-color: $color-text;
+  }
+
+  &__meta {
+    width: 100%;
+  }
+
+  &__date {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    line-height: 2.4;
+    color: $color-text-muted;
+  }
+
+  &__title {
+    display: inline-block;
+    font-family: $font-family-display;
+    font-size: 1.45rem;
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    color: $color-text;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+
+  &__item-body {
+    height: 0;
+    overflow: hidden;
+    margin-top: 0.5em;
+    margin-inline-start: $tl-arrow + $tl-gap + $tl-dot + 1em;
+    // 오른쪽 여백을 비워둔다 (장식 요소 자리).
+    max-width: $body-max-width;
+    border-radius: 2px;
+  }
+
+  // 높이 애니메이션과 어긋나지 않도록, 열릴 때는 높이가 다 자란 뒤
+  // 내용이 나타나고 닫힐 때는 내용이 먼저 사라진다.
+  &__item-body-content {
+    padding: 0.7em 0.9em;
+    background-color: rgba(0, 0, 0, 0.035);
+    border-left: 2px solid rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 300ms cubic-bezier(0.65, 0, 0.35, 1),
+      visibility 300ms steps(1, end);
+  }
+
+  // 저장된 상태를 되살리는 첫 프레임에는 트랜지션을 끈다.
+  &--restoring * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  &__item-body--expanded {
+    height: auto;
+
+    .timeline__item-body-content {
+      opacity: 1;
+      visibility: visible;
+      transition-delay: 300ms, 0s;
+    }
+  }
+
+  &__item-p {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.6;
+    color: #3A3833;
+    // 한 줄만. 넘치면 … 로 자른다.
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+}
+
+@keyframes list-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes list-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-6px); }
 }
 
 // Pagination
+// 화면 하단에 고정. 항목을 펼쳐 내용이 길어져도 페이지 컨트롤은 제자리에
+// 있고, 상단 고정 헤더와 짝을 이룬다.
 .pagination {
+  position: fixed;
+  bottom: $footer-offset;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  // 바닥에서 띄우므로 화면 폭을 다 쓰는 띠가 아니라 가운데 떠 있는 알약 형태.
+  // 폭을 내용에 맞추고 좌우 auto 마진으로 중앙에 둔다.
+  width: fit-content;
+  max-width: calc(100% - #{$gutter * 2});
+  height: $footer-height;
   display: flex;
   justify-content: center;
-  margin-top: 0rem;
-  margin-bottom: 5rem;
+  align-items: center;
+  margin: 0 auto;
+  padding: 0 0.5rem;
+  background-color: $color-paper;
+  border: 1px solid $color-border;
+  border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
 
   a, span {
     font-family: $font-family-display;
     background-color: transparent;
-    padding: 0.35rem 0.7rem;
+    padding: 0.2rem 0.6rem;
     margin: 0 0.175rem;
     border: none;
     border-radius: 4px;
     color: $color-text;
-    font-size: 1.2rem; // Increased font size
+    font-size: 1rem;
 
     &.current {
       background-color: transparent;
@@ -647,36 +707,14 @@ a {
     background-attachment: scroll, scroll;
   }
 
-  .ink-diary {
-    // 좁은 폭에선 같은 문장이 4~5줄까지 늘어나므로 높이를 더 잡는다.
-    height: 9.5rem;
-    padding-right: 0;
-    margin: 0.25rem 0 1.25rem;
-
-    .ink-line {
-      font-size: 1.15rem;
-      max-width: none;
-    }
-
-    .ink-attrib {
-      font-size: 0.72rem;
-    }
-  }
-
-  // 작은 화면에서 큰 자국은 과하다.
-  .footprint {
-    width: 13px;
-    height: 21px;
-  }
-
   // Blog Index
   .blog-index {
-    padding: 4.2rem 1rem 1.5rem;
+    padding: $header-height-sm + $content-top-sm $gutter-sm ($footer-offset-sm + $footer-height-sm + $gutter-sm);
 
     // 좁은 화면에서도 고정 머리띠는 한 줄로 유지한다.
     .posts-header {
-      height: 2.6rem;
-      padding: 0 1rem;
+      height: $header-height-sm;
+      padding: 0 $gutter-sm;
 
       .sticker-text {
         font-size: 0.85rem;
@@ -688,10 +726,31 @@ a {
       }
     }
 
-    .post-item {
-      .post-title {
-        font-size: 22px;
-      }
+  }
+
+  // 좁은 화면에선 화살표·점·여백을 줄여 제목이 쓸 폭을 확보한다.
+  .timeline {
+    margin-left: $list-indent-sm;
+
+    &__title {
+      font-size: 1.2rem;
+    }
+
+    &__date {
+      font-size: 0.72rem;
+    }
+
+    &__item {
+      padding-bottom: 1.75em;
+    }
+
+    &__item-body {
+      margin-inline-start: 1.5em;
+      max-width: none; // 좁은 화면엔 비워둘 여백이 없다
+    }
+
+    &__dot {
+      margin-right: 0.7em;
     }
   }
 
@@ -742,11 +801,13 @@ a {
 
   // Pagination
   .pagination {
-      margin-bottom: 3rem;
-      
+      bottom: $footer-offset-sm;
+      height: $footer-height-sm;
+      max-width: calc(100% - #{$gutter-sm * 2});
+
       a, span {
-          padding: 0.25rem 0.5rem;
-          font-size: 1rem;
+          padding: 0.2rem 0.45rem;
+          font-size: 0.9rem;
       }
   }
 

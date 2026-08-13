@@ -27,6 +27,26 @@ $crumple-strength: 0.14;     // 그림자 세기 ← 세기는 이것만 조절 
 $crumple-intercept: 1 - 0.5 * $crumple-strength;
 
 // Layout
+// 헤더와 본문이 같은 값을 쓰도록 여백을 한곳에서 관리한다.
+// 좌우 여백과 헤더 아래 여백이 모두 $gutter 로 동일해진다.
+$header-height: 2.9rem;
+$header-height-sm: 2.6rem;
+$footer-height: 2.9rem;
+$footer-height-sm: 2.6rem;
+// 페이지네이션을 화면 바닥에서 이만큼 띄운다.
+$footer-offset: 2.5rem;
+$footer-offset-sm: 1.25rem;
+// 목록을 헤더보다 살짝 안쪽으로 들여쓴다.
+$list-indent: 2rem;
+$list-indent-sm: 0.5rem;
+// 펼쳐지는 요약 박스의 최대 폭. 오른쪽을 비워 장식 요소 자리를 남긴다.
+$body-max-width: 26em;
+$gutter: 2rem;
+$gutter-sm: 1rem;
+// 헤더 아래 첫 글까지 띄우는 간격. 좌우 여백보다 넉넉해야 글이 헤더에 붙지 않는다.
+$content-top: 4.5rem;
+$content-top-sm: 2.75rem;
+
 $container-max-width: 1000px;
 $container-padding: 2rem;
 $border-radius: 12px;
