@@ -184,9 +184,20 @@ a {
       font-family: $font-family-display;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: $color-text;
       display: inline-block;
       filter: none;
+
+      // 1페이지로 돌아가는 링크. 클릭 영역이 글자에만 잡히도록 inline-block.
+      a {
+        display: inline-block;
+        color: $color-text;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+          text-underline-offset: 4px;
+        }
+      }
     }
 
     svg {
