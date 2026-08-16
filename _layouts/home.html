@@ -20,150 +20,94 @@
 <body>
 
     <main class="blog-index">
-      <div class="posts-header">
-        <h1 class="sticker-text"><a href="{{ '/' | relative_url }}">Posts</a></h1>
+      <div class="scroll-line" aria-hidden="true"></div>
 
+      <nav class="topnav">
+        <a href="{{ '/' | relative_url }}" aria-current="page">Writing</a>
+        <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      </nav>
 
-        <!-- SVG Filter Definition -->
-        <svg class="sr-only">
-          <filter id="sticker" color-interpolation-filters="sRGB">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="blur"></feGaussianBlur>
-            <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0" specularExponent="40" lighting-color="#E0E5E9" result="specular">
-                <fePointLight x="0" y="0" z="80"></fePointLight>
-            </feSpecularLighting>
-            <feComposite in="specular" in2="SourceAlpha" operator="in" result="specularMasked"></feComposite>
-            <feComposite in="SourceGraphic" in2="specularMasked" operator="arithmetic" k1="0.5" k2="1" k3="1" k4="0"></feComposite>
-          </filter>
-        </svg>
-
-        <div id="digital-clock" class="digital-clock"></div>
-      </div>
-      <script src="{{ "/assets/js/sticker-effect.js" | relative_url }}"></script>
-
-      <svg display="none" aria-hidden="true">
-        <symbol id="arrow" viewBox="0 0 24 24">
-          <polyline points="7 10,12 15,17 10" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-        </symbol>
-      </svg>
-
-      <div id="timeline" class="timeline">
-        <div class="timeline__controls">
-          <button class="timeline__btn" type="button" data-action="expand">전체 열기</button>
-          <button class="timeline__btn" type="button" data-action="collapse">전체 닫기</button>
-        </div>
-
+      <ul id="post-list" class="post-list">
         {% for post in paginator.posts %}
-          {% assign n = forloop.index %}
-          {% assign w = post.date | date: "%u" | minus: 1 %}
-          {% assign days = "월요일,화요일,수요일,목요일,금요일,토요일,일요일" | split: "," %}
-          <div class="timeline__item">
-            <div class="timeline__item-header">
-              <button class="timeline__arrow" type="button" id="item{{ n }}"
-                      aria-labelledby="item{{ n }}-name" aria-expanded="false"
-                      aria-controls="item{{ n }}-ctrld" data-item="{{ n }}"
-                      data-key="{{ post.url }}">
-                <span class="sr-only">{{ post.title }} 요약 펼치기</span>
-                <svg class="timeline__arrow-icon" viewBox="0 0 24 24" width="24px" height="24px" aria-hidden="true">
-                  <use href="#arrow" />
-                </svg>
-              </button>
-              <span class="timeline__dot"></span>
-              <span id="item{{ n }}-name" class="timeline__meta">
-                <time class="timeline__date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y-%m-%d" }} {{ days[w] }}</time><br>
-                <a class="timeline__title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-              </span>
-            </div>
-            <div class="timeline__item-body" id="item{{ n }}-ctrld" role="region"
-                 aria-labelledby="item{{ n }}" aria-hidden="true">
-              <div class="timeline__item-body-content">
-                <p class="timeline__item-p">{{ post.excerpt | strip_html | strip_newlines | truncate: 200 }}</p>
-              </div>
-            </div>
-          </div>
+          <li class="post-list__item">
+            <a class="post-list__link" href="{{ post.url | relative_url }}">
+              <span class="post-list__title">{{ post.title }}</span>
+              <time class="post-list__date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y-%m-%d" }}</time>
+            </a>
+          </li>
         {% endfor %}
-      </div>
-      <script src="{{ "/assets/js/timeline.js" | relative_url }}" defer></script>
+      </ul>
       <script src="{{ "/assets/js/page-transition.js" | relative_url }}" defer></script>
+
+      <div class="pagination">
+        {% if paginator.previous_page %}
+          <a href="{{ paginator.previous_page_path | relative_url }}">&lt;</a>
+        {% else %}
+          <span>&lt;</span>
+        {% endif %}
+
+        {% if paginator.total_pages <= 5 %}
+          {% for page in (1..paginator.total_pages) %}
+            {% if page == paginator.page %}
+              <span class="current">{{ page }}</span>
+            {% elsif page == 1 %}
+              <a href="{{ '/' | relative_url }}">{{ page }}</a>
+            {% else %}
+              <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', page }}">{{ page }}</a>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          
+          {% if paginator.page == 1 %}
+            <span class="current">1</span>
+          {% else %}
+            <a href="{{ '/' | relative_url }}">1</a>
+          {% endif %}
+
+          {% assign start_window = paginator.page | minus: 1 %}
+          {% assign end_window = paginator.page | plus: 1 %}
+          
+          {% if start_window > 2 %}
+            <span>...</span>
+          {% endif %}
+
+          {% for page in (2..paginator.total_pages) %}
+             {% if page == paginator.total_pages %}
+               {% continue %}
+             {% endif %}
+             
+             {% if page >= start_window and page <= end_window %}
+               {% if page == paginator.page %}
+                 <span class="current">{{ page }}</span>
+               {% else %}
+                 <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', page }}">{{ page }}</a>
+               {% endif %}
+             {% endif %}
+          {% endfor %}
+
+          {% assign total_minus_one = paginator.total_pages | minus: 1 %}
+          {% if end_window < total_minus_one %}
+            <span>...</span>
+          {% endif %}
+
+          {% if paginator.page == paginator.total_pages %}
+            <span class="current">{{ paginator.total_pages }}</span>
+          {% else %}
+            <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', paginator.total_pages }}">{{ paginator.total_pages }}</a>
+          {% endif %}
+
+        {% endif %}
+
+        {% if paginator.next_page %}
+          <a href="{{ paginator.next_page_path | relative_url }}">&gt;</a>
+        {% else %}
+          <span>&gt;</span>
+        {% endif %}
+      </div>
 
     </main>
 
-    <div class="pagination">
-      {% if paginator.previous_page %}
-        <a href="{{ paginator.previous_page_path | relative_url }}">&lt;</a>
-      {% else %}
-        <span>&lt;</span>
-      {% endif %}
 
-      {% if paginator.total_pages <= 5 %}
-        {% for page in (1..paginator.total_pages) %}
-          {% if page == paginator.page %}
-            <span class="current">{{ page }}</span>
-          {% elsif page == 1 %}
-            <a href="{{ '/' | relative_url }}">{{ page }}</a>
-          {% else %}
-            <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', page }}">{{ page }}</a>
-          {% endif %}
-        {% endfor %}
-      {% else %}
-        
-        {% if paginator.page == 1 %}
-          <span class="current">1</span>
-        {% else %}
-          <a href="{{ '/' | relative_url }}">1</a>
-        {% endif %}
-
-        {% assign start_window = paginator.page | minus: 1 %}
-        {% assign end_window = paginator.page | plus: 1 %}
-        
-        {% if start_window > 2 %}
-          <span>...</span>
-        {% endif %}
-
-        {% for page in (2..paginator.total_pages) %}
-           {% if page == paginator.total_pages %}
-             {% continue %}
-           {% endif %}
-           
-           {% if page >= start_window and page <= end_window %}
-             {% if page == paginator.page %}
-               <span class="current">{{ page }}</span>
-             {% else %}
-               <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', page }}">{{ page }}</a>
-             {% endif %}
-           {% endif %}
-        {% endfor %}
-
-        {% assign total_minus_one = paginator.total_pages | minus: 1 %}
-        {% if end_window < total_minus_one %}
-          <span>...</span>
-        {% endif %}
-
-        {% if paginator.page == paginator.total_pages %}
-          <span class="current">{{ paginator.total_pages }}</span>
-        {% else %}
-          <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', paginator.total_pages }}">{{ paginator.total_pages }}</a>
-        {% endif %}
-
-      {% endif %}
-
-      {% if paginator.next_page %}
-        <a href="{{ paginator.next_page_path | relative_url }}">&gt;</a>
-      {% else %}
-        <span>&gt;</span>
-      {% endif %}
-    </div>
-
-    <script>
-      function updateClock() {
-        const now = new Date();
-        const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-        const dayName = days[now.getDay()];
-        const timeString = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        document.getElementById('digital-clock').textContent = `${dayName} ${timeString}`;
-      }
-      setInterval(updateClock, 1000);
-      updateClock(); // Initial call to avoid delay
-    </script>
 
 </body>
 </html>

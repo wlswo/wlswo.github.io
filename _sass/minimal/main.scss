@@ -1,73 +1,11 @@
 @import "variables";
 
 @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Thin.woff2') format('woff2');
-    font-weight: 100;
-    font-display: swap;
-}
-
- @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-ExtraLight.woff2') format('woff2');
-    font-weight: 200;
-    font-display: swap;
-}
-
- @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Light.woff2') format('woff2');
-    font-weight: 300;
-    font-display: swap;
-}
-
- @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Regular.woff2') format('woff2');
-    font-weight: 400;
-    font-display: swap;
-}
-
- @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Medium.woff2') format('woff2');
-    font-weight: 500;
-    font-display: swap;
-}
-
- @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-SemiBold.woff2') format('woff2');
-    font-weight: 600;
-    font-display: swap;
-}
-
- @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Bold.woff2') format('woff2');
-    font-weight: 700;
-    font-display: swap;
-}
-
- @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-ExtraBold.woff2') format('woff2');
-    font-weight: 800;
-    font-display: swap;
-}
-
- @font-face {
-    font-family: 'Pretendard';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Black.woff2') format('woff2');
-    font-weight: 900;
-    font-display: swap;
-}
-
-@font-face {
   font-family: 'JetBrains Mono';
   src: url('../fonts/JetBrainsMono-Light.woff2') format('woff2');
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -75,13 +13,7 @@
   src: url('../fonts/JetBrainsMono-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('../fonts/JetBrainsMono-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -89,740 +21,584 @@
   src: url('../fonts/JetBrainsMono-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
-// ── 구겨진 종이 ─────────────────────────────────────────────────
-// fractalNoise 를 높이맵 삼아 feDiffuseLighting 으로 비스듬히(azimuth 235°)
-// 빛을 준다. 직선 접선이 아니라 불규칙한 요철이 생기고, 빛을 받는 마루와
-// 그늘진 골이 저절로 갈린다.
-//
-// elevation 30° 에서 평평한 면은 중간회색(0.5)으로 떨어진다. 이 상태로
-// multiply 하면 종이가 절반으로 어두워지므로, feComponentTransfer 로
-// 0.5 → 1.0 이 되도록 선형 보정한다(slope=strength, intercept=1-0.5*slope).
-// 그러면 평면부는 흰색이라 multiply 해도 종이색이 그대로 남고,
-// 골만 그림자로 찍힌다 — 흰 구김종이가 실제로 보이는 방식 그대로.
-$crumple: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='#{$crumple-tile}' height='#{$crumple-tile}'%3E%3Cfilter id='c' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='#{$crumple-frequency}' numOctaves='#{$crumple-octaves}' seed='11' stitchTiles='stitch' result='n'/%3E%3CfeDiffuseLighting in='n' lighting-color='%23ffffff' surfaceScale='#{$crumple-depth}' result='l'%3E%3CfeDistantLight azimuth='#{$crumple-azimuth}' elevation='30'/%3E%3C/feDiffuseLighting%3E%3CfeComponentTransfer in='l'%3E%3CfeFuncR type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3CfeFuncG type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3CfeFuncB type='linear' slope='#{$crumple-strength}' intercept='#{$crumple-intercept}'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='#{$crumple-tile}' height='#{$crumple-tile}' filter='url(%23c)'/%3E%3C/svg%3E";
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+// ── 기반 ────────────────────────────────────────────────────────
+// 이 테마에는 곡선이 없다. 모서리는 전부 직각이고, 면을 나누는 것은
+// 그림자가 아니라 1px 검은 선이다.
+* {
+  border-radius: 0;
+}
+
+// 폭과 글자 크기는 단계로 끊지 않고 화면 폭을 따라 이어서 줄어든다.
+// 창을 좁히면 본문이 스스로 자리를 내주고, 그만큼 오른쪽 위젯이 살아남는다.
+:root {
+  --gutter: clamp(1.25rem, 2.6vw, 2.5rem);
+  --col: 40rem; // 화면 한가운데 놓이는 글 기둥
+  --title: clamp(0.9rem, 1.2vw, 1.02rem);
+}
+
+// 문서 사이를 넘어갈 때 브라우저가 직접 전환을 그린다. 지원하지 않는
+// 브라우저에서는 이 규칙이 무시되고 page-transition.js 가 대신 맡는다.
+@view-transition {
+  navigation: auto;
+}
 
 html {
-  // 스크롤바 자리를 항상 비워둔다. 이게 없으면 항목을 펼쳐 문서가 길어지는
-  // 순간 스크롤바가 생기면서 뷰포트 폭이 줄고, 가운데 정렬된 페이지네이션이
-  // 스크롤바 절반만큼 옆으로 튄다.
+  // 스크롤바 자리를 항상 비워둔다. 없으면 문서 길이가 바뀌는 순간
+  // 뷰포트 폭이 줄어 가운데 정렬된 요소가 옆으로 튄다.
   scrollbar-gutter: stable;
-  background-color: $color-paper;
-  background-image:
-    // 위에서 내려오는 부드러운 광
-    radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 60%),
-    // 구김
-    url("#{$crumple}");
-  background-repeat: no-repeat, repeat;
-  background-size: 100% 100vh, #{$crumple-tile}px #{$crumple-tile}px;
-  background-attachment: fixed, fixed;
-  background-blend-mode: normal, multiply;
+  background-color: $paper;
 }
 
 body {
   background-color: transparent;
-  font-family: $font-family-sans-serif;
-  color: $color-text;
-  line-height: 1.6;
+  font-family: $font-sans;
+  color: $ink;
   font-weight: 400;
-}
-
-@media print {
-  html { background-image: none; }
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: $font-family-serif;
+  font-family: $font-sans;
   font-weight: 500;
+  // 등폭 폰트가 라틴을 맡으므로 자간을 과하게 좁히지 않는다.
+  letter-spacing: -0.01em;
 }
 
 a {
-  color: $color-text;
+  color: $ink;
   text-decoration: none;
 }
 
-// Blog Index
-.blog-index {
-  // 아래는 떠 있는 페이지네이션에 마지막 글이 가리지 않도록 띄운다.
-  padding: $header-height + $content-top $gutter ($footer-offset + $footer-height + $gutter);
-
-  // 화면 최상단에 고정되는 얇은 머리띠. 본문은 이 아래로 흐른다.
-  .posts-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    height: $header-height;
-    // 본문과 같은 좌우 여백을 써야 POSTS·시각이 아래 내용과 세로로 맞는다.
-    padding: 0 $gutter;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0;
-    background-color: $color-paper;
-    border-bottom: 1px solid $color-border;
-
-    h1 {
-      margin-bottom: 0;
-      font-size: 30px;
-    }
-
-    .digital-clock {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-      color: $color-text-muted;
-      font-weight: 300;
-      letter-spacing: 0.05em;
-    }
-
-    .sticker-text {
-      margin-bottom: 0;
-      font-size: 0.95rem;
-      font-weight: 500;
-      font-family: $font-family-display;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      display: inline-block;
-      filter: none;
-
-      // 1페이지로 돌아가는 링크. 클릭 영역이 글자에만 잡히도록 inline-block.
-      a {
-        display: inline-block;
-        color: $color-text;
-        text-decoration: none;
-
-        &:hover {
-          text-decoration: underline;
-          text-underline-offset: 4px;
-        }
-      }
-    }
-
-    svg {
-      overflow: visible !important;
-    }
-    
-    feSpecularLighting {
-      opacity: 0.4;
-    }
-  }
-
-  // Utilities
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-  }
-
+::selection {
+  background: $ink;
+  color: $paper;
 }
 
-// ── 타임라인 ────────────────────────────────────────────────────
-// 세로선 위에 점을 찍고, 화살표를 누르면 요약이 펼쳐진다.
-// 원본: https://codepen.io/jkantner/pen/NWoVGXx
-$tl-arrow: 2em; // 화살표 버튼 폭
-$tl-gap: 0.25em; // 버튼과 점 사이
-$tl-dot: 0.75em; // 점 지름
-// 선은 점의 한가운데를 지나야 한다.
-$tl-line: $tl-arrow + $tl-gap + $tl-dot * 0.5;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
-.timeline {
-  max-width: 44em;
-  margin-top: 0.5rem;
-  margin-left: $list-indent;
+// ── 스크롤 진행선 ───────────────────────────────────────────────
+// 화면 맨 위에서 읽은 만큼 자라는 검은 선. 자바스크립트 없이 스크롤을
+// 타임라인으로 삼는다(scroll-driven animation).
+//
+// 지원하지 않는 브라우저에서 animation 만 선언하면 지속시간이 0 인
+// 애니메이션이 곧바로 끝 상태로 채워져 화면 위에 검은 띠가 그대로 남는다.
+// 그래서 애니메이션 선언 자체를 @supports 안에 둔다.
+.scroll-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  background-color: $ink;
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
 
-  // 페이지를 넘길 때 목록만 갈아 끼워지는 전환.
-  // 클래스는 JS 가 붙인다. JS 가 없으면 아무 일도 일어나지 않고 그냥 보인다.
-  &.is-entering {
-    animation: list-in 320ms ease-out both;
+@supports (animation-timeline: scroll()) {
+  .scroll-line {
+    animation: scroll-fill linear both;
+    animation-timeline: scroll(root block);
   }
+}
 
-  &.is-leaving {
-    animation: list-out 220ms ease-in both;
-  }
+@keyframes scroll-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 
-  &__controls {
-    display: flex;
-    gap: 0.4rem;
-    margin-bottom: 1.25rem;
-  }
+// 모든 화면에 걸치는 고정 막대의 공통 성격
+%bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  padding-inline: max(var(--gutter), calc((100% - var(--col)) / 2));
+  background-color: $paper;
+  font-family: $font-mono;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
 
-  &__btn {
-    font: inherit;
-    font-family: $font-family-display;
-    font-size: 0.75rem;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    color: $color-text-muted;
-    padding: 0.3em 0.7em;
-    border: 1px solid $color-border;
-    border-radius: 2px;
-    background-color: transparent;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: background-color 150ms linear, color 150ms linear;
+// ── 목록 페이지 ─────────────────────────────────────────────────
+.blog-index {
+  // 위쪽에 고정 막대가 없으므로 그만큼 여백만 준다.
+  padding: $content-top var(--gutter) 4rem;
+}
+
+// 목록 위에 놓이는 길잡이. 글 기둥과 같은 폭이라 양끝이 목록과 같은 선에 선다.
+.topnav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: var(--col);
+  margin: 0 auto 3.25rem;
+  font-family: $font-mono;
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+
+  a {
+    color: $ink;
+    border-bottom: 1px solid transparent;
 
     &:hover,
     &:focus-visible {
-      background-color: rgba(0, 0, 0, 0.05);
-      color: $color-text;
+      border-bottom-color: $ink;
     }
   }
+}
 
-  &__item {
-    position: relative;
-    padding-bottom: 2.25em;
+// ── 목록 ────────────────────────────────────────────────────────
+// 화면 한가운데 놓인 글 기둥. 위아래 선 두 개만 두르고 항목 사이는
+// 나누지 않는다. 제목은 왼쪽, 날짜는 오른쪽 끝에 붙는다.
+.post-list {
+  list-style: none;
+  max-width: var(--col);
+  margin: 0 auto;
+  padding: 1.5rem 0;
+  border-top: 1px solid $rule;
+  border-bottom: 1px solid $rule;
+  // 항목을 하나씩 흘리지 않고 목록 전체가 한 번에 올라온다.
+  animation: list-in 460ms $ease-out both;
 
-    // 마지막 항목 아래로는 선이 이어지지 않는다.
-    &:not(:last-child)::before {
-      content: "";
-      display: block;
-      position: absolute;
-      top: 1em;
-      left: $tl-line;
-      width: 1px;
-      height: 100%;
-      transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.18);
-    }
-  }
-
-  &__item-header {
+  &__link {
     display: flex;
-  }
-
-  &__arrow {
-    // <button> 은 폰트를 상속하지 않고 브라우저 기본값(약 13.3px)을 쓴다.
-    // 그대로 두면 버튼의 em 이 항목의 em 보다 작아져서, 계산으로 잡은
-    // 선 위치($tl-line)와 실제 점 중심이 몇 px 어긋난다.
-    font: inherit;
-    flex-shrink: 0;
-    width: $tl-arrow;
-    height: $tl-arrow;
-    margin-inline-end: $tl-gap;
-    padding: 0;
-    border: 0;
-    border-radius: 2px;
-    background-color: transparent;
-    color: $color-text-muted;
-    cursor: pointer;
-    outline: transparent;
-    appearance: none;
-    -webkit-tap-highlight-color: transparent;
-    transition: background-color 150ms linear, color 300ms;
-
-    &:focus-visible,
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.07);
-      color: $color-text;
-    }
-
-    &[aria-expanded="true"] .timeline__arrow-icon {
-      transform: rotate(0);
-    }
-  }
-
-  &__arrow-icon {
-    display: block;
-    width: 100%;
-    height: auto;
-    pointer-events: none; // 클릭 대상이 항상 버튼이 되도록
-    transform: rotate(-90deg);
-    transition: transform 300ms cubic-bezier(0.65, 0, 0.35, 1);
-  }
-
-  &__dot {
-    flex-shrink: 0;
-    display: inline-block;
-    width: $tl-dot;
-    height: $tl-dot;
-    margin: 0.625em 1em 0.625em 0;
-    border-radius: 50%;
-    background-color: $color-text;
-  }
-
-  &__meta {
-    width: 100%;
-  }
-
-  &__date {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
-    font-weight: 300;
-    letter-spacing: 0.04em;
-    line-height: 2.4;
-    color: $color-text-muted;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 0.42rem 0;
+    color: $ink;
   }
 
   &__title {
-    display: inline-block;
-    font-family: $font-family-display;
-    font-size: 1.45rem;
+    font-size: var(--title);
     font-weight: 400;
-    line-height: 1.35;
-    letter-spacing: 0.01em;
-    color: $color-text;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-      text-underline-offset: 4px;
-    }
-  }
-
-  &__item-body {
-    height: 0;
+    line-height: 1.55;
+    // 제목이 길어도 날짜를 밀어내지 않고 … 로 잘린다.
+    min-width: 0;
     overflow: hidden;
-    margin-top: 0.5em;
-    margin-inline-start: $tl-arrow + $tl-gap + $tl-dot + 1em;
-    // 오른쪽 여백을 비워둔다 (장식 요소 자리).
-    max-width: $body-max-width;
-    border-radius: 2px;
-  }
-
-  // 높이 애니메이션과 어긋나지 않도록, 열릴 때는 높이가 다 자란 뒤
-  // 내용이 나타나고 닫힐 때는 내용이 먼저 사라진다.
-  &__item-body-content {
-    padding: 0.7em 0.9em;
-    background-color: rgba(0, 0, 0, 0.035);
-    border-left: 2px solid rgba(0, 0, 0, 0.18);
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 300ms cubic-bezier(0.65, 0, 0.35, 1),
-      visibility 300ms steps(1, end);
-  }
-
-  // 저장된 상태를 되살리는 첫 프레임에는 트랜지션을 끈다.
-  &--restoring * {
-    transition: none !important;
-    animation: none !important;
-  }
-
-  &__item-body--expanded {
-    height: auto;
-
-    .timeline__item-body-content {
-      opacity: 1;
-      visibility: visible;
-      transition-delay: 300ms, 0s;
-    }
-  }
-
-  &__item-p {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 300;
-    line-height: 1.6;
-    color: #3A3833;
-    // 한 줄만. 넘치면 … 로 자른다.
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
   }
 
+  // 밑줄은 가상요소 대신 text-decoration 으로 긋는다. overflow:hidden 때문에
+  // 글자 아래에 그린 선은 잘려서 보이지 않는다.
+  &__link:hover &__title,
+  &__link:focus-visible &__title {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  // 날짜는 자릿수가 같아야 오른쪽 끝이 가지런하다.
+  &__date {
+    flex: none;
+    font-family: $font-mono;
+    font-size: calc(var(--title) * 0.94);
+    font-weight: 300;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+    color: $ink;
+  }
+
+  &.is-leaving {
+    animation: list-out 200ms ease-in both;
+  }
 }
 
 @keyframes list-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
 }
 
 @keyframes list-out {
   from { opacity: 1; transform: none; }
-  to   { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 0; transform: translateY(-6px); }
 }
 
-// Pagination
-// 화면 하단에 고정. 항목을 펼쳐 내용이 길어져도 페이지 컨트롤은 제자리에
-// 있고, 상단 고정 헤더와 짝을 이룬다.
+// ── 쪽 넘김 ─────────────────────────────────────────────────────
+// 화면에 고정하지 않고 목록 바로 아래, 본문 흐름 안에 놓는다.
 .pagination {
-  position: fixed;
-  bottom: $footer-offset;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  // 바닥에서 띄우므로 화면 폭을 다 쓰는 띠가 아니라 가운데 떠 있는 알약 형태.
-  // 폭을 내용에 맞추고 좌우 auto 마진으로 중앙에 둔다.
-  width: fit-content;
-  max-width: calc(100% - #{$gutter * 2});
-  height: $footer-height;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto;
-  padding: 0 0.5rem;
-  background-color: $color-paper;
-  border: 1px solid $color-border;
-  border-radius: 999px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+  gap: 0.15rem;
+  max-width: var(--col);
+  margin: 2.25rem auto 0;
+  font-family: $font-mono;
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 
   a, span {
-    font-family: $font-family-display;
-    background-color: transparent;
-    padding: 0.2rem 0.6rem;
-    margin: 0 0.175rem;
-    border: none;
-    border-radius: 4px;
-    color: $color-text;
-    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.9rem;
+    height: 1.9rem;
+    color: $ink;
+    border-bottom: 1px solid transparent;
+  }
 
-    &.current {
-      background-color: transparent;
-      color: $color-text;
-      font-weight: bold;
-      text-decoration: underline;
-      text-underline-offset: 5px; // Added offset
-    }
-    
-    &:hover {
-        background-color: rgba(26, 25, 23, 0.06);
-    }
+  // 갈 곳이 없는 화살표는 <span> 으로 나온다. 눌리지 않음을 색으로 알린다.
+  span { color: $ink-30; }
+
+  span.current {
+    color: $ink;
+    border-bottom-color: $ink;
+  }
+
+  a:hover,
+  a:focus-visible {
+    border-bottom-color: $ink;
   }
 }
 
+// ── 글 페이지 ───────────────────────────────────────────────────
+.topbar {
+  @extend %bar;
+  top: 0;
+  height: $header-h;
+  justify-content: space-between;
+  border-bottom: 1px solid $rule;
+  // 목록의 헤더와 같은 이름. 목록 ↔ 글 사이를 오갈 때 막대가 이어진다.
+  view-transition-name: site-bar;
 
-.back-arrow-standalone {
-  margin-bottom: 1rem;
-  align-self: flex-start;
+  a {
+    display: inline-block;
+    border-bottom: 1px solid transparent;
+    color: $ink;
+
+    &:hover {
+      border-bottom-color: $ink;
+    }
+  }
+
+  &__home {
+    color: $ink-50;
+    letter-spacing: 0.2em;
+  }
 }
 
-// Post Page
 .post-container {
-  padding: 2rem;
-  max-width: 1000px;
+  max-width: var(--col);
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+  padding: ($header-h + $content-top) var(--gutter) 5rem;
 }
 
 .post-header {
-  margin-bottom: 1.75rem;
-  width: 100%;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid $rule;
+  margin-bottom: 2.5rem;
 
-  .post-title-area {
-    width: 100%;
-        h1 {
-          font-size: 34px; // approx 2.0x body
-          margin-bottom: 0.56rem;
-        }    .post-date {
-      color: $color-text-muted;
-      font-size: 1.1rem; // Adjusted to balance with body
-    }
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: 2.1rem;
+    font-weight: 500;
+    line-height: 1.28;
+    letter-spacing: -0.02em;
+  }
+
+  .post-date {
+    font-family: $font-mono;
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    color: $ink-50;
   }
 }
 
 .post-content {
-  line-height: 1.7;
-  font-size: 17px;
-  letter-spacing: 0;
+  font-size: 1rem;
+  line-height: 1.78;
+  font-weight: 300;
 
-  strong, b {
-    font-weight: 500;
+  strong, b { font-weight: 500; }
+
+  a {
+    border-bottom: 1px solid $ink-30;
+
+    &:hover { border-bottom-color: $ink; }
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    overflow-x: auto;
-    display: block;
-    margin-top: 2rem;
-  }
-
-  th, td {
-    border: 1px solid $color-border;
-    padding: 0.6rem;
-  }
-
-  th {
-    background-color: rgba(26, 25, 23, 0.045);
+  h1, h2, h3, h4, h5, h6 {
     font-weight: 500;
   }
 
   h1 {
-    font-size: 2.4em;
-    font-weight: 500;       /* ExtraBold */
-    margin-top: 4rem;
-    margin-bottom: 2rem;
-    padding-bottom: 0.5rem; /* 밑줄과의 간격 */
-    border-bottom: 1px solid $color-border; /* 섹션 구분선 */
-    letter-spacing: -0.02em;
+    font-size: 1.7rem;
+    margin: 4rem 0 1.5rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid $rule;
   }
-  
+
   h2 {
-    font-size: 1.8em;
-    font-weight: 400;       /* Bold */
-    margin-top: 4.5rem;     /* 시원한 상단 여백 */
-    margin-bottom: 1.5rem;  /* 본문과의 간격 확보 */
-    letter-spacing: -0.01em;
+    font-size: 1.32rem;
+    margin: 3.2rem 0 1.1rem;
+    padding-left: 0.75rem;
+    // 제목 왼쪽의 짧은 검은 선. 장식이 아니라 위계를 나타내는 표식.
+    border-left: 2px solid $ink;
   }
-  
+
   h3 {
-    font-size: 1.4em;
-    font-weight: 300;       /* SemiBold */
-    margin-top: 3rem;       /* H2보다는 좁지만 충분한 여백 */
-    margin-bottom: 1rem;
-    color: #333;            /* H2보다 살짝 연하게 */
+    font-size: 1.1rem;
+    margin: 2.4rem 0 0.8rem;
+    color: $ink-70;
   }
 
   h4, h5, h6 {
-    margin-top: 5rem;
-    margin-bottom: 0rem;
+    font-size: 1rem;
+    margin: 2rem 0 0.6rem;
   }
 
-  p {
-    margin-bottom: 0.5em;
+  p { margin: 0 0 1.1em; }
+
+  ul, ol {
+    margin: 0 0 1.2rem;
+    padding-left: 1.4rem;
   }
+
+  li { margin-bottom: 0.3rem; }
 
   img {
+    display: block;
     max-width: 100%;
     height: auto;
-    display: block;
-    margin: 1.5rem auto;
+    margin: 2rem auto;
+    border: 1px solid $rule-soft;
   }
 
   blockquote {
-    margin: 1rem 0;
-    padding: 10px 10px; /* 아주 미세한 여백만 남김 */
-    border-left: 3px solid rgba(26, 25, 23, 0.28);
-    color: #4A4741;
-    background-color: rgba(26, 25, 23, 0.035);
+    margin: 1.6rem 0;
+    padding: 0.9rem 1.1rem;
+    border-left: 2px solid $ink;
+    background-color: $wash;
+    color: $ink-70;
+
+    p { margin: 0; }
   }
 
-  blockquote p {
-      margin: 0; /* 내부 문단의 마진을 모두 제거해야 패딩 조절이 눈에 잘 보입니다 */
-  }
-
-  ul, ol {
-    margin-top: 0rem;
-    margin-bottom: 1rem;
-    padding-left: 2.2rem;
-  }
-
-  u {
-    text-underline-offset: 3px;
-  }
-
-  pre {
-    padding: 0.8rem 1rem;
-    border: 1px solid $color-border;
-    border-radius: 2px;
+  table {
     display: block;
+    width: 100%;
     overflow-x: auto;
-    font-size: 16px;
-    line-height: 1.3;
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    border: 1px solid $rule-soft;
+    padding: 0.55rem 0.7rem;
+    text-align: left;
+  }
+
+  th {
+    background-color: $ink;
+    color: $paper;
+    font-weight: 500;
+    border-color: $ink;
+  }
+
+  // 표는 가로로 길어 읽다가 행을 놓치기 쉽다. 마우스가 올라간 행 전체를
+  // 옅은 파랑으로 칠해 시선이 한 줄에 머물게 한다. 칸마다 칠하지 않고
+  // tr 에 칠하면 셀 경계선은 그대로 살아 있는 채로 행만 덮인다.
+  tbody tr {
+    transition: background-color 120ms linear;
+  }
+
+  tbody tr:hover {
+    background-color: $row-hover;
   }
 
   code {
-    background-color: rgba(26, 25, 23, 0.07);
-    padding: 0.1rem 0.4rem;
-    border-radius: 2px;
-    font-size: 14px;
-    font-family: $font-family-sans-serif;
-    font-weight: 200;
+    font-family: $font-mono;
+    font-size: 0.85em;
+    font-weight: 400;
+    padding: 0.1em 0.35em;
+    background-color: $wash;
+    border: 1px solid $rule-soft;
+  }
+
+  pre {
+    display: block;
+    overflow-x: auto;
+    margin: 1.6rem 0;
+    padding: 1rem 1.1rem;
+    font-family: $font-mono;
+    font-size: 0.82rem;
+    line-height: 1.55;
   }
 
   pre code {
-    background-color: transparent;
+    background: transparent;
+    border: 0;
     padding: 0;
-    font-family: inherit;
+    font-size: inherit;
   }
+
+  hr {
+    height: 0;
+    margin: 3rem 0;
+    border: 0;
+    border-top: 1px solid $rule;
+  }
+}
+
+// ── 목차 ────────────────────────────────────────────────────────
+.toc-wrapper {
+  position: fixed;
+  top: $header-h + $content-top;
+  left: calc(50% + var(--col) / 2);
+  width: 15rem;
+  margin-left: 3rem;
+  display: none;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid $rule-soft;
+  }
+
+  a {
+    display: block;
+    padding: 0.35rem 0 0.35rem 0.85rem;
+    margin-left: -1px;
+    border-left: 1px solid transparent;
+    font-size: 0.78rem;
+    font-weight: 300;
+    line-height: 1.4;
+    color: $ink-50;
+    transition: color 140ms linear;
+
+    &:hover { color: $ink; }
+
+    &.active {
+      color: $ink;
+      font-weight: 500;
+      border-left-color: $ink;
+    }
+  }
+
+  .toc-h2 {
+    padding-left: 1.7rem;
+    font-size: 0.72rem;
+  }
+}
+
+@media (min-width: 1500px) {
+  .toc-wrapper { display: block; }
 }
 
 .giscus-container {
-  max-width: 800px;
+  max-width: var(--col);
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0 var(--gutter) 4rem;
 }
 
-// Table of Contents
-.toc-wrapper {
-  position: fixed;
-  top: 35%;
-  transform: translateY(-50%);
-  left: calc(50% + 580px);
-  width: 250px;
-  display: none;
-  font-family: $font-family-sans-serif;
-  
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    border-left: 1px solid $color-border;
-  }
-  
-  li {
-    margin: 0;
-  }
-  
-  a {
-    display: block;
-    color: $color-text-muted;
-    text-decoration: none;
-    padding: 0.4rem 0 0.4rem 1rem;
-    line-height: 1.4;
-    font-size: 0.9rem;
-    transition: color 0.2s;
-    
-    &:hover {
-      color: #333;
-    }
-    
-    &.active {
-      color: $color-text;
-      font-weight: 600;
-      border-left: 2px solid #000;
-      margin-left: -1px;
-    }
-  }
-
-  .toc-h1 {
-    font-size: 0.95rem;
-    color: #555;
-    margin-top: 0.5rem;
-    
-    &.active {
-      color: $color-text;
-    }
-  }
-  
-  .toc-h2 {
-    font-size: 0.85rem;
-    padding-left: 1.5rem;
-    font-weight: 300;
-  }
-}
-
-@media (min-width: 1550px) {
-  .toc-wrapper {
-    display: block;
-  }
-}
-
-// Mobile Responsiveness
+// ── 좁은 화면 ───────────────────────────────────────────────────
 @media (max-width: 768px) {
-  // iOS Safari 는 background-attachment: fixed 를 제대로 그리지 못해
-  // 질감이 문서 높이만큼 늘어나 뭉개진다. 좁은 화면에선 스크롤 배경으로.
-  html {
-    background-attachment: scroll, scroll;
-  }
-
-  // Blog Index
   .blog-index {
-    padding: $header-height-sm + $content-top-sm $gutter-sm ($footer-offset-sm + $footer-height-sm + $gutter-sm);
-
-    // 좁은 화면에서도 고정 머리띠는 한 줄로 유지한다.
-    .posts-header {
-      height: $header-height-sm;
-      padding: 0 $gutter-sm;
-
-      .sticker-text {
-        font-size: 0.85rem;
-        letter-spacing: 0.18em;
-      }
-
-      .digital-clock {
-        font-size: 0.7rem;
-      }
-    }
-
+    padding: $content-top-sm var(--gutter) 2.5rem;
   }
 
-  // 좁은 화면에선 화살표·점·여백을 줄여 제목이 쓸 폭을 확보한다.
-  .timeline {
-    margin-left: $list-indent-sm;
-
-    &__title {
-      font-size: 1.2rem;
-    }
-
-    &__date {
-      font-size: 0.72rem;
-    }
-
-    &__item {
-      padding-bottom: 1.75em;
-    }
-
-    &__item-body {
-      margin-inline-start: 1.5em;
-      max-width: none; // 좁은 화면엔 비워둘 여백이 없다
-    }
-
-    &__dot {
-      margin-right: 0.7em;
-    }
+  .topnav {
+    margin-bottom: 2rem;
+    font-size: 0.62rem;
   }
 
-  // Post Page
+  .post-list {
+    padding: 1.1rem 0;
+
+    &__link { gap: 1.25rem; }
+  }
+
+  .pagination {
+    margin-top: 1.75rem;
+    font-size: 0.62rem;
+  }
+
+  .topbar {
+    height: $header-h-sm;
+    font-size: 0.65rem;
+  }
+
   .post-container {
-    padding: 1rem;
+    padding: ($header-h-sm + $content-top-sm) var(--gutter) 3rem;
   }
 
   .post-header {
-    .post-title-area {
-      h1 {
-        font-size: 26px;
-      }
-      .post-date {
-        font-size: 1rem;
-      }
-    }
+    margin-bottom: 1.8rem;
+
+    h1 { font-size: 1.5rem; }
   }
 
   .post-content {
-    font-size: 16px;
-    
-    h1 {
-      font-size: 1.8em;
-      margin-top: 2.5rem;
-      margin-bottom: 1rem;
-    }
-    
-    h2 {
-      font-size: 1.5em;
-      margin-top: 3rem;
-    }
-    
-    h3 {
-      font-size: 1.25em;
-      margin-top: 2rem;
-    }
+    font-size: 0.95rem;
 
-    pre {
-      padding: 0.8rem;
-      font-size: 14px;
-    }
+    h1 { font-size: 1.4rem; margin-top: 2.6rem; }
+    h2 { font-size: 1.2rem; margin-top: 2.2rem; }
+    h3 { font-size: 1.05rem; margin-top: 1.8rem; }
 
-    ul, ol {
-      padding-left: 1.5rem;
-    }
-  }
-
-  // Pagination
-  .pagination {
-      bottom: $footer-offset-sm;
-      height: $footer-height-sm;
-      max-width: calc(100% - #{$gutter-sm * 2});
-
-      a, span {
-          padding: 0.2rem 0.45rem;
-          font-size: 0.9rem;
-      }
+    pre { font-size: 0.76rem; padding: 0.85rem; }
   }
 
   .giscus-container {
-      padding: 1rem;
+    padding: 0 var(--gutter) 2.5rem;
   }
+}
+
+// ── 모션을 원치 않는 사용자 ─────────────────────────────────────
+// 움직임 자체를 끄되 상태 변화는 남긴다. 0 이 아니라 0.01ms 를 쓰는 것은
+// animationend / transitionend 가 끝내 발생하지 않는 코드를 막기 위해서다.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .scroll-line { display: none; }
+}
+
+@media print {
+  .scroll-line { display: none; }
+  .topnav,
+  .topbar,
+  .pagination,
+  .toc-wrapper { display: none; }
 }

@@ -20,14 +20,18 @@
   {% seo %}
 </head>
 <body>
+  <div class="scroll-line" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a href="javascript:history.back()">&larr; Back</a>
+    <a class="topbar__home" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+  </header>
+
   <div class="post-container">
-    <a href="javascript:history.back()" class="back-arrow-standalone">
-      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-    </a>
     <header class="post-header">
       <div class="post-title-area">
         <h1>{{ page.title }}</h1>
-        <span class="post-date">{{ page.date | date: "%Y-%m-%d" }} {% assign w = page.date | date: "%u" | minus: 1 %}{% assign days = "월요일,화요일,수요일,목요일,금요일,토요일,일요일" | split: "," %}{{ days[w] }}</span>
+        <span class="post-date">{{ page.date | date: "%Y.%m.%d" }} {% assign w = page.date | date: "%u" | minus: 1 %}{% assign days = "월,화,수,목,금,토,일" | split: "," %}{{ days[w] }}</span>
       </div>
     </header>
 

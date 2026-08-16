@@ -18,10 +18,14 @@
   <link rel="stylesheet" href="{{ "/assets/css/syntax.css" | relative_url }}">
 </head>
 <body>
+  <div class="scroll-line" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a href="{{ '/' | relative_url }}">&larr; Back</a>
+    <a class="topbar__home" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+  </header>
+
   <div class="post-container">
-    <a href="{{ '/' | relative_url }}" class="back-arrow-standalone">
-      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-    </a>
     <header class="post-header">
       <div class="post-title-area">
         <h1>{{ page.title }}</h1>

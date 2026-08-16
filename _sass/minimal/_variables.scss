@@ -1,52 +1,47 @@
+// ── Type ────────────────────────────────────────────────────────
+// 영문·숫자는 JetBrains Mono, 한글은 IBM Plex Sans KR.
+// JetBrains Mono 에 한글 글자가 없으므로, 앞에 두기만 하면 라틴 문자만
+// 이 폰트로 그려지고 한글은 자동으로 다음 폰트로 떨어진다.
+$font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+$font-kr: "IBM Plex Sans KR", "Pretendard", system-ui, sans-serif;
+$font-sans: "JetBrains Mono", "IBM Plex Sans KR", "Pretendard", system-ui, sans-serif;
 
-// Typography
-// 한글·라틴 한 벌로 통일. 제목/본문 모두 동일 패밀리.
-$font-family-display: "IBM Plex Sans KR", "Pretendard", sans-serif;
-$font-family-serif: $font-family-display;
-$font-family-sans-serif: "IBM Plex Sans KR", "Pretendard", system-ui, sans-serif;
+// 기존 규칙들이 참조하는 이름
+$font-family-sans-serif: $font-sans;
+$font-family-display: $font-sans;
+$font-family-serif: $font-sans;
 
-// Colors — paper palette
-$color-paper:        #F9F8F5; // 종이 바탕 (off-white / warm grey)
-$color-paper-deep:   #EFEDE8; // 한 톤 어두운 종이 (테이블 헤더, 코드 배경)
-$color-background: $color-paper;
-$color-container-background: $color-paper;
-$color-text: #000000;        // 선명한 잉크 블랙
-$color-text-muted: #6E6B64;  // 연필 회색
-$color-accent: #29B6F6;
-$color-border: rgba(0, 0, 0, 0.16); // 종이 위 흐린 괘선
+// ── Color ───────────────────────────────────────────────────────
+// 흑백만 쓴다. 중간 톤은 회색을 따로 정의하지 않고 전부 검정의 알파로
+// 만든다. 그래야 배경이 바뀌어도 톤이 서로 어긋나지 않는다.
+$ink: #000000;
+$paper: #FAF9F6; // 순백이 아닌, 아주 옅게 따뜻한 흰색
 
-// 구겨진 종이
-$crumple-tile: 700;          // 타일 한 변 (px). 크면 반복이 덜 티남
-$crumple-frequency: 0.006;   // 낮을수록 주름이 크고 완만, 높을수록 잘고 촘촘
-$crumple-octaves: 3;         // 주름의 디테일 층수
-$crumple-depth: 3;           // 요철 깊이. 키우면 확 구겨짐
-$crumple-azimuth: 235;       // 빛이 오는 방향 (도)
-$crumple-strength: 0.14;     // 그림자 세기 ← 세기는 이것만 조절 (0.1 ~ 1.0)
+$ink-70: rgba(0, 0, 0, 0.70);
+$ink-50: rgba(0, 0, 0, 0.48);
+$ink-30: rgba(0, 0, 0, 0.30);
 
-// 평면부를 정확히 흰색(=multiply 시 무변화)으로 맞추는 보정값. 건드릴 필요 없음.
-$crumple-intercept: 1 - 0.5 * $crumple-strength;
+$rule: #000000; // 구조를 나누는 선
+$rule-soft: rgba(0, 0, 0, 0.13); // 같은 덩어리 안을 나누는 선
+$wash: rgba(0, 0, 0, 0.04); // 아주 옅은 면
+$row-hover: rgba(37, 99, 235, 0.085); // 표에서 마우스가 올라간 행
 
-// Layout
-// 헤더와 본문이 같은 값을 쓰도록 여백을 한곳에서 관리한다.
-// 좌우 여백과 헤더 아래 여백이 모두 $gutter 로 동일해진다.
-$header-height: 2.9rem;
-$header-height-sm: 2.6rem;
-$footer-height: 2.9rem;
-$footer-height-sm: 2.6rem;
-// 페이지네이션을 화면 바닥에서 이만큼 띄운다.
-$footer-offset: 2.5rem;
-$footer-offset-sm: 1.25rem;
-// 목록을 헤더보다 살짝 안쪽으로 들여쓴다.
-$list-indent: 2rem;
-$list-indent-sm: 0.5rem;
-// 펼쳐지는 요약 박스의 최대 폭. 오른쪽을 비워 장식 요소 자리를 남긴다.
-$body-max-width: 26em;
-$gutter: 2rem;
-$gutter-sm: 1rem;
-// 헤더 아래 첫 글까지 띄우는 간격. 좌우 여백보다 넉넉해야 글이 헤더에 붙지 않는다.
-$content-top: 4.5rem;
-$content-top-sm: 2.75rem;
+// 기존 이름
+$color-text: $ink;
+$color-text-muted: $ink-50;
+$color-background: $paper;
+$color-paper: $paper;
+$color-border: $rule-soft;
 
-$container-max-width: 1000px;
-$container-padding: 2rem;
-$border-radius: 12px;
+// ── Metrics ─────────────────────────────────────────────────────
+$header-h: 3rem;
+$header-h-sm: 2.75rem;
+$footer-h: 3rem;
+$footer-h-sm: 2.75rem;
+
+$content-top: 4rem;
+$content-top-sm: 1.75rem;
+
+// ── Motion ──────────────────────────────────────────────────────
+$ease-out: cubic-bezier(0.16, 1, 0.3, 1); // 빠르게 나가 부드럽게 멎는다
+$ease-inout: cubic-bezier(0.65, 0, 0.35, 1);

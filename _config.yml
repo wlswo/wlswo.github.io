@@ -19,7 +19,7 @@ kramdown:
 highlighter: rouge
 
 # Pagination
-paginate: 7
+paginate: 20
 paginate_path: "/page:num/"
 permalink: /:year/:month/:day/:title/
 
