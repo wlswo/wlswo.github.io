@@ -43,12 +43,13 @@
 // 창을 좁히면 본문이 스스로 자리를 내주고, 그만큼 오른쪽 위젯이 살아남는다.
 :root {
   --gutter: clamp(1.25rem, 2.6vw, 2.5rem);
-  --col: 40rem; // 화면 한가운데 놓이는 글 기둥
+  --col: 40rem; // 목록의 글 기둥
+  --read: 48rem; // 본문의 글 기둥. 코드·표가 들어가므로 목록보다 넓다
   --title: clamp(0.9rem, 1.2vw, 1.02rem);
 }
 
 // 문서 사이를 넘어갈 때 브라우저가 직접 전환을 그린다. 지원하지 않는
-// 브라우저에서는 이 규칙이 무시되고 page-transition.js 가 대신 맡는다.
+// 브라우저에서는 이 규칙이 무시되고 그냥 넘어간다.
 @view-transition {
   navigation: auto;
 }
@@ -229,8 +230,9 @@ a {
     color: $ink;
   }
 
-  &.is-leaving {
-    animation: list-out 200ms ease-in both;
+  // 쪽을 넘길 때. 로드용과 이름이 같으면 클래스를 다시 붙여도 재생되지 않는다.
+  &.is-turning {
+    animation: list-turn 300ms $ease-out both;
   }
 }
 
@@ -239,9 +241,9 @@ a {
   to { opacity: 1; transform: none; }
 }
 
-@keyframes list-out {
-  from { opacity: 1; transform: none; }
-  to { opacity: 0; transform: translateY(-6px); }
+@keyframes list-turn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 
 // ── 쪽 넘김 ─────────────────────────────────────────────────────
@@ -253,6 +255,7 @@ a {
   gap: 0.15rem;
   max-width: var(--col);
   margin: 2.25rem auto 0;
+  min-height: 1.9rem;
   font-family: $font-mono;
   font-size: 0.68rem;
   font-weight: 400;
@@ -290,6 +293,8 @@ a {
   height: $header-h;
   justify-content: space-between;
   border-bottom: 1px solid $rule;
+  // %bar 는 목록 기준(--col)이라, 본문 페이지에서는 본문 기둥에 맞춘다.
+  padding-inline: max(var(--gutter), calc((100% - var(--read)) / 2));
   // 목록의 헤더와 같은 이름. 목록 ↔ 글 사이를 오갈 때 막대가 이어진다.
   view-transition-name: site-bar;
 
@@ -310,7 +315,7 @@ a {
 }
 
 .post-container {
-  max-width: var(--col);
+  max-width: var(--read);
   margin: 0 auto;
   padding: ($header-h + $content-top) var(--gutter) 5rem;
 }
@@ -478,7 +483,7 @@ a {
 .toc-wrapper {
   position: fixed;
   top: $header-h + $content-top;
-  left: calc(50% + var(--col) / 2);
+  left: calc(50% + var(--read) / 2);
   width: 15rem;
   margin-left: 3rem;
   display: none;
@@ -520,11 +525,6 @@ a {
   .toc-wrapper { display: block; }
 }
 
-.giscus-container {
-  max-width: var(--col);
-  margin: 0 auto;
-  padding: 0 var(--gutter) 4rem;
-}
 
 // ── 좁은 화면 ───────────────────────────────────────────────────
 @media (max-width: 768px) {
@@ -571,10 +571,6 @@ a {
     h3 { font-size: 1.05rem; margin-top: 1.8rem; }
 
     pre { font-size: 0.76rem; padding: 0.85rem; }
-  }
-
-  .giscus-container {
-    padding: 0 var(--gutter) 2.5rem;
   }
 }
 

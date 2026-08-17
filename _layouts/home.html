@@ -28,7 +28,11 @@
       </nav>
 
       <ul id="post-list" class="post-list">
-        {% for post in paginator.posts %}
+        {%- comment -%}
+          글은 전부 내보낸다. 몇 개씩 보여줄지는 화면 높이를 잰 뒤
+          paginate.js 가 정한다. 스크립트가 없으면 전체가 그대로 보인다.
+        {%- endcomment -%}
+        {% for post in site.posts %}
           <li class="post-list__item">
             <a class="post-list__link" href="{{ post.url | relative_url }}">
               <span class="post-list__title">{{ post.title }}</span>
@@ -37,73 +41,9 @@
           </li>
         {% endfor %}
       </ul>
-      <script src="{{ "/assets/js/page-transition.js" | relative_url }}" defer></script>
 
-      <div class="pagination">
-        {% if paginator.previous_page %}
-          <a href="{{ paginator.previous_page_path | relative_url }}">&lt;</a>
-        {% else %}
-          <span>&lt;</span>
-        {% endif %}
-
-        {% if paginator.total_pages <= 5 %}
-          {% for page in (1..paginator.total_pages) %}
-            {% if page == paginator.page %}
-              <span class="current">{{ page }}</span>
-            {% elsif page == 1 %}
-              <a href="{{ '/' | relative_url }}">{{ page }}</a>
-            {% else %}
-              <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', page }}">{{ page }}</a>
-            {% endif %}
-          {% endfor %}
-        {% else %}
-          
-          {% if paginator.page == 1 %}
-            <span class="current">1</span>
-          {% else %}
-            <a href="{{ '/' | relative_url }}">1</a>
-          {% endif %}
-
-          {% assign start_window = paginator.page | minus: 1 %}
-          {% assign end_window = paginator.page | plus: 1 %}
-          
-          {% if start_window > 2 %}
-            <span>...</span>
-          {% endif %}
-
-          {% for page in (2..paginator.total_pages) %}
-             {% if page == paginator.total_pages %}
-               {% continue %}
-             {% endif %}
-             
-             {% if page >= start_window and page <= end_window %}
-               {% if page == paginator.page %}
-                 <span class="current">{{ page }}</span>
-               {% else %}
-                 <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', page }}">{{ page }}</a>
-               {% endif %}
-             {% endif %}
-          {% endfor %}
-
-          {% assign total_minus_one = paginator.total_pages | minus: 1 %}
-          {% if end_window < total_minus_one %}
-            <span>...</span>
-          {% endif %}
-
-          {% if paginator.page == paginator.total_pages %}
-            <span class="current">{{ paginator.total_pages }}</span>
-          {% else %}
-            <a href="{{ site.paginate_path | default: '/page:num/' | relative_url | replace: ':num', paginator.total_pages }}">{{ paginator.total_pages }}</a>
-          {% endif %}
-
-        {% endif %}
-
-        {% if paginator.next_page %}
-          <a href="{{ paginator.next_page_path | relative_url }}">&gt;</a>
-        {% else %}
-          <span>&gt;</span>
-        {% endif %}
-      </div>
+      <nav class="pagination" id="pagination" aria-label="글 목록 쪽 넘김"></nav>
+      <script src="{{ "/assets/js/paginate.js" | relative_url }}" defer></script>
 
     </main>
 
