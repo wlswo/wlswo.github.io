@@ -534,6 +534,23 @@ a {
   // 영화가 끝나면 카메라를 돌려준다. 그때 안내를 다시 밝힌다.
   &.is-ended &__hint { color: $machine-ink-45; }
 
+  // 앰비언트. 버튼을 누르면 바로 이 상태다. 재생할 것이 없으므로 조작부도
+  // 장 목록도 제목도 두지 않는다. 자리를 비우는 것이 아니라 아예 없애므로
+  // 캔버스가 그만큼 넓어진다.
+  &.is-ambient {
+    .machine__hud,
+    .machine__transport,
+    .machine__scenes { display: none; }
+
+    // 안내는 이 상태에서 뜻이 있는 두 개만 남긴다.
+    .machine__hint span:nth-child(-n+3) { display: none; }
+
+    .machine__hint {
+      right: var(--gutter);
+      bottom: 1.25rem;
+    }
+  }
+
   // 마지막 장의 끝. 캔버스가 라벨을 다 지우고 나면 제목과 조작부도 함께
   // 물러난다. 남는 것은 위에서 내려다본 기계뿐이다. 화면을 건드리면
   // 조작부가 돌아온다 — 자리는 그대로 두고 투명도만 바꾸므로, 돌아올 때
@@ -1043,6 +1060,13 @@ a {
 
     &__transport { gap: 0.5rem; }
     &__clock { font-size: 0.55rem; }
+
+    &.is-ambient &__hint {
+      position: absolute;
+      right: var(--gutter);
+      bottom: 1rem;
+      margin-top: 0;
+    }
   }
 
   .topnav {

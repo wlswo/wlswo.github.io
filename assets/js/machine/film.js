@@ -13,9 +13,14 @@ import * as R from './core/raster.js';
 import * as Cam from './core/camera.js';
 import { clamp } from './core/timeline.js';
 import { SCENES } from './scenes/index.js';
+import AMBIENT from './scenes/ambient.js';
 
 export const film = {
   scenes: SCENES,
+  // 'ambient' 가 기본이다. 버튼을 누르면 기계가 나올 뿐, 아무것도 스스로
+  // 재생되지 않는다. 'film' 은 12장을 순서대로 트는 모드이고, 주소로만 든다.
+  mode: 'ambient',
+  ambient: AMBIENT,
   duration: 0,
   t: 0,
   playing: true,
@@ -119,6 +124,11 @@ export function restart() {
 function resumeSoon() { lastScrub = now - SCRUB_RELEASE + 260; }
 
 export function tickClock() {
+  if (film.mode === 'ambient') {
+    // 기계가 살아 있는 데 필요한 시간만 흐른다. 끝나지 않으므로 끝을
+    // 검사하지 않고, 장이 없으므로 경계를 넘지도 않는다.
+    return film.reduced ? 0 : (now - t0) / 1000;
+  }
   if (film.reduced) return manualT;
   if (!film.playing) return manualT;
   if (!film.auto && now - lastScrub > SCRUB_RELEASE) {
@@ -178,8 +188,9 @@ function decayDrag(dt) {
 let lastFrame = 0;
 
 export function renderAt(t, overlay) {
-  const s = sceneAt(t);
-  const local = t - s.start;
+  const ambientMode = film.mode === 'ambient';
+  const s = ambientMode ? AMBIENT : sceneAt(t);
+  const local = ambientMode ? t : t - s.start;
 
   // 카메라. 장면이 대상과 각도를 말하면 여기서 화면 크기에 맞춘다.
   const desc = s.camAt ? s.camAt(local, s) : s.cam;
@@ -191,9 +202,15 @@ export function renderAt(t, overlay) {
     // 가로 화면에서도 도로 내려앉는다.
     const base = desc.pitch === undefined ? 0.42 : desc.pitch;
     const pitch = base + portrait * Math.max(0, Math.min(0.24, 1.42 - base));
-    const fitted = Cam.fitBox(desc.focus, Object.assign({}, desc, { pitch }));
+
+    // 부감에서는 각도를 더 세울 수가 없다. 대신 보드를 90도 돌린다 —
+    // 긴 변을 화면의 긴 변에 맞추면 세로 화면에서 남는 자리가 사라진다.
+    let yaw = desc.yaw === undefined ? 0 : desc.yaw;
+    if (desc.turnPortrait && portrait > 0.5) yaw += Math.PI / 2;
+
+    const fitted = Cam.fitBox(desc.focus, Object.assign({}, desc, { pitch, yaw }));
     Cam.applyState({
-      yaw: desc.yaw, pitch,
+      yaw, pitch,
       dolly: desc.dolly, flatten: desc.flatten,
       tx: fitted.tx, ty: fitted.ty, tz: fitted.tz,
       scale: fitted.scale,

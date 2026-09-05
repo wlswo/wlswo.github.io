@@ -23,6 +23,11 @@ function init() {
   const showCam = params.has('cam');
   const jumpTo = params.has('t') ? parseFloat(params.get('t')) : null;
 
+  // 기본은 앰비언트다. 버튼을 누르면 위에서 내려다본 기계가 나올 뿐,
+  // 아무것도 스스로 재생되지 않는다. 12장짜리 영화는 주소로만 든다.
+  const filmMode = params.has('film') || jumpTo !== null;
+  F.film.mode = filmMode ? 'film' : 'ambient';
+
   let w = 0, h = 0, dpr = 1;
   let raf = 0, open = false, closeTimer = 0;
 
@@ -157,6 +162,8 @@ function init() {
     const cost = performance.now() - t0;
     F.recordFrameTime(cost);
 
+    if (!filmMode) { raf = requestAnimationFrame(frame); return; }
+
     ui.update(t, scene, F.film);
     afterUpdate(scene);
     updateBare(t, scene);
@@ -230,8 +237,8 @@ function init() {
   // 영화를 처음부터 다시 트는 것도 겸한다.
   canvas.addEventListener('dblclick', () => {
     F.resetDrag();
-    F.restart();
-    if (F.film.reduced) { F.scrubTo(0); drawOnce(); }
+    if (filmMode) F.restart();
+    if (F.film.reduced) { if (filmMode) F.scrubTo(0); drawOnce(); }
   });
 
   // ── 굴려서 시간 옮기기 ──
@@ -239,6 +246,7 @@ function init() {
   // 목표값을 두고 damped follow 로 따라간다.
   let wheelTarget = null;
   canvas.addEventListener('wheel', (e) => {
+    if (!filmMode) return;
     e.preventDefault();
     wake();
     const base = wheelTarget === null ? F.currentTime() : wheelTarget;
@@ -256,6 +264,7 @@ function init() {
   document.addEventListener('keydown', (e) => {
     if (!open) return;
     if (e.key === 'Escape') { hide(); return; }
+    if (!filmMode) return;
     wake();
     if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     if (e.key === ' ' || e.key === 'Spacebar') {
@@ -287,9 +296,14 @@ function init() {
     bareOn = false;
     stage.classList.remove('is-bare');
     document.documentElement.classList.remove('machine-bare');
+    stage.classList.toggle('is-ambient', !filmMode);
     wakeUntil = 0;
     F.setNow(performance.now());
-    if (jumpTo !== null && !isNaN(jumpTo)) {
+
+    if (!filmMode) {
+      // 시계를 0 으로 맞추기만 한다. 재생할 것이 없다.
+      F.rebaseTo(0);
+    } else if (jumpTo !== null && !isNaN(jumpTo)) {
       // ?t= 로 들어오면 그 자리에 멈춘다. 한 프레임을 확인하려고 준 주소인데
       // 계속 흘러가 버리면 매번 다른 그림이 나온다.
       F.scrubTo(jumpTo, false);

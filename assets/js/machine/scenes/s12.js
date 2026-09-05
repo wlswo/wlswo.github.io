@@ -67,7 +67,8 @@ export default {
       pitch: 1.46,
       dolly: 2600,
       flatten: 0.62,
-      fill: 0.9
+      fill: 0.9,
+      turnPortrait: true
     };
   },
 
