@@ -56,13 +56,18 @@ export default {
   keyT: 6.0,
 
   camAt(t) {
-    // 첫 프레임과 정확히 같은 자리로 돌아온다.
+    // 위에서 곧게 내려다본다. 이 장에서는 카메라가 전혀 움직이지 않는다.
+    //
+    // yaw 를 0 으로 두어야 보드의 네 변이 화면의 네 변과 나란해지고,
+    // dolly 를 크게 올리고 flatten 을 섞어야 원근이 빠져 도면처럼 읽힌다.
+    // 마지막에 남는 것은 움직이는 그림이 아니라 한 장의 평면도여야 한다.
     return {
       focus: BOX.all,
-      yaw: HOME.yaw,
-      pitch: HOME.pitch,
-      dolly: HOME.dolly,
-      fill: HOME.fill
+      yaw: 0,
+      pitch: 1.46,
+      dolly: 2600,
+      flatten: 0.62,
+      fill: 0.9
     };
   },
 

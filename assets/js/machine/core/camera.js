@@ -55,7 +55,11 @@ export function viewport() { return { w: W, h: H, u: U, dpr: DPR }; }
 // yaw·pitch·dolly 가 바뀌면 불러야 한다.
 export function commit() {
   const y = cam.yaw + drag.yaw;
-  const p = cam.pitch + drag.pitch;
+  // 수직을 넘기면 화면이 뒤집힌다. 부감으로 고정한 장에서 손으로 더 끌어
+  // 올릴 수 있으므로, 합친 값에 상한을 둔다.
+  let p = cam.pitch + drag.pitch;
+  if (p > 1.52) p = 1.52;
+  else if (p < 0.04) p = 0.04;
   CY = Math.cos(y); SY = Math.sin(y);
   CP = Math.cos(p); SP = Math.sin(p);
   den0 = FOCAL + cam.dolly;

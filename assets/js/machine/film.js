@@ -187,7 +187,10 @@ export function renderAt(t, overlay) {
     // 세로 화면 보정. 장면마다 예외를 두지 않고 여기 한 곳에서 끝낸다.
     const vp = Cam.viewport();
     const portrait = vp.h > vp.w * 1.1 ? Math.min(1, (vp.h / vp.w - 1.1) / 0.9) : 0;
-    const pitch = Math.min(1.35, (desc.pitch === undefined ? 0.42 : desc.pitch) + portrait * 0.24);
+    // 보정은 더하기만 한다. 상한으로 자르면 부감으로 적어 둔 장면이
+    // 가로 화면에서도 도로 내려앉는다.
+    const base = desc.pitch === undefined ? 0.42 : desc.pitch;
+    const pitch = base + portrait * Math.max(0, Math.min(0.24, 1.42 - base));
     const fitted = Cam.fitBox(desc.focus, Object.assign({}, desc, { pitch }));
     Cam.applyState({
       yaw: desc.yaw, pitch,

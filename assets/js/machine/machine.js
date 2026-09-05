@@ -98,6 +98,35 @@ function init() {
   // ── 그리기 ──
   let negOn = false;
 
+  // 마지막 장의 끝. 캔버스가 라벨을 다 지우고 나면 조작부와 제목도 함께
+  // 물러난다. 남는 것은 위에서 내려다본 기계 한 장뿐이다.
+  //
+  // 다만 영영 지워 두지는 않는다. 화면을 건드리면 조작부가 돌아온다 —
+  // 되감을 방법이 사라지면 그건 마무리가 아니라 막다른 길이다.
+  const BARE_AT = 8.4;
+  let bareOn = false;
+  let wakeUntil = 0;
+
+  function updateBare(t, scene) {
+    const last = scene.index === SCENES.length - 1;
+    const inZone = last && (t - scene.start) > BARE_AT;
+    const bare = inZone && performance.now() > wakeUntil;
+    if (bare === bareOn) return;
+    bareOn = bare;
+    stage.classList.toggle('is-bare', bare);
+    document.documentElement.classList.toggle('machine-bare', bare);
+  }
+
+  function wake() {
+    if (!open) return;
+    wakeUntil = performance.now() + 2600;
+    if (bareOn) {
+      bareOn = false;
+      stage.classList.remove('is-bare');
+      document.documentElement.classList.remove('machine-bare');
+    }
+  }
+
   // 장이 바뀌면 제목 길이가 달라지므로 안전 영역을 다시 잰다.
   let lastScene = -1;
   function afterUpdate(scene) {
@@ -130,9 +159,11 @@ function init() {
 
     ui.update(t, scene, F.film);
     afterUpdate(scene);
+    updateBare(t, scene);
     if (F.film.negative !== negOn) {
       negOn = F.film.negative;
       stage.classList.toggle('is-negative', negOn);
+      document.documentElement.classList.toggle('machine-negative', negOn);
     }
 
     raf = requestAnimationFrame(frame);
@@ -192,6 +223,9 @@ function init() {
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
 
+  stage.addEventListener('pointermove', wake);
+  stage.addEventListener('pointerdown', wake);
+
   // 두 번 누르면 처음 각도로 돌아온다. 예전과 같은 몸짓이고, 이제
   // 영화를 처음부터 다시 트는 것도 겸한다.
   canvas.addEventListener('dblclick', () => {
@@ -206,6 +240,7 @@ function init() {
   let wheelTarget = null;
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
+    wake();
     const base = wheelTarget === null ? F.currentTime() : wheelTarget;
     // 화면 한 폭쯤 굴리면 한 장 넘어간다.
     wheelTarget = Math.max(0, Math.min(F.film.duration, base + e.deltaY * 0.014));
@@ -221,6 +256,7 @@ function init() {
   document.addEventListener('keydown', (e) => {
     if (!open) return;
     if (e.key === 'Escape') { hide(); return; }
+    wake();
     if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     if (e.key === ' ' || e.key === 'Spacebar') {
       if (F.film.reduced) return;
@@ -248,6 +284,10 @@ function init() {
     toggleBtn.setAttribute('aria-label', '글 목록으로 돌아가기');
 
     resize();
+    bareOn = false;
+    stage.classList.remove('is-bare');
+    document.documentElement.classList.remove('machine-bare');
+    wakeUntil = 0;
     F.setNow(performance.now());
     if (jumpTo !== null && !isNaN(jumpTo)) {
       // ?t= 로 들어오면 그 자리에 멈춘다. 한 프레임을 확인하려고 준 주소인데
@@ -267,6 +307,8 @@ function init() {
     open = false;
     index.classList.remove('is-machine');
     document.documentElement.classList.remove('machine-open');
+    document.documentElement.classList.remove('machine-bare');
+    document.documentElement.classList.remove('machine-negative');
     stage.classList.remove('is-open');
     stage.setAttribute('aria-hidden', 'true');
     toggleBtn.setAttribute('aria-expanded', 'false');
