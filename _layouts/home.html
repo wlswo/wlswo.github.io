@@ -24,6 +24,14 @@
 
       <nav class="topnav">
         <a href="{{ '/' | relative_url }}" aria-current="page">Writing</a>
+        <button type="button" id="machine-open" class="topnav__chip"
+                aria-label="기계 내부 열기" aria-controls="machine" aria-expanded="false">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true">
+            <rect x="4.5" y="4.5" width="7" height="7"/>
+            <rect x="6.75" y="6.75" width="2.5" height="2.5"/>
+            <path d="M6.5 4.5V2M9.5 4.5V2M6.5 11.5V14M9.5 11.5V14M4.5 6.5H2M4.5 9.5H2M11.5 6.5H14M11.5 9.5H14"/>
+          </svg>
+        </button>
         <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
       </nav>
 
@@ -46,6 +54,58 @@
       <script src="{{ "/assets/js/paginate.js" | relative_url }}" defer></script>
 
     </main>
+
+    <div id="machine" class="machine" aria-hidden="true">
+      <canvas id="machine-canvas" class="machine__canvas" role="img"
+              aria-label="컴퓨터 구조를 그린 애니메이션"></canvas>
+
+      {%- comment -%}
+        장면의 제목과 숫자. 캔버스가 아니라 DOM 으로 둔다. 한글은 브라우저가
+        그리는 편이 곱고, 이렇게 두어야 스크린 리더에도 남는다.
+      {%- endcomment -%}
+      <div class="machine__hud">
+        <div class="machine__slug">
+          <span class="machine__no"></span>
+          <span class="machine__name"></span>
+        </div>
+        <p class="machine__kr"></p>
+        <p class="machine__line"></p>
+      </div>
+
+      <div class="machine__nums"></div>
+
+      <nav class="machine__transport" aria-label="영화 조작">
+        <button type="button" class="machine__btn" data-act="prev" aria-label="앞 장">
+          <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M9.5 1.5 4 6l5.5 4.5zM3 1.5v9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+        <button type="button" class="machine__btn" data-act="play" aria-label="멈춤">
+          <svg class="machine__ico--pause" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M4 1.5v9M8 1.5v9" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+          <svg class="machine__ico--play" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M3 1.5 10 6l-7 4.5z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="machine__btn" data-act="next" aria-label="다음 장">
+          <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2.5 1.5 8 6l-5.5 4.5zM9 1.5v9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+
+        <div class="machine__rail" role="slider" tabindex="0" aria-label="장면 위치"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span class="machine__played"></span>
+          <span class="machine__head"></span>
+        </div>
+
+        <span class="machine__clock">0:00</span>
+      </nav>
+
+      {%- comment -%}
+        장 목록. 눈에 보이는 색인이면서 접근성 대체 내용이다. 두 벌을 만들지
+        않는다. 내용은 machine/overlay.js 가 채운다.
+      {%- endcomment -%}
+      <ol class="machine__scenes" aria-label="장 목록"></ol>
+
+      <p class="machine__hint">
+        <span>SPACE 재생</span><span>←→ 장</span><span>스크롤 탐색</span><span>드래그 회전</span><span>ESC 닫기</span>
+      </p>
+    </div>
+    <script type="module" src="{{ "/assets/js/machine/machine.js" | relative_url }}"></script>
 
 
 

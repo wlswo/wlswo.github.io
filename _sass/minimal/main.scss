@@ -58,7 +58,16 @@ html {
   // 스크롤바 자리를 항상 비워둔다. 없으면 문서 길이가 바뀌는 순간
   // 뷰포트 폭이 줄어 가운데 정렬된 요소가 옆으로 튄다.
   scrollbar-gutter: stable;
+
+  // 바탕은 옅은 흰색 위에 희미한 모눈. 선은 1px 씩 두 방향으로만 긋고,
+  // 그리는 것은 html 하나뿐이라 문서가 길어져도 반복 비용이 늘지 않는다.
   background-color: $paper;
+  background-image:
+    linear-gradient(to right, $grid-line 1px, transparent 1px),
+    linear-gradient(to bottom, $grid-line 1px, transparent 1px);
+  background-size: $grid-size $grid-size;
+  background-position: center top;
+  background-attachment: fixed;
 }
 
 body {
@@ -156,8 +165,11 @@ a {
 
 // 목록 위에 놓이는 길잡이. 글 기둥과 같은 폭이라 양끝이 목록과 같은 선에 선다.
 .topnav {
-  display: flex;
-  justify-content: space-between;
+  // 세 칸으로 나눈다. 양쪽 글자 길이가 달라도 가운데 칸은 항상 화면
+  // 기둥의 정중앙에 놓인다. space-between 으로는 이게 되지 않는다.
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   gap: 1rem;
   max-width: var(--col);
   margin: 0 auto 3.25rem;
@@ -175,7 +187,432 @@ a {
     &:focus-visible {
       border-bottom-color: $ink;
     }
+
+    &:first-child { justify-self: start; }
+    &:last-child { justify-self: end; }
   }
+
+  &__chip {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    padding: 0;
+    border: 1px solid $rule-soft;
+    background-color: transparent;
+    color: $ink;
+    cursor: pointer;
+    transition: border-color 140ms $ease-out, background-color 140ms $ease-out;
+
+    &:hover,
+    &:focus-visible,
+    &[aria-expanded="true"] {
+      border-color: $ink;
+      background-color: $wash;
+    }
+
+    svg { display: block; }
+  }
+}
+
+// ── 기계 내부 ───────────────────────────────────────────────────
+// 칩 버튼을 누르면 글 목록이 그 자리에서 흐려지고, 같은 자리에 기계의
+// 속이 떠오른다. 창을 새로 띄우지 않으므로 머리글은 그대로 남고, 같은
+// 버튼을 다시 눌러 목록으로 돌아온다.
+.blog-index {
+  .post-list,
+  .pagination {
+    transition: opacity 340ms $ease-out;
+  }
+
+  &.is-machine {
+    .post-list,
+    .pagination {
+      // 목록이 처음 올라올 때 쓴 애니메이션이 both 로 끝값을 붙들고 있어서,
+      // 먼저 풀어주지 않으면 여기서 준 opacity 가 먹지 않는다.
+      animation: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+.machine {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 4.5rem var(--gutter) 1rem;
+  opacity: 0;
+  // 목록이 다 빠져나간 뒤에 들어온다. 둘이 겹쳐 보이면 어지럽다.
+  transition: opacity 420ms $ease-out 260ms;
+  pointer-events: none;
+
+  // 어두운 계기판. 기계 안으로 들어가는 것이므로 종이가 잉크로 뒤집힌다.
+  // 반전 자체가 이 화면의 첫 동작이다.
+  background-color: $machine-ground;
+  color: $machine-ink;
+  font-family: $font-mono;
+
+  &.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  // 돌아갈 때는 기다리지 않고 곧바로 걷힌다.
+  &:not(.is-open) { transition-delay: 0s; }
+
+  &__canvas {
+    grid-row: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    touch-action: none;
+  }
+
+  &.is-open &__canvas {
+    cursor: grab;
+
+    &.is-dragging { cursor: grabbing; }
+  }
+
+  // ── 장의 이름 ────────────────────────────────────────────────
+  &__hud {
+    position: absolute;
+    top: 4.5rem;
+    left: var(--gutter);
+    max-width: 22rem;
+    pointer-events: none;
+  }
+
+  &__slug {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+
+  &__no {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    color: $machine-ink-45;
+  }
+
+  &__name {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  &__kr {
+    margin: 0.5rem 0 0;
+    font-family: $font-kr;
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+  }
+
+  &__line {
+    margin: 0.35rem 0 0;
+    font-family: $font-kr;
+    font-size: 0.78rem;
+    font-weight: 300;
+    line-height: 1.6;
+    color: $machine-ink-45;
+    // 한 줄만 올린다. 두 줄이 되면 그림에서 눈을 뺏는다.
+    max-width: 20rem;
+  }
+
+  // ── 숫자 ─────────────────────────────────────────────────────
+  // 장면들이 저마다 계기를 캔버스에 그린다. 같은 숫자를 DOM 으로 한 번 더
+  // 얹으면 서로 겹칠 뿐이다. 그래서 눈에는 보이지 않게 두고, 스크린 리더가
+  // 읽을 자리로만 남긴다.
+  &__nums {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  // 장이 바뀌면 글자가 새로 들어온다. 항목마다 조금씩 어긋나게.
+  &__hud.is-in {
+    .machine__slug { animation: machine-in 460ms $ease-out both; }
+    .machine__kr { animation: machine-in 520ms $ease-out 60ms both; }
+    .machine__line { animation: machine-in 520ms $ease-out 120ms both; }
+  }
+
+  // ── 장 목록 ──────────────────────────────────────────────────
+  // 눈에 보이는 색인이면서 접근성 대체 내용이다.
+  &__scenes {
+    position: absolute;
+    left: var(--gutter);
+    bottom: 5.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    // 폭을 고정한다. 지금 장의 이름이 펼쳐지며 폭이 변하면, 캔버스가
+    // 비워 둘 자리를 재는 순간마다 다른 값이 나온다.
+    width: 12.5rem;
+    overflow: hidden;
+  }
+
+  &__scene {
+    display: block;
+  }
+
+  &__sceneBtn {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.1rem 0;
+    border: 0;
+    background: none;
+    color: $machine-ink-28;
+    font-family: $font-mono;
+    font-size: 0.56rem;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    transition: color 125ms $ease-out;
+
+    &:hover,
+    &:focus-visible { color: $machine-ink; }
+  }
+
+  &__sceneNo { font-variant-numeric: tabular-nums; }
+
+  &__sceneName {
+    text-transform: uppercase;
+    // 지금 장이 아니면 이름을 접는다. 열두 줄이 다 펼쳐지면 그림을 덮는다.
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transition: max-width 220ms $ease-out, opacity 180ms $ease-out;
+  }
+
+  &__sceneKr {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  &__scene.is-past &__sceneBtn { color: $machine-ink-45; }
+
+  &__scene.is-current &__sceneBtn {
+    color: $machine-ink;
+
+    .machine__sceneName { max-width: 14rem; opacity: 1; }
+  }
+
+  &__sceneBtn:hover &__sceneName,
+  &__sceneBtn:focus-visible &__sceneName { max-width: 14rem; opacity: 1; }
+
+  // ── 조작부 ───────────────────────────────────────────────────
+  &__transport {
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 0.85rem;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 1px solid $machine-ink-12;
+    background: none;
+    color: $machine-ink-45;
+    cursor: pointer;
+    transition: color 125ms $ease-out, border-color 125ms $ease-out;
+
+    &:hover,
+    &:focus-visible {
+      color: $machine-ink;
+      border-color: $machine-ink-45;
+    }
+
+    svg { display: block; }
+
+    .machine__ico--play { display: block; }
+    .machine__ico--pause { display: none; }
+
+    &.is-playing {
+      .machine__ico--play { display: none; }
+      .machine__ico--pause { display: block; }
+    }
+  }
+
+  &__rail {
+    position: relative;
+    flex: 1 1 auto;
+    height: 18px;
+    cursor: pointer;
+    touch-action: none;
+
+    // 선 자체는 가운데 1px. 누르는 자리는 그보다 넓게 둔다.
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: 50%;
+      height: 1px;
+      background: $machine-ink-12;
+    }
+
+    &:focus-visible { outline: 1px solid $machine-ink-45; outline-offset: 2px; }
+  }
+
+  &__played {
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 1px;
+    background: $machine-ink;
+    transform-origin: left center;
+    transform: scaleX(0);
+  }
+
+  &__head {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1px;
+    height: 9px;
+    margin-top: -4.5px;
+    background: $machine-ink;
+    transform: translateX(-50%);
+  }
+
+  &__tick {
+    position: absolute;
+    top: 50%;
+    width: 1px;
+    height: 4px;
+    margin-top: -2px;
+    background: $machine-ink-28;
+  }
+
+  &__clock {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: $machine-ink-45;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  // ── 안내 ─────────────────────────────────────────────────────
+  &__hint {
+    position: absolute;
+    right: var(--gutter);
+    bottom: 3.4rem;
+    margin: 0;
+    display: flex;
+    gap: 1rem;
+    font-size: 0.54rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: $machine-ink-28;
+    pointer-events: none;
+    transition: opacity 300ms $ease-out;
+  }
+
+  // 영화가 끝나면 카메라를 돌려준다. 그때 안내를 다시 밝힌다.
+  &.is-ended &__hint { color: $machine-ink-45; }
+
+  // 05장의 180ms. 캔버스만 뒤집히면 그 위의 흰 글자가 흰 바탕에 얹혀
+  // 사라진다. 화면 전체가 함께 넘어가야 한 번의 사건으로 읽힌다.
+  &.is-negative {
+    background-color: $paper;
+    color: $ink;
+
+    .machine__no,
+    .machine__line,
+    .machine__clock { color: $ink-50; }
+
+    .machine__sceneBtn { color: rgba(0, 0, 0, 0.28); }
+    .machine__scene.is-current .machine__sceneBtn { color: $ink; }
+    .machine__scene.is-past .machine__sceneBtn { color: $ink-50; }
+
+    .machine__btn { color: $ink-50; border-color: $rule-soft; }
+    .machine__rail::before { background: $rule-soft; }
+    .machine__played,
+    .machine__head { background: $ink; }
+    .machine__tick { background: rgba(0, 0, 0, 0.28); }
+    .machine__hint { color: rgba(0, 0, 0, 0.28); }
+  }
+
+  // 모션 감소일 때는 재생이라는 개념이 없다.
+  &.is-reduced [data-act="play"] { display: none; }
+  &.is-reduced &__hint { opacity: 0.7; }
+}
+
+// 기계가 떠 있는 동안에는 뒤에 남은 목록이 스크롤되지 않게 잠근다.
+.machine-open,
+.machine-open body {
+  overflow: hidden;
+}
+
+// 어두운 판이 화면을 덮으므로, 닫을 수 있는 버튼은 그 위에 남아야 한다.
+// 머리글만 통째로 올리고 색을 뒤집는다.
+.machine-open .topnav {
+  position: relative;
+  z-index: 45;
+  color: $machine-ink;
+
+  a {
+    color: $machine-ink-45;
+
+    &:hover,
+    &:focus-visible { color: $machine-ink; border-bottom-color: $machine-ink; }
+  }
+
+  .topnav__chip {
+    color: $machine-ink;
+    border-color: $machine-ink-28;
+
+    &:hover,
+    &:focus-visible,
+    &[aria-expanded="true"] {
+      border-color: $machine-ink;
+      background-color: rgba(253, 253, 252, 0.08);
+    }
+  }
+}
+
+// 반전되는 동안에는 머리글도 함께 넘어간다.
+.machine-open .machine.is-negative ~ * .topnav,
+.machine-open:has(.machine.is-negative) .topnav {
+  color: $ink;
+
+  a { color: $ink-50; }
+
+  .topnav__chip {
+    color: $ink;
+    border-color: $rule-soft;
+  }
+}
+
+// 검은 진행선은 검은 바탕에서 보이지 않고, 어차피 스크롤되지 않는다.
+.machine-open .scroll-line { display: none; }
+
+@keyframes machine-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 
 // ── 목록 ────────────────────────────────────────────────────────
@@ -530,6 +967,51 @@ a {
 @media (max-width: 768px) {
   .blog-index {
     padding: $content-top-sm var(--gutter) 2.5rem;
+  }
+
+  // 여기에 .machine 규칙이 없어서, 폰에서도 6rem 상단 여백이 그대로
+  // 남아 짧은 화면에서는 캔버스가 몇 픽셀로 눌렸다.
+  .machine {
+    padding: 3.25rem var(--gutter) 0.75rem;
+
+    // vh 가 아니라 svh 다. 주소창이 접히며 화면이 흔들리면, 2분짜리
+    // 화면에서는 그게 그대로 사고가 된다.
+    &__canvas { min-height: 52svh; }
+
+    &__hud {
+      // 머리글 줄(WRITING · 칩 · RSS) 아래로 내린다. 붙으면 둘 다 못 읽는다.
+      top: 5.25rem;
+      max-width: none;
+      right: var(--gutter);
+    }
+
+    &__kr { font-size: 0.92rem; }
+    &__line { font-size: 0.72rem; max-width: none; }
+
+    // 좁은 화면에서는 숫자와 장 목록을 접는다. 그림이 먼저다.
+    &__nums { display: none; }
+
+    &__scenes {
+      position: static;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0 0.7rem;
+      margin-top: 0.5rem;
+    }
+
+    &__scene.is-current &__sceneName { max-width: 0; opacity: 0; }
+    &__sceneName { display: none; }
+
+    &__hint {
+      position: static;
+      justify-content: flex-start;
+      gap: 0.7rem;
+      margin-top: 0.4rem;
+      font-size: 0.5rem;
+    }
+
+    &__transport { gap: 0.5rem; }
+    &__clock { font-size: 0.55rem; }
   }
 
   .topnav {
