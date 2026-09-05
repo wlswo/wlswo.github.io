@@ -371,14 +371,20 @@ export function setTextScale(k) { textScale = k; }
 function pushText(x, y, str, size, alpha, align, base, weight, degrade) {
   if (tn >= MAXT) return;
   size *= textScale;
-  // 6.5px 아래로 내려가면 글자로 그리지 않는다. 그 크기에서는 점이
-  // 더 싸고, 그 크기에서는 점이 더 잘 읽힌다.
+  // 6.5px 아래로 내려가면 버스 위의 비트열은 점이 된다. 그 크기에서는
+  // 점이 더 싸고, 그 크기에서는 점이 더 잘 읽힌다.
+  //
+  // 라벨은 다르다. degrade 를 주지 않은 글자는 이름이고, 이름은 작아질
+  // 지언정 사라지면 안 된다. 좁은 화면에서 부품 이름이 통째로 빠지는
+  // 것이 예전 동작이었다.
   if (size < TEXT_FLOOR) {
-    if (!degrade) return;
-    const t = texts[tn++];
-    t.dot = 1; t.x = x; t.y = y; t.a = alphaIndex(alpha); t.size = 1.5;
-    stats.text++;
-    return;
+    if (degrade) {
+      const t = texts[tn++];
+      t.dot = 1; t.x = x; t.y = y; t.a = alphaIndex(alpha); t.size = 1.5;
+      stats.text++;
+      return;
+    }
+    size = TEXT_FLOOR;
   }
   const t = texts[tn++];
   t.dot = 0;
