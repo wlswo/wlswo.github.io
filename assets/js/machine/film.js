@@ -160,6 +160,13 @@ let dragging = false;
 let dragHoldUntil = 0;
 
 export function addDrag(dy, dp) {
+  if (film.mode === 'ambient') {
+    // 자유 회전. 좌우는 한 바퀴를 다 돌 수 있고, 상하만 수직을 넘지
+    // 않도록 막는다. 기준이 부감(1.46)이므로 아래로 1.40 까지 내려간다.
+    dragTarget.yaw += dy;
+    dragTarget.pitch = clamp(dragTarget.pitch + dp, -1.40, 0.06);
+    return;
+  }
   dragTarget.yaw = clamp(dragTarget.yaw + dy, -1.15, 1.15);
   dragTarget.pitch = clamp(dragTarget.pitch + dp, -0.42, 0.62);
   dragHoldUntil = now + 700;
@@ -175,6 +182,9 @@ export function dragOffset() { return dragTarget; }
 export function resetDrag() { dragTarget.yaw = 0; dragTarget.pitch = 0; }
 
 function decayDrag(dt) {
+  // 앰비언트에서는 녹지 않는다. 연출된 숏이 없으므로 되돌릴 각도도 없고,
+  // 손으로 맞춰 둔 시점이 저절로 풀리면 그건 고장으로 읽힌다.
+  if (film.mode === 'ambient') return;
   if (film.ended) return;                 // 끝난 뒤에는 사용자 것이다
   if (dragging || now < dragHoldUntil) return;
   const k = Math.pow(0.0016, dt);         // 900ms 쯤에 걸쳐 녹는다
@@ -208,17 +218,28 @@ export function renderAt(t, overlay) {
     let yaw = desc.yaw === undefined ? 0 : desc.yaw;
     if (desc.turnPortrait && portrait > 0.5) yaw += Math.PI / 2;
 
-    const fitted = Cam.fitBox(desc.focus, Object.assign({}, desc, { pitch, yaw }));
+    // 손으로 더한 각도를 여기서 함께 넣는다.
+    //
+    // 예전에는 화면 맞추기를 끝낸 뒤에 드래그를 얹었다. 조금 흔드는
+    // 정도라면 표가 나지 않지만, 자유롭게 돌리면 맞춰 둔 틀 밖으로
+    // 기계가 걸어 나가 잘린다. 각도를 먼저 정하고 그 각도로 맞춰야
+    // 어느 방향에서 보든 전체가 화면 안에 남는다.
+    const finalYaw = yaw + dragTarget.yaw;
+    const finalPitch = clamp(pitch + dragTarget.pitch, 0.06, 1.52);
+
+    const fitted = Cam.fitBox(desc.focus,
+      Object.assign({}, desc, { pitch: finalPitch, yaw: finalYaw }));
     Cam.applyState({
-      yaw, pitch,
+      yaw: finalYaw, pitch: finalPitch,
       dolly: desc.dolly, flatten: desc.flatten,
       tx: fitted.tx, ty: fitted.ty, tz: fitted.tz,
       scale: fitted.scale,
       shiftX: fitted.shiftX, shiftY: fitted.shiftY
     });
   }
-  Cam.drag.yaw = dragTarget.yaw;
-  Cam.drag.pitch = dragTarget.pitch;
+  // 각도에 이미 들어갔으므로 여기서 또 더하지 않는다.
+  Cam.drag.yaw = 0;
+  Cam.drag.pitch = 0;
   Cam.commit();
 
   const neg = !!(s.negativeAt && !film.reduced && !film.highContrast && s.negativeAt(local));

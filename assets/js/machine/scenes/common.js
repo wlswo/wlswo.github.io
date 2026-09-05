@@ -6,6 +6,7 @@
 // 이 숫자 하나로 만든다.
 
 import * as R from '../core/raster.js';
+import { LAYER } from '../core/raster.js';
 import * as Cam from '../core/camera.js';
 import {
   PARTS, BOX, boardFaces, cpuFaces, memAll, diskFaces, ioFaces, pchFaces,
@@ -77,17 +78,24 @@ export function drawMachine(t, opts) {
   const dimOf = (id) => (focused && focused.indexOf(id) < 0 ? back : 1);
 
   // ── 보드 ──
+  // 보드가 맨 아래, 그 표면의 격자와 배선이 그 위, 부품이 그 위.
+  R.setLayer(LAYER.BOARD);
   if (!o.hideBoard) {
     const a = amp(o, 'board');
-    const bd = focused ? back : 1;
+    // 장면이 보드를 초점에 넣었다면 흐리지 않는다.
+    const bd = focused && focused.indexOf('board') < 0 ? back : 1;
     if (seen.board) {
       if (a > 0.02) R.solid(boardFaces, 0.28 * a * bd, bd);
       else R.ghost(boardFaces, 0.08);
-      if (a > 0.02) boardDetail(a * bd, { coarse: q < 2 });
+      if (a > 0.02) {
+        R.setLayer(LAYER.TRACE);
+        boardDetail(a * bd, { coarse: q < 2, grid: o.boardGrid });
+      }
     }
   }
 
   // ── 부품 ──
+  R.setLayer(LAYER.PART);
   const spin = o.spin === undefined ? t * 1.9 : o.spin;
   const armA = o.arm === undefined ? ARM_REST + Math.sin(t * 0.55) * 0.2 : o.arm;
 
@@ -124,10 +132,13 @@ export function drawMachine(t, opts) {
   }
 
   // ── 배선과 신호 ──
+  // 배선은 보드 표면에 있다. 그 위에 선 부품이 배선을 가려야 한다.
+  R.setLayer(LAYER.TRACE);
   const wa = o.wires === undefined ? amp(o, 'board') : o.wires;
   if (wa > 0.02) drawWires(wa, o.wireReveal);
   const sa = o.signals === undefined ? 0 : o.signals;
   if (sa > 0.02) drawSignals(t, sa, { only: o.busOnly, labels: o.busLabels, speed: o.busSpeed });
+  R.setLayer(LAYER.PART);
 }
 
 function drawPart(o, id, faces, detail, dim) {

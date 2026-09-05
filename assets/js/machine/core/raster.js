@@ -28,7 +28,7 @@ export const THEMES = {
     ground: '#0B0B0A',
     opaque: true,
     ink: [253, 253, 252],
-    faceLo: 15, faceHi: 54        // g = faceLo + (faceHi-faceLo)*lit
+    faceLo: 16, faceHi: 62        // g = faceLo + (faceHi-faceLo)*lit
   },
   paper: {
     ground: '#FDFDFC',
@@ -133,11 +133,13 @@ const fVal = new Float32Array(MAXF);     // 0: lit(0..1)  1·2: 알파 색인
 const fEdge = new Int8Array(MAXF);       // 테두리 알파 색인, -1 이면 없음
 const fStart = new Int32Array(MAXF);
 const fLen = new Int32Array(MAXF);
+const fLayer = new Uint8Array(MAXF);
 let fPts = new Float32Array(MAXF * 10);
 let fn = 0, fp = 0;
 
 const lDepth = new Float32Array(MAXL);
 const lStyle = new Int32Array(MAXL);
+const lLayer = new Uint8Array(MAXL);
 const lXY = new Float32Array(MAXL * 4);
 let ln = 0;
 
@@ -156,6 +158,7 @@ export function frameStats() { return stats; }
 
 export function beginFrame() {
   fn = 0; fp = 0; ln = 0; tn = 0; sn = 0;
+  curLayer = LAYER.PART;
   stats = { faces: 0, lines: 0, text: 0, strokes: 0, culled: 0 };
 
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -171,6 +174,24 @@ export function beginFrame() {
   ctx.textBaseline = 'middle';
   ctx.globalAlpha = 1;
 }
+
+// ── 층 ───────────────────────────────────────────────────────
+// 깊이 하나로만 줄을 세우면 평면 위에 얹힌 선이 제 면에 덮인다. 면은
+// 중심 한 점으로 정렬되는데, 넓은 면일수록 그 중심보다 뒤에 있는 선이
+// 많아지기 때문이다. 보드의 격자가 거의 다 사라졌던 것이 이것이다.
+//
+// 반대로 면을 가장 먼 꼭짓점으로 정렬하면 격자는 살아나지만, 이번에는
+// 보드 위의 배선이 그 위에 선 부품을 덮는다.
+//
+// 깊이로 풀 문제가 아니다. 무엇이 무엇 위에 있는지는 이미 알고 있다 —
+// 보드가 맨 아래, 그 표면의 배선이 그 위, 부품이 그 위, 이름이 맨 위.
+// 그 순서를 그대로 적어 두고, 깊이는 같은 층 안에서만 본다.
+export const LAYER = { BOARD: 0, TRACE: 1, PART: 2, NOTE: 3 };
+let curLayer = LAYER.PART;
+export function setLayer(n) { curLayer = n; }
+
+// 빛이 닿지 않는 면에도 남는 밝기. 0 이면 등진 면이 배경에 묻힌다.
+const AMBIENT_LIT = 0.34;
 
 // 빛의 방향. 예전 값을 그대로 쓴다.
 const LIGHT = (function () {
@@ -228,11 +249,18 @@ function pushFaceRaw(pts, mode, val, edgeAlpha, noCull, dim) {
     const cx = _n3[6] - _n3[3], cy = _n3[7] - _n3[4], cz = _n3[8] - _n3[5];
     const nx = by * cz - bz * cy, ny = bz * cx - bx * cz, nz = bx * cy - by * cx;
     const len = Math.hypot(nx, ny, nz) || 1;
-    lit = Math.max(0, (nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]) / len);
+    const d = (nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]) / len;
+
+    // 바닥값을 깔아 둔다. 빛만으로 칠하면 등을 돌린 면이 0 이 되고,
+    // 어두운 바탕에서 0 은 배경과 같은 색이다. 시점을 돌리는 동안
+    // 부품이 통째로 사라지는 것처럼 보이던 것이 이것이었다.
+    // 어느 방향에서 보든 모든 면은 바탕보다 밝다.
+    lit = AMBIENT_LIT + (1 - AMBIENT_LIT) * Math.max(0, d);
     if (dim !== undefined && dim < 1) lit *= dim;
   }
 
   fDepth[fn] = depth / n;
+  fLayer[fn] = curLayer;
   fMode[fn] = mode;
   fVal[fn] = mode === 0 ? lit : val;
   fEdge[fn] = edgeAlpha === undefined || edgeAlpha < 0 ? -1 : alphaIndex(edgeAlpha);
@@ -308,6 +336,7 @@ export function line(a, b, alpha, width, reveal, dash) {
   lXY[i4] = ax; lXY[i4 + 1] = ay; lXY[i4 + 2] = bx; lXY[i4 + 3] = by;
   // 선은 제 면 위에 있다. 아주 조금 앞으로 당겨야 자기 면에 먹히지 않는다.
   lDepth[ln] = (da + db) / 2 + 0.35;
+  lLayer[ln] = curLayer;
   lStyle[ln] = alphaIndex(alpha) * 64 + widthIndex(width) * 4 + (dash || 0);
   ln++;
   stats.lines++;
@@ -326,6 +355,7 @@ export function lineS(x0, y0, x1, y1, alpha, width, dash) {
   const i4 = ln * 4;
   lXY[i4] = x0; lXY[i4 + 1] = y0; lXY[i4 + 2] = x1; lXY[i4 + 3] = y1;
   lDepth[ln] = 1e9;      // 항상 맨 앞
+  lLayer[ln] = LAYER.NOTE;
   lStyle[ln] = alphaIndex(alpha) * 64 + widthIndex(width) * 4 + (dash || 0);
   ln++;
   stats.lines++;
@@ -401,7 +431,12 @@ const orderArr = [];      // 정렬용. subarray.sort 는 비교자를 받지만
 function primDepth(code) {
   return (code & 1) ? lDepth[code >> 1] : fDepth[code >> 1];
 }
-function cmpDepth(a, b) { return primDepth(a) - primDepth(b); }
+function primLayer(code) {
+  return (code & 1) ? lLayer[code >> 1] : fLayer[code >> 1];
+}
+function cmpDepth(a, b) {
+  return (primLayer(a) - primLayer(b)) || (primDepth(a) - primDepth(b));
+}
 
 const textOrder = [];
 function cmpText(a, b) {

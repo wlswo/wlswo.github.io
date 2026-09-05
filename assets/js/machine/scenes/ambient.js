@@ -43,7 +43,10 @@ export default {
 
     drawMachine(t, {
       quality: q,
-      focus: ['cpu', 'mem0', 'mem1', 'mem2', 'disk', 'pch', 'io', 'vrm'],
+      focus: ['board', 'cpu', 'mem0', 'mem1', 'mem2', 'disk', 'pch', 'io', 'vrm'],
+      // 바탕 격자를 흰 선으로 올린다. 이 화면에서는 격자가 장식이 아니라
+      // 부품의 크기를 재는 자다.
+      boardGrid: 0.16,
       wires: 1,
       signals: 0.95,
       // 버스 이름도 여기서 따로 찍는다. drawSignals 는 선 한가운데에
@@ -118,6 +121,8 @@ const BUSES_NAMED = [
 ];
 
 function drawNames() {
+  // 지시선은 기계 위에 얹히는 주석이다. 무엇에도 가리지 않는다.
+  R.setLayer(R.LAYER.NOTE);
   for (let i = 0; i < BUSES_NAMED.length; i++) {
     R.text3(BUSES_NAMED[i].at, BUSES_NAMED[i].s, 8, 0.45);
   }

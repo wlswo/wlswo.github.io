@@ -28,6 +28,10 @@ function init() {
   const filmMode = params.has('film') || jumpTo !== null;
   F.film.mode = filmMode ? 'film' : 'ambient';
 
+  // 시점을 주소로 지정한다. 여러 각도를 같은 조건에서 비교해 보려는 것.
+  const dYaw = params.has('dyaw') ? parseFloat(params.get('dyaw')) : null;
+  const dPitch = params.has('dpitch') ? parseFloat(params.get('dpitch')) : null;
+
   let w = 0, h = 0, dpr = 1;
   let raf = 0, open = false, closeTimer = 0;
 
@@ -303,6 +307,10 @@ function init() {
     if (!filmMode) {
       // 시계를 0 으로 맞추기만 한다. 재생할 것이 없다.
       F.rebaseTo(0);
+      if (dYaw !== null || dPitch !== null) {
+        F.resetDrag();
+        F.addDrag(dYaw || 0, dPitch || 0);
+      }
     } else if (jumpTo !== null && !isNaN(jumpTo)) {
       // ?t= 로 들어오면 그 자리에 멈춘다. 한 프레임을 확인하려고 준 주소인데
       // 계속 흘러가 버리면 매번 다른 그림이 나온다.

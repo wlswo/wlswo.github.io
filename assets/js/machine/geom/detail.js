@@ -279,9 +279,12 @@ export function boardDetail(amp, opts) {
   const o = opts || {};
   const y = 0.4;
   const step = o.coarse ? 40 : 20;
+  // 바탕 격자. 영화에서는 의식되지 않을 만큼만 깔지만, 멈춰 서서 보는
+  // 화면에서는 이것이 보드의 자를 대신하므로 밝기를 밖에서 정한다.
+  const g = (o.grid === undefined ? 0.05 : o.grid) * k;
 
-  for (let x = -200; x <= 200; x += step) line([x, y, -140], [x, y, 140], 0.05 * k);
-  for (let z = -140; z <= 140; z += step) line([-200, y, z], [200, y, z], 0.05 * k);
+  for (let x = -200; x <= 200; x += step) line([x, y, -140], [x, y, 140], g);
+  for (let z = -140; z <= 140; z += step) line([-200, y, z], [200, y, z], g);
 
   for (let i = 0; i < 8; i++) {                    // CPU 와 메모리를 잇는 다발
     const tz = -78 + i * 8;
