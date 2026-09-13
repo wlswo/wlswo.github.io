@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://wlswo.me/sitemap.xml
+Sitemap: https://wlswo.me/perfil/sitemap-index.xml
