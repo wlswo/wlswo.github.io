@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "분산 락, 정말 필요한가"
+categories: [distributed]
 date: 2025-08-04 13:21:00 +0900
 description: "락을 도입하기 전에 확인할 것들과, Redis 락이 정확성을 보장하지 못하는 이유."
 ---

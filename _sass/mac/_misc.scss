@@ -1,0 +1,151 @@
+// ── 움직임을 원치 않는 사용자 ───────────────────────────────────
+// 움직임은 끄고 상태 변화만 남긴다. 전환은 아예 없앤다 — 아주 짧은 전환이라도
+// visibility 가 한 박자 늦게 바뀌어, 되살린 창에 초점을 줄 수 없게 된다.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// ── 강제 색(고대비 모드) ────────────────────────────────────────
+// 그림자와 배경색이 지워지므로 테두리와 윤곽선으로 모양과 선택을 되살린다.
+@media (forced-colors: active) {
+  .window,
+  .glass,
+  .menu__panel,
+  .calendar {
+    border: 1px solid CanvasText;
+  }
+
+  .traffic__btn {
+    border: 1px solid ButtonText;
+
+    .icon {
+      opacity: 1;
+    }
+  }
+
+  .menu__item:hover,
+  .menu__item:focus-visible,
+  .spotlight__hit[aria-selected="true"] .spotlight__row {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  .search:focus-within {
+    outline: 2px solid Highlight;
+  }
+
+  // 달력: 칸 선, 고른 날, 오늘 동그라미, 일정 띠를 테두리로
+  .calendar__grid td {
+    border-color: CanvasText;
+  }
+
+  .calendar [aria-selected="true"] > .calendar__day {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  .calendar__day[aria-current="date"] .calendar__num {
+    border: 1px solid CanvasText;
+  }
+
+  .calendar__event {
+    border: 1px solid CanvasText;
+  }
+
+  .lens__body {
+    border: 2px solid Highlight;
+  }
+}
+
+// ── 아주 낮은 화면(가로 폰, 400% 확대) ──────────────────────────
+// 고정된 메뉴 막대·Dock·창 머리가 자리를 다 먹어 목록이 몇 픽셀만 남는다.
+// 이때는 데스크톱 흉내를 접고 문서 전체가 한 줄로 흐르게 한다.
+@media (max-width: 899px) and (max-height: 440px) {
+  html,
+  body {
+    height: auto;
+    overflow: visible;
+  }
+
+  .menubar,
+  .workspace {
+    position: static;
+  }
+
+  .window,
+  .window.is-zoomed,
+  .window.has-frame {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    height: auto;
+    margin: 6px;
+  }
+
+  .finder__list,
+  .doc__scroll {
+    overflow: visible;
+  }
+
+  .dock {
+    position: static;
+    margin: 8px;
+    transform: none;
+  }
+
+  .dock__bar {
+    flex: 1;
+  }
+}
+
+// ── 인쇄 ────────────────────────────────────────────────────────
+// 데스크톱은 걷어내고 종이 한 장으로.
+@media print {
+  html,
+  body {
+    height: auto;
+    overflow: visible;
+  }
+
+  .menubar,
+  .dock,
+  .desktop-icons,
+  .spotlight,
+  .traffic,
+  .doc__titlebar,
+  .doc__toc,
+  .finder__sidebar,
+  .finder__toolbar .search,
+  .code-bar,
+  .article__end {
+    display: none !important;
+  }
+
+  .workspace,
+  .window,
+  .doc__body,
+  .doc__scroll,
+  .finder__main,
+  .finder__list {
+    position: static !important;
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    transform: none !important;
+    box-shadow: none !important;
+    background: none !important;
+  }
+
+  .article {
+    padding: 0;
+  }
+}

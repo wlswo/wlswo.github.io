@@ -1,107 +1,111 @@
+---
+layout: desktop
+---
+{%- comment -%}
+  글 한 편은 데스크톱 위에 뜬 문서 창이다. 제목 막대는 본문 위에 떠 있어서,
+  본문이 그 밑으로 스크롤되며 가운데의 유리 이름표에 비쳐 휜다. 목차는 창
+  왼쪽에 위아래로 뜬 유리 판이고, 신호등이 그 위에 앉는다(macOS 26).
+  빨간 단추(닫기)는 글 목록으로 돌아간다.
+{%- endcomment -%}
+{%- assign slug = page.categories | first %}
+{%- comment -%} Jekyll 3(GitHub Pages)의 where 는 값이 nil 이면 배열 전체를 돌려준다. slug 가 있을 때만 찾는다. {%- endcomment -%}
+{%- assign cat = nil %}{%- if slug %}{%- assign cat = site.data.categories | where: "slug", slug | first %}{%- endif %}
+<article class="window doc" id="main-window" tabindex="-1" data-window="doc" data-close-href="{{ '/' | relative_url }}" aria-labelledby="doc-title">
+  <header class="doc__titlebar" data-window-drag>
+    {% include traffic-lights.html %}
+    <a class="doc__back" href="{{ '/' | relative_url }}" data-back aria-label="글 목록으로">{% include icon.html name="chevron-left" %}</a>
 
-<!DOCTYPE html>
-<html lang="{{ site.language | default: "en" }}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ page.title }}</title>
-  <meta property="og:image" content="{{ "/assets/images/thumbnail.png" | absolute_url }}" />
-  <meta name="twitter:image" content="{{ "/assets/images/thumbnail.png" | absolute_url }}" />
-  <link rel="icon" type="image/png" href="{{ "/assets/logo.ico/favicon-32x32.png" | relative_url }}" sizes="32x32" />
-  <link rel="icon" type="image/png" href="{{ "/assets/logo.ico/favicon-16x16.png" | relative_url }}" sizes="16x16" />
-  <link rel="shortcut icon" href="{{ "/assets/logo.ico/favicon.ico" | relative_url }}" />
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ "/assets/logo.ico/apple-touch-icon.png" | relative_url }}" />
-  <link rel="manifest" href="{{ "/assets/logo.ico/site.webmanifest" | relative_url }}" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
-  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
-  <link rel="stylesheet" href="{{ "/assets/css/syntax.css" | relative_url }}">
-  {% seo %}
-</head>
-<body>
-  <div class="scroll-line" aria-hidden="true"></div>
+    <div class="doc__proxy glass" data-refract="clear" data-glass-light>
+      {% include icon.html name="doc" class="doc__icon" %}
+      <span class="doc__name">{{ page.title }}</span>
+      {%- if cat %}<span class="doc__kind">— {{ cat.name }}</span>{% endif %}
+    </div>
 
-  <header class="topbar">
-    <a href="javascript:history.back()">&larr; Back</a>
-    <a class="topbar__home" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <button class="doc__tool" type="button" aria-label="목차" aria-pressed="true" aria-controls="toc" data-toc-toggle data-no-drag hidden>
+      {% include icon.html name="sidebar" %}
+    </button>
+    {%- comment -%} 오른쪽 끝의 공유: 폰에서는 공유 시트, 그 밖에서는 링크 복사 {%- endcomment %}
+    <button class="doc__share glass glass-button" type="button" data-share data-refract="clear" data-glass-light data-no-drag aria-label="링크 공유">
+      {% include icon.html name="share" %}
+    </button>
   </header>
 
-  <div class="post-container">
-    <header class="post-header">
-      <div class="post-title-area">
-        <h1>{{ page.title }}</h1>
-        <span class="post-date">{{ page.date | date: "%Y.%m.%d" }} {% assign w = page.date | date: "%u" | minus: 1 %}{% assign days = "월,화,수,목,금,토,일" | split: "," %}{{ days[w] }}</span>
+  <div class="doc__body">
+    {%- comment -%} 목차는 post.js 가 본문의 제목을 읽어 채운다. 제목이 두 개 미만이면 숨은 채로 둔다. {%- endcomment %}
+    <nav class="doc__toc glass" id="toc" aria-labelledby="toc-heading" hidden>
+      <p class="doc__toc-heading" id="toc-heading">목차</p>
+      <ol class="toc" data-lens-group></ol>
+    </nav>
+
+    <div class="doc__scroll" tabindex="0" role="region" data-scroll="doc" aria-label="본문">
+      <div class="article">
+        <header class="article__header">
+          {%- if page.date %}
+          <p class="article__eyebrow">
+            {%- if cat %}<a href="{{ '/' | relative_url }}?c={{ cat.slug }}" data-category="{{ cat.slug }}" data-no-current>{% include icon.html name=cat.icon %}{{ cat.name }}</a><span aria-hidden="true">·</span>{% endif %}
+            {%- assign w = page.date | date: "%u" | minus: 1 %}{% assign days = "월,화,수,목,금,토,일" | split: "," %}
+            <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y년 " }}{{ page.date | date: "%-m" }}월 {{ page.date | date: "%-d" }}일 {{ days[w] }}요일</time>
+            {%- comment -%} 읽는 시간: 한국어 글은 1분에 500자 남짓 읽는다고 보고 어림한다. {%- endcomment %}
+            {%- assign chars = content | strip_html | strip_newlines | size %}
+            {%- assign minutes = chars | divided_by: 500 | plus: 1 %}
+            <span aria-hidden="true">·</span><span class="article__time">{{ minutes }}분 분량</span>
+          </p>
+          {%- endif %}
+          <h1 class="article__title" id="doc-title">{{ page.title }}</h1>
+          {%- if page.description %}
+          <p class="article__lede">{{ page.description }}</p>
+          {%- endif %}
+        </header>
+
+        <div class="post-content">
+          {{ content }}
+        </div>
+
+        {%- if page.date %}
+        <footer class="article__end">
+
+          {%- if page.previous or page.next %}
+          <nav class="pager" aria-label="이웃한 글">
+            {%- if page.previous %}
+            <a class="pager__link pager__link--prev" href="{{ page.previous.url | relative_url }}" rel="prev">
+              <span class="pager__label">{% include icon.html name="chevron-left" %}이전 글</span>
+              <span class="pager__title">{{ page.previous.title }}</span>
+            </a>
+            {%- endif %}
+            {%- if page.next %}
+            <a class="pager__link pager__link--next" href="{{ page.next.url | relative_url }}" rel="next">
+              <span class="pager__label">다음 글{% include icon.html name="chevron-right" %}</span>
+              <span class="pager__title">{{ page.next.title }}</span>
+            </a>
+            {%- endif %}
+          </nav>
+          {%- endif %}
+        </footer>
+        {%- endif %}
       </div>
-    </header>
-
-    <main class="post-content">
-      {{ content }}
-    </main>
+    </div>
   </div>
-  
-  <div id="toc-wrapper" class="toc-wrapper">
-  </div>
-
-</div>
-
+</article>
+{% include frame-restore.html %}
+{%- comment -%}
+  목차를 첫 그림 전에 펼친다. post.js 가 나중에 펼치면 본문 기둥이 좁아지며
+  글 전체가 한 번 밀린다. 목차를 채우는 일은 post.js 가 하고, 여기서는
+  post.js 와 같은 규칙으로 '펼칠지'만 정한다.
+{%- endcomment %}
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const tocWrapper = document.getElementById('toc-wrapper');
-    const content = document.querySelector('.post-content');
-    if (!content || !tocWrapper) return;
-
-    const headers = content.querySelectorAll('h1, h2');
-    if (headers.length === 0) return;
-
-    const ul = document.createElement('ul');
-    headers.forEach(header => {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      
-      // Ensure id exists
-      if (!header.id) {
-          header.id = header.textContent.trim().replace(/\s+/g, '-').toLowerCase();
-      }
-      
-      a.href = '#' + header.id;
-      a.textContent = header.textContent;
-      a.classList.add('toc-link', 'toc-' + header.tagName.toLowerCase());
-
-      // 해시가 히스토리에 쌓이면 뒤로가기가 이전 페이지 대신 직전 섹션으로 가므로,
-      // 기본 동작 대신 직접 스크롤하고 주소만 교체한다.
-      a.addEventListener('click', function(e) {
-        e.preventDefault();
-        header.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        history.replaceState(null, '', '#' + header.id);
-      });
-
-      li.appendChild(a);
-      ul.appendChild(li);
-    });
-
-    tocWrapper.appendChild(ul);
-
-    // Scroll Spy
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px 0px -70% 0px',
-      threshold: 0
-    };
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute('id');
-          document.querySelectorAll('.toc-link').forEach(link => link.classList.remove('active'));
-          const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
-          if (activeLink) activeLink.classList.add('active');
-        }
-      });
-    }, observerOptions);
-
-    headers.forEach(header => observer.observe(header));
-  });
+(function () {
+  var win = document.getElementById('main-window'), toc = document.getElementById('toc');
+  if (!win || !toc) return;
+  var hs = win.querySelectorAll('.post-content h1, .post-content h2, .post-content h3'), lv = [], n, i;
+  for (i = 0; i < hs.length; i++) if (lv.indexOf(+hs[i].tagName[1]) < 0) lv.push(+hs[i].tagName[1]);
+  lv.sort();
+  function count(u) { var c = 0; for (var j = 0; j < hs.length; j++) if (u.indexOf(+hs[j].tagName[1]) >= 0) c++; return c; }
+  n = count(lv.slice(0, 2));
+  if (n > 20) n = count(lv.slice(0, 1));
+  if (n < 2) return;
+  var narrow = win.getBoundingClientRect().width < 940, pref = null;
+  try { pref = localStorage.getItem('ephemeris:toc'); } catch (e) {}
+  win.classList.toggle('doc--narrow', narrow);
+  if (!narrow && pref !== '0') { toc.hidden = false; win.classList.add('doc--toc'); }
+})();
 </script>
-</body>
-</html>

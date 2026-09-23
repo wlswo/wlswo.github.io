@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "멱등성은 재시도의 전제 조건이다"
+categories: [distributed]
 date: 2025-06-02 20:19:00 +0900
 description: "네트워크가 응답 유실을 구분하지 못하는 한 재시도는 불가피하다. 그때 안전하려면 무엇이 필요한가."
 ---

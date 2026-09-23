@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "마이그레이션은 롤백까지가 설계다"
+categories: [ops]
 date: 2025-12-02 22:57:00 +0900
 description: "배포 중에는 구 버전과 신 버전이 함께 돈다. 그 사이를 견디는 스키마 변경법."
 ---

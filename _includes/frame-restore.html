@@ -1,0 +1,27 @@
+{%- comment -%}
+  기억해 둔 창 자리(옮기고 크기를 바꾼 것)와 확대를 첫 그림 전에 입힌다.
+  desktop.js 가 나중에 같은 값을 다시 검사하고, 화면에 맞지 않으면 걷어낸다.
+  창 요소 바로 뒤에 넣는다.
+{%- endcomment -%}
+<script>
+(function () {
+  var win = document.getElementById('main-window');
+  if (!win || !matchMedia('(min-width: 900px)').matches) return;
+  var type = win.getAttribute('data-window'), f = null, z = null;
+  var MIN = { finder: [560, 380], doc: [460, 360] }[type];
+  try {
+    f = JSON.parse(localStorage.getItem('ephemeris:frame:' + type) || 'null');
+    z = localStorage.getItem('ephemeris:zoom:' + type);
+  } catch (e) {}
+  if (!MIN) return;
+  if (z === '1') win.classList.add('is-zoomed');
+  if (!f) return;
+  var w = innerWidth, h = innerHeight - 30;
+  if (f.w < MIN[0] || f.h < MIN[1] || f.w > w + 40 || f.h > h || f.x < -f.w + 140 || f.x > w - 140 || f.y < 0 || f.y > h - 120) return;
+  win.classList.add('has-frame');
+  win.style.setProperty('--x', f.x + 'px');
+  win.style.setProperty('--y', f.y + 'px');
+  win.style.setProperty('--w', f.w + 'px');
+  win.style.setProperty('--h', f.h + 'px');
+})();
+</script>

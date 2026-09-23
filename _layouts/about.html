@@ -1,0 +1,40 @@
+---
+layout: desktop
+---
+{%- comment -%}
+  About: 맥의 '이 Mac에 관하여' 창. 가운데 블로그의 아이콘, 이름, 한 줄 소개, 그리고
+  사양 대신 이 블로그의 몇 가지 숫자. 소개 글은 about/index.md 의 본문이다.
+  이 창은 크기를 바꾸지 않고, 초록 단추(확대)도 맥처럼 꺼져 있다.
+{%- endcomment -%}
+{%- assign newest = site.posts | first %}
+{%- assign oldest = site.posts | last %}
+<section class="window about" id="main-window" tabindex="-1" data-window="about" data-close-href="{{ '/' | relative_url }}" aria-labelledby="about-title">
+  <div class="about__bar" data-window-drag>
+    {% include traffic-lights.html nozoom=true %}
+  </div>
+  <div class="about__body">
+    <img class="about__icon" src="{{ '/assets/logo.ico/android-chrome-192x192.png' | relative_url }}" width="96" height="96" alt="">
+    <h1 class="about__title" id="about-title">{{ site.title }}</h1>
+    <p class="about__sub">{{ site.author }}의 기술 블로그</p>
+
+    <dl class="about__specs">
+      <div><dt>쓴 사람</dt><dd>{{ site.author }}</dd></div>
+      <div><dt>글</dt><dd>{{ site.posts | size }}편</dd></div>
+      <div><dt>카테고리</dt><dd>{% for cat in site.data.categories %}{{ cat.name }}{% unless forloop.last %} · {% endunless %}{% endfor %}</dd></div>
+      {%- if oldest %}
+      <div><dt>첫 글</dt><dd><time datetime="{{ oldest.date | date: '%Y-%m-%d' }}">{{ oldest.date | date: "%Y년 %-m월 %-d일" }}</time></dd></div>
+      <div><dt>최근 글</dt><dd><a href="{{ newest.url | relative_url }}">{{ newest.title }}</a></dd></div>
+      {%- endif %}
+    </dl>
+
+    <div class="about__text">
+      {{ content }}
+    </div>
+
+    <div class="about__actions">
+      <a class="button" href="{{ '/feed.xml' | relative_url }}">RSS 구독</a>
+      <a class="button button--primary" href="{{ '/' | relative_url }}">글 목록</a>
+    </div>
+    <p class="about__legal">© {{ site.time | date: '%Y' }} {{ site.author }}</p>
+  </div>
+</section>

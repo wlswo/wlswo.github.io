@@ -1,0 +1,106 @@
+{%- comment -%}
+  메뉴 막대. 왼쪽 끝의 작은 구체가 애플 메뉴 자리에 선다.
+  메뉴는 desktop.js 가 여닫는다. 스크립트가 없으면 앱 이름 링크만 남는다.
+{%- endcomment -%}
+{%- assign cur_slug = page.categories | first %}
+<header class="menubar glass" data-menubar>
+  <nav class="menubar__left" aria-label="메뉴 막대">
+    <div class="menu" data-menu>
+      <button class="menubar__item menubar__logo" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-app" aria-label="{{ site.title }} 메뉴">
+        <thinking-orb state="listening" size="18" preset="20" aria-hidden="true"{% if site.wallpaper_tone == 'dark' %} theme="dark"{% endif %}></thinking-orb>
+      </button>
+      <div class="menu__panel glass" data-refract="regular" id="menu-app" role="menu" aria-label="{{ site.title }}" hidden>
+        <a class="menu__item" role="menuitem" href="{{ '/about/' | relative_url }}">{{ site.title }}에 관하여</a>
+        <a class="menu__item" role="menuitem" href="{{ '/feed.xml' | relative_url }}">RSS 구독</a>
+        <div class="menu__sep" role="separator"></div>
+        <button class="menu__item" role="menuitem" type="button" data-open-spotlight>Spotlight 검색<kbd class="menu__kbd">⌘K</kbd></button>
+        <button class="menu__item" role="menuitemcheckbox" aria-checked="false" type="button" data-still-toggle>움직임 멈추기</button>
+        <div class="menu__sep" role="separator"></div>
+        {%- comment -%} 모양: 맥의 '모양' 설정처럼 자동 · 라이트 · 다크(theme.js) {%- endcomment %}
+        <button class="menu__item" role="menuitemradio" aria-checked="true" type="button" data-appearance="auto">모양: 자동</button>
+        <button class="menu__item" role="menuitemradio" aria-checked="false" type="button" data-appearance="light">모양: 라이트</button>
+        <button class="menu__item" role="menuitemradio" aria-checked="false" type="button" data-appearance="dark">모양: 다크</button>
+        {%- if page.layout == "home" or page.layout == "minimal_post" or page.layout == "minimal_page" %}
+        {%- comment -%} 창을 끌지 않고도 옮기고 크기를 바꿀 수 있게. 데스크톱 폭에서만 보인다. {%- endcomment %}
+        <div class="menu__sep menu__desktop-only" role="separator"></div>
+        <button class="menu__item menu__desktop-only" role="menuitem" type="button" data-window-preset="fill">창 채우기</button>
+        <button class="menu__item menu__desktop-only" role="menuitem" type="button" data-window-preset="left">왼쪽 절반으로</button>
+        <button class="menu__item menu__desktop-only" role="menuitem" type="button" data-window-preset="right">오른쪽 절반으로</button>
+        <button class="menu__item menu__desktop-only" role="menuitem" type="button" data-window-preset="default">원래 크기로</button>
+        {%- endif %}
+      </div>
+    </div>
+
+    <a class="menubar__item menubar__app" href="{{ '/' | relative_url }}" data-category="" data-no-current>{{ site.title }}</a>
+
+    <div class="menu" data-menu>
+      <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-cats">카테고리</button>
+      <div class="menu__panel glass" data-refract="regular" id="menu-cats" role="menu" aria-label="카테고리" hidden>
+        <a class="menu__item" role="menuitem" href="{{ '/' | relative_url }}" data-category="">
+          {% include icon.html name="all" %}<span>전체</span><span class="menu__meta">{{ site.posts | size }}</span>
+        </a>
+        <div class="menu__sep" role="separator"></div>
+        {%- for cat in site.data.categories %}
+        <a class="menu__item" role="menuitem" href="{{ '/' | relative_url }}?c={{ cat.slug }}" data-category="{{ cat.slug }}"{% if cat.slug == cur_slug %} aria-current="true"{% endif %}>
+          {% include icon.html name=cat.icon %}<span>{{ cat.name }}</span><span class="menu__meta">{{ site.categories[cat.slug] | size }}</span>
+        </a>
+        {%- endfor %}
+      </div>
+    </div>
+
+    <div class="menu menu--wide" data-menu>
+      <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-recent">최근 글</button>
+      <div class="menu__panel glass" data-refract="regular" id="menu-recent" role="menu" aria-label="최근 글" hidden>
+        {%- for post in site.posts limit: 6 %}
+        <a class="menu__item" role="menuitem" href="{{ post.url | relative_url }}"{% if post.url == page.url %} aria-current="true"{% endif %}>
+          {% include icon.html name="doc" %}<span class="menu__text">{{ post.title }}</span><span class="menu__meta">{{ post.date | date: "%-m월 %-d일" }}</span>
+        </a>
+        {%- endfor %}
+      </div>
+    </div>
+  </nav>
+
+  <div class="menubar__right">
+    {%- comment -%} RunCat. 이 쪽이 바쁠수록 고양이가 빨리 달린다(runcat.js). {%- endcomment %}
+    <div class="menu menu--right" data-menu>
+      <button class="menubar__item menubar__cat" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-runcat" aria-label="RunCat">
+        <canvas class="runcat" width="30" height="18" data-runcat aria-hidden="true"></canvas>
+      </button>
+      <div class="menu__panel glass" data-refract="regular" id="menu-runcat" role="menu" aria-label="RunCat" hidden>
+        <div class="menu__info" role="menuitem" aria-disabled="true" tabindex="-1">
+          <span>활동량</span><span class="menu__meta" data-runcat-load>—</span>
+        </div>
+        <div class="menu__sep" role="separator"></div>
+        <button class="menu__item" role="menuitemcheckbox" aria-checked="false" type="button" data-runcat-toggle>고양이 쉬게 하기</button>
+      </div>
+    </div>
+    <button class="menubar__item menubar__icon" type="button" data-open-spotlight aria-label="Spotlight 검색 (⌘K)">
+      {% include icon.html name="search" %}
+    </button>
+    {%- comment -%} 날짜를 누르면 맥 캘린더 앱의 한 달 보기가 내려온다. 글은 카테고리 색의 일정처럼 칸에 적힌다(calendar.js). {%- endcomment %}
+    <div class="calendar-root" data-calendar-root>
+      <button class="menubar__item menubar__clock" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="calendar" data-calendar-button>
+        <time data-clock></time>
+      </button>
+      <div class="calendar" id="calendar" role="dialog" aria-labelledby="calendar-title" hidden>
+        <div class="calendar__head">
+          <h2 class="calendar__title" id="calendar-title" data-cal-title></h2>
+          <div class="calendar__nav" role="group" aria-label="달 넘기기">
+            <button class="calendar__btn" type="button" data-cal-step="-1" aria-label="이전 달">{% include icon.html name="chevron-left" %}</button>
+            <button class="calendar__btn calendar__btn--today" type="button" data-cal-today>오늘</button>
+            <button class="calendar__btn" type="button" data-cal-step="1" aria-label="다음 달">{% include icon.html name="chevron-right" %}</button>
+          </div>
+        </div>
+        <table class="calendar__grid" role="grid" aria-labelledby="calendar-title">
+          <thead>
+            <tr>
+              <th scope="col" abbr="일요일">일</th><th scope="col" abbr="월요일">월</th><th scope="col" abbr="화요일">화</th><th scope="col" abbr="수요일">수</th><th scope="col" abbr="목요일">목</th><th scope="col" abbr="금요일">금</th><th scope="col" abbr="토요일">토</th>
+            </tr>
+          </thead>
+          <tbody data-cal-body></tbody>
+        </table>
+        <div class="calendar__agenda" data-cal-agenda aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</header>

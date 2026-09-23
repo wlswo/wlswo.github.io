@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "흐름 제어와 혼잡 제어는 무엇이 다른가"
+categories: [network]
 date: 2025-07-01 18:07:00 +0900
 description: "비슷해 보이는 두 메커니즘이 실제로는 서로 다른 상대를 배려한다."
 ---

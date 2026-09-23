@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "N+1 쿼리는 ORM의 잘못이 아니다"
+categories: [database]
 date: 2025-07-15 06:58:00 +0900
 description: "지연 로딩이라는 합리적인 기본값이 어떻게 함정이 되는지, 그리고 각 해법의 한계."
 ---

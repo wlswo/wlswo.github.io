@@ -1,6 +1,9 @@
-# Minimal Theme Migration
+# Ephemeris
 
-이 블로그는 Jekyll 기반의 Minimal 테마로 마이그레이션되었습니다.
+맥북 데스크톱처럼 생긴 Jekyll 블로그입니다. 배경화면 위에 메뉴 막대와 Dock 이
+있고, 글 목록은 Finder 창, 글은 문서 창으로 뜹니다. Dock 은 유리(Liquid Glass)
+표면이고, [thinking-orbs](https://libraries.dev/orbs) 점 구체는 Dock 과 메뉴 막대
+로고에만 포인트로 씁니다.
 
 ## 블로그 포스트 작성 방법
 
@@ -21,21 +24,24 @@ YYYY-MM-DD-제목.md
 layout: minimal_post
 title: "글의 제목을 입력하세요"
 date: 2024-01-20 12:00:00 +0900
-categories: [카테고리1, 카테고리2]
-tags: [태그1, 태그2]
+categories: [database]
 ---
 ```
 
 *   **layout**: 반드시 `minimal_post`를 사용해야 합니다.
 *   **title**: 글의 제목입니다.
 *   **date**: 작성 날짜 및 시간입니다.
-*   **categories**, **tags**: (선택 사항) 글의 분류를 위해 사용합니다.
+*   **categories**: `_data/categories.yml` 에 있는 slug 하나를 적습니다.
+    (`database` · `network` · `runtime` · `distributed` · `ops` · `notes`)
+    새 카테고리가 필요하면 `_data/categories.yml` 에 항목을 더하세요. 이름, 아이콘,
+    그리고 Dock 의 칸 구체가 입을 모양(`orb`)을 정합니다.
+*   **description**: 목록과 Spotlight 에 보이는 한 줄 요약입니다.
 
 ### 3. 본문 작성
 Front Matter 아래에 일반적인 마크다운 문법으로 내용을 작성하시면 됩니다.
 
 #### 주요 기능 및 스타일
-*   **폰트**: Pretendard (본문/제목), JetBrains Mono (코드 블럭)
+*   **폰트**: Pretendard (모든 글자), 코드 블럭만 고정폭(SF Mono / JetBrains Mono)
 *   **코드 블럭**:
     ```java
     public class HelloWorld {
@@ -60,3 +66,25 @@ bundle exec jekyll serve
 ```
 
 브라우저에서 `http://localhost:4000`으로 접속하여 확인할 수 있습니다.
+
+## 공유 썸네일 만들기
+
+카카오톡·슬랙·X 에 글 주소를 붙이면 뜨는 미리보기 그림(Open Graph 이미지)은
+글마다 한 장씩 `assets/og/` 에 미리 구워 둡니다. GitHub Pages 는 빌드할 때
+그림을 만들어 주지 않기 때문입니다.
+
+새 글을 올리거나 제목·설명·날짜·카테고리를 고쳤다면, `bundle exec jekyll serve` 를
+띄워 둔 채로 다른 터미널에서 아래를 실행하고 바뀐 그림을 글과 함께 커밋하세요.
+
+```bash
+cd tools/og
+npm install        # 처음 한 번
+node generate.mjs
+```
+
+*   바뀐 글만 다시 굽고, 지운 글의 그림은 알아서 치웁니다. 전부 다시 구우려면 `--force` 를 붙이세요.
+*   개발 서버 주소가 다르면 `--base http://127.0.0.1:4001` 처럼 알려 주세요.
+*   Google Chrome 이 설치되어 있어야 합니다.
+*   그림 이름은 글 날짜의 유닉스 초(`search.json` 의 `og`)입니다. 그림이 없는 글과 홈·About 은
+    `assets/og/default.jpg` 를 씁니다.
+*   카드 모양은 `tools/og/_card.html` 에서 고칩니다. 고치면 다음 실행 때 전부 새로 구워집니다.

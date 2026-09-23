@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "CAP 정리를 오해하지 않기"
+categories: [distributed]
 date: 2025-08-26 21:49:00 +0900
 description: "P는 고를 수 있는 선택지가 아니다. 그리고 CAP은 정상 상황에 대해 아무 말도 하지 않는다."
 ---

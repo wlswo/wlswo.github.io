@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "Docker 레이어 캐시 제대로 쓰기"
+categories: [ops]
 date: 2025-06-17 11:33:00 +0900
 description: "빌드 시간을 좌우하는 것은 명령의 내용이 아니라 순서다."
 ---

@@ -31,6 +31,7 @@ plugins:
 # Exclude
 # ---------------------------------------------------------------
 exclude:
+  - tools # 공유 썸네일을 만드는 스크립트(tools/og). 사이트에 올리지 않는다
   - Gemfile
   - Gemfile.lock
   - node_modules
@@ -43,4 +44,16 @@ exclude:
 # ---------------------------------------------------------------
 # Custom Settings
 # ---------------------------------------------------------------
-# Add any theme-specific settings here if needed in the future.
+# 데스크톱 배경화면. 다른 그림을 쓰려면 assets/images/ 에 넣고 경로를 바꾼다.
+# wallpaper_2x 는 레티나 화면용(없으면 wallpaper 를 그대로 쓴다).
+# wallpaper_dark(_2x) 는 다크 모양일 때의 그림(없으면 위의 그림을 쓴다).
+# wallpaper_tone 은 그림의 밝기: dark 면 라이트 모양에서도 메뉴 막대와 데스크톱
+# 폴더 이름을 흰 글자로 쓴다(맥이 어두운 배경화면 위에서 하듯이).
+#
+# 직접 그린 밝은 배경(assets/images/wallpaper*.webp, 원본은 wallpaper.svg)도 남겨 두었다.
+# 되돌리려면 아래 네 줄을 wallpaper(-dark)(@2x).webp 로 바꾸고 tone 을 light 로.
+wallpaper: /assets/images/wallpaper-monterey.webp
+wallpaper_2x: /assets/images/wallpaper-monterey@2x.webp
+wallpaper_dark: /assets/images/wallpaper-monterey.webp
+wallpaper_dark_2x: /assets/images/wallpaper-monterey@2x.webp
+wallpaper_tone: dark

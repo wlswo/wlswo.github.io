@@ -1,0 +1,68 @@
+<!-- Ephemeris 데스크톱 배경화면(다크)의 원본. wallpaper.svg 와 같은 그림을 밤 색으로. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.25" y2="1">
+      <stop offset="0" stop-color="#0b0f24"/>
+      <stop offset="0.3" stop-color="#131a3d"/>
+      <stop offset="0.7" stop-color="#1c2a6b"/>
+      <stop offset="1" stop-color="#23338a"/>
+    </linearGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2d5fb8"/>
+      <stop offset="0.5" stop-color="#23419a"/>
+      <stop offset="1" stop-color="#141f63"/>
+    </linearGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="1" y2="0.6">
+      <stop offset="0" stop-color="#6a58c9"/>
+      <stop offset="0.45" stop-color="#4b3fae"/>
+      <stop offset="1" stop-color="#2f3a9e"/>
+    </linearGradient>
+    <linearGradient id="c" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#26409c"/>
+      <stop offset="1" stop-color="#0d1650"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.3" stop-color="#fff" stop-opacity="0.95"/>
+      <stop offset="0.75" stop-color="#fff" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="bloom" cx="0.22" cy="0.18" r="0.6">
+      <stop offset="0" stop-color="#8fa6ff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="f40" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="40"/></filter>
+    <filter id="f16" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="16"/></filter>
+    <filter id="f6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="f2" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.2"/></filter>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="22"/><feOffset dy="-18"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="11" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.06 0"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="900" fill="url(#sky)"/>
+  <rect width="1440" height="900" fill="url(#bloom)"/>
+
+  <!-- back sheet: cyan → blue -->
+  <path d="M-100 620 C 200 470, 460 520, 720 470 C 980 420, 1180 250, 1560 230 L 1560 980 L -100 980 Z" fill="url(#a)" opacity="0.8" filter="url(#f16)"/>
+
+  <!-- middle sheet: lilac glass fold, with a soft shadow above its crest -->
+  <path d="M-100 700 C 220 580, 470 660, 760 600 C 1040 540, 1220 380, 1560 380 L 1560 980 L -100 980 Z" fill="#26307a" opacity="0.18" filter="url(#shadow)"/>
+  <path d="M-100 700 C 220 580, 470 660, 760 600 C 1040 540, 1220 380, 1560 380 L 1560 980 L -100 980 Z" fill="url(#b)" opacity="0.92" filter="url(#f6)"/>
+  <path d="M-60 694 C 230 584, 470 660, 760 600 C 1040 542, 1220 384, 1540 382" fill="none" stroke="url(#rim)" stroke-width="3" opacity="0.55" filter="url(#f2)"/>
+
+  <!-- front fold: deep blue, lower right -->
+  <path d="M-100 900 C 260 820, 560 850, 860 760 C 1100 690, 1280 560, 1560 540 L 1560 980 L -100 980 Z" fill="#1b2474" opacity="0.2" filter="url(#shadow)"/>
+  <path d="M-100 900 C 260 820, 560 850, 860 760 C 1100 690, 1280 560, 1560 540 L 1560 980 L -100 980 Z" fill="url(#c)" opacity="0.95" filter="url(#f6)"/>
+  <path d="M-40 898 C 270 818, 560 848, 860 760 C 1100 692, 1280 562, 1540 542" fill="none" stroke="url(#rim)" stroke-width="2.4" opacity="0.45" filter="url(#f2)"/>
+
+  <!-- light caught inside the glass -->
+  <ellipse cx="980" cy="610" rx="260" ry="46" transform="rotate(-18 980 610)" fill="#9fb4ff" opacity="0.16" filter="url(#f40)"/>
+  <ellipse cx="420" cy="760" rx="300" ry="50" transform="rotate(-6 420 760)" fill="#7c8cff" opacity="0.18" filter="url(#f40)"/>
+
+  <rect width="1440" height="900" filter="url(#grain)"/>
+</svg>

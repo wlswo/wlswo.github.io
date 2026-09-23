@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "인덱스가 있는데 왜 풀 스캔인가"
+categories: [database]
 date: 2025-05-19 16:44:00 +0900
 description: "옵티마이저가 인덱스를 버리는 상황들과, 아예 쓸 수 없게 만드는 조건들을 나눠 정리한다."
 ---

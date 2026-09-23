@@ -1,0 +1,245 @@
+// ── 다크 모양 ───────────────────────────────────────────────────
+// 맥의 다크 모양처럼: 밤 배경화면, 짙은 회색 창, 흰 글자, 어두운 유리.
+// html[data-theme="dark"] 는 theme.js(와 head.html 의 첫 스크립트)가 붙인다.
+// 대부분은 토큰을 뒤집는 것으로 끝나고, 유리처럼 흰 빛을 겹쳐 그린 곳만 따로 고친다.
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #1c1c1e;
+  --ink: #f5f5f7;
+  --ink-body: #e3e3e6;
+  --ink-2: rgba(255, 255, 255, 0.72);
+  --ink-3: rgba(255, 255, 255, 0.56);
+  --ink-4: rgba(255, 255, 255, 0.3);
+  --sep: rgba(255, 255, 255, 0.12);
+  --fill: rgba(255, 255, 255, 0.06);
+  --fill-2: rgba(255, 255, 255, 0.1);
+
+  --paper: #1e1e20;
+  --paper-2: #28282b;
+  --paper-veil: rgba(30, 30, 32, 0.86);
+  --on-ink: #000000;
+  --window-edge: rgba(255, 255, 255, 0.16);
+  --glass-window: rgba(36, 36, 40, 0.64);
+  --traffic-off: #4a4a4f;
+  --edge-fade: rgba(30, 30, 32, 0.86);
+  --edge-fade-mid: rgba(30, 30, 32, 0.45);
+  --edge-fade-end: rgba(30, 30, 32, 0);
+  --label-glow: rgba(0, 0, 0, 0.75);
+
+  --accent: #0a84ff;
+  --accent-ring: rgba(10, 132, 255, 0.35);
+  --finder-side: #2a2a2d;
+  --finder-bar: #232326;
+  --finder-selected: rgba(255, 255, 255, 0.1);
+  --finder-stripe: #242427;
+
+  // 배경화면
+  .wallpaper {
+    background-color: #111633;
+    background-image: var(--wallpaper-dark);
+    background-image: -webkit-image-set(var(--wallpaper-dark) 1x, var(--wallpaper-dark-2x) 2x);
+    background-image: image-set(var(--wallpaper-dark) 1x, var(--wallpaper-dark-2x) 2x);
+  }
+
+  // 유리: 흰 막 대신 짙은 막. 테두리 빛은 남기되 한결 옅게.
+  .glass {
+    --glass-bg: rgba(40, 40, 44, 0.5);
+    --glass-edge: rgba(255, 255, 255, 0.14);
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.02) 45%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    box-shadow:
+      inset 0 0 0 var(--hair) var(--glass-edge),
+      inset 0 1px 1px rgba(255, 255, 255, 0.22),
+      inset 0 -1px 1.5px rgba(0, 0, 0, 0.25),
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 8px 28px -8px rgba(0, 0, 0, 0.5);
+
+    &::after {
+      opacity: 0.35;
+    }
+
+    &::before {
+      background: radial-gradient(
+        circle 90px at var(--gx, 50%) var(--gy, 0%),
+        rgba(255, 255, 255, 0.18),
+        rgba(255, 255, 255, 0) 70%
+      );
+    }
+
+    &.is-refracting {
+      --glass-bg: rgba(40, 40, 44, 0.3);
+
+      &::after {
+        opacity: 0.2;
+      }
+    }
+
+    &[data-refract="regular"] {
+      --glass-bg: rgba(38, 38, 42, 0.7);
+
+      &.is-refracting {
+        --glass-bg: rgba(38, 38, 42, 0.58);
+      }
+    }
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass {
+      --glass-bg: rgba(38, 38, 42, 0.96);
+    }
+  }
+
+  // 메뉴 막대: 배경화면 위의 흰 글자. 막대 자체는 여전히 투명하다
+  // (위의 .glass 규칙이 짙은 막을 입히지 않게 되돌린다).
+  .menubar {
+    --glass-bg: transparent;
+    background-image: none;
+    box-shadow: none;
+    text-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+
+    &__item:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .menu.is-open > .menubar__item,
+    .menubar__clock[aria-expanded="true"] {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  // 메뉴 · Spotlight 의 고른 항목(흰 바탕에 검은 글자)
+  .menu__item:hover,
+  .menu__item:focus-visible,
+  .spotlight__hit[aria-selected="true"] .spotlight__row {
+    .icon,
+    .menu__meta,
+    .menu__kbd,
+    .spotlight__meta {
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  .menu__sep,
+  .spotlight__results,
+  .spotlight__foot,
+  .finder__status,
+  .code-bar {
+    border-color: var(--sep);
+  }
+
+  .spotlight::backdrop {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  .doc__tool:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  // 달력: 캘린더 앱의 다크 모양(짙은 종이, 밝은 칸 선, 조금 진한 일정 색)
+  .calendar {
+    --cal-weekend: rgba(255, 255, 255, 0.03);
+    --cal-pick: rgba(10, 132, 255, 0.22);
+    --cal-today: #ff453a;
+    --cal-control: #3a3a3e;
+    --cal-control-edge: rgba(255, 255, 255, 0.12);
+    --cal-tint: 0.34;
+    box-shadow:
+      0 0 0 var(--hair) rgba(0, 0, 0, 0.6),
+      inset 0 0 0 var(--hair) var(--window-edge),
+      0 22px 56px -14px rgba(0, 0, 0, 0.7);
+  }
+
+  // 데스크톱 폴더 이름: 배경화면 위의 흰 글자와 어두운 둘레
+  .desktop-icon__label {
+    color: #ffffff;
+  }
+
+  .desktop-icon.is-selected .folder,
+  .desktop-icon.is-selected .paper {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .marquee {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  // 목차 판
+  .doc__toc {
+    --glass-bg: rgba(46, 46, 50, 0.72);
+  }
+
+  // 렌즈: 흰 알약 대신 옅게 빛나는 알약
+  .lens__body {
+    background: rgba(255, 255, 255, 0.14);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+    box-shadow:
+      inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 4px 14px -4px rgba(0, 0, 0, 0.5);
+  }
+
+  .dock__tabs .lens__body {
+    background: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    box-shadow: none;
+  }
+
+  .dock__tabs .lens.is-pressed .lens__body {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.22),
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.3),
+      0 8px 24px -6px rgba(0, 0, 0, 0.55);
+  }
+
+  // 알약 단추
+  .button {
+    background: #3a3a3e;
+    box-shadow:
+      inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.14),
+      0 1px 2px rgba(0, 0, 0, 0.4);
+
+    &:hover {
+      background: #45454a;
+    }
+
+    &--primary {
+      background: var(--ink);
+
+      &:hover {
+        background: #ffffff;
+      }
+    }
+  }
+
+  // 글: 그림 테두리, 코드 블록 테두리
+  .post-content {
+    img {
+      box-shadow: 0 0 0 var(--hair) rgba(255, 255, 255, 0.12);
+    }
+
+    div.highlighter-rouge,
+    figure.highlight {
+      box-shadow: inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.08);
+    }
+
+    a {
+      text-decoration-color: rgba(255, 255, 255, 0.35);
+    }
+  }
+
+  .pager__link {
+    box-shadow: inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.18);
+  }
+
+  .lightbox {
+    background: rgba(0, 0, 0, 0.45);
+  }
+}

@@ -1,0 +1,9 @@
+<div class="traffic" role="group" aria-label="창 조작">
+  <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기">{% include icon.html name="close" %}</button>
+  <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화">{% include icon.html name="minus" %}</button>
+  {%- if include.nozoom %}
+  <button class="traffic__btn traffic__btn--zoom" type="button" aria-label="확대" disabled>{% include icon.html name="zoom" %}</button>
+  {%- else %}
+  <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="확대" aria-pressed="false">{% include icon.html name="zoom" %}</button>
+  {%- endif %}
+</div>

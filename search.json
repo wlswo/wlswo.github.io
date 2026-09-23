@@ -1,0 +1,11 @@
+---
+layout: null
+sitemap: false
+---
+[
+{%- for post in site.posts %}
+  {%- assign slug = post.categories | first %}
+  {%- assign cat = nil %}{%- if slug %}{%- assign cat = site.data.categories | where: "slug", slug | first %}{%- endif %}
+  {"title": {{ post.title | jsonify }}, "url": {{ post.url | relative_url | jsonify }}, "date": {{ post.date | date: "%Y.%m.%d" | jsonify }}, "category": {{ cat.name | jsonify }}, "slug": {{ slug | jsonify }}, "short": {{ cat.short | default: "" | jsonify }}, "icon": {{ cat.icon | default: "doc" | jsonify }}, "color": {{ cat.color | default: "" | jsonify }}, "description": {{ post.description | default: "" | jsonify }}, "og": {{ post.date | date: "%s" | jsonify }}}{% unless forloop.last %},{% endunless %}
+{%- endfor %}
+]

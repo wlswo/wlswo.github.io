@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "Kafka의 순서 보장은 어디까지인가"
+categories: [distributed]
 date: 2025-03-21 19:05:00 +0900
 description: "순서를 보장하는 단위가 토픽이 아니라 파티션인 이유와, 그 사실이 설계에 미치는 영향."
 ---

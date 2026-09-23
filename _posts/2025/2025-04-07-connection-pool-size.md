@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "커넥션 풀은 왜 작아야 하는가"
+categories: [database]
 date: 2025-04-07 09:38:00 +0900
 description: "풀을 키우면 처리량이 오를 것 같지만 반대인 경우가 많다. Little's Law로 적정 크기를 가늠해 본다."
 ---

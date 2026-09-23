@@ -1,0 +1,12 @@
+{
+  "name": "ephemeris-og",
+  "private": true,
+  "description": "Ephemeris 글마다 공유 썸네일(assets/og/*.jpg)을 굽는 도구",
+  "type": "module",
+  "scripts": {
+    "generate": "node generate.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0"
+  }
+}

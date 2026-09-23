@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "Redis는 왜 싱글 스레드인가"
+categories: [distributed]
 date: 2025-03-03 14:26:00 +0900
 description: "병목이 CPU가 아니라는 판단에서 출발한 설계 결정과, 그 대가로 무엇을 조심해야 하는지 살펴본다."
 ---

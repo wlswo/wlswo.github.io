@@ -1,0 +1,33 @@
+{%- comment -%}
+  Dock. iOS 27 의 Liquid Glass 탭 막대 모양을 빌렸다. 칸마다 그 카테고리의
+  구체가 살아 돌고, 고른 칸 뒤에 유리 렌즈가 놓인다. 누른 채로 옆으로 끌면
+  렌즈가 떠올라 손끝을 따라오고, 놓은 자리의 카테고리가 열린다.
+  오른쪽의 동그란 유리 단추는 Spotlight. 최소화한 창은 그 옆에 붙는다.
+{%- endcomment -%}
+{%- assign cur_slug = page.categories | first %}
+<div class="dock" data-dock>
+  <nav class="dock__bar glass" data-refract="clear" data-glass-light aria-label="카테고리">
+    <ul class="dock__tabs" data-dock-tabs data-lens-group>
+      <li>
+        <a class="dock__tab" href="{{ '/' | relative_url }}" data-category="" data-orb="listening"{% if page.layout == "home" %} aria-current="true"{% endif %}>
+          <thinking-orb state="listening" size="28" preset="32" aria-hidden="true"></thinking-orb>
+          <span class="dock__label">전체</span>
+        </a>
+      </li>
+      {%- for cat in site.data.categories %}
+      <li>
+        <a class="dock__tab" href="{{ '/' | relative_url }}?c={{ cat.slug }}" data-category="{{ cat.slug }}" data-orb="{{ cat.orb }}"{% if cat.slug == cur_slug %} aria-current="true"{% endif %}{% if cat.short and cat.short != cat.name %} aria-label="{{ cat.name }} ({{ cat.short }})"{% endif %}>
+          <thinking-orb state="{{ cat.orb }}" size="28" preset="32" aria-hidden="true"></thinking-orb>
+          <span class="dock__label"><span class="dock__long">{{ cat.name }}</span><span class="dock__short" aria-hidden="true">{{ cat.short | default: cat.name }}</span></span>
+        </a>
+      </li>
+      {%- endfor %}
+    </ul>
+  </nav>
+
+  <button class="dock__search glass" data-refract="clear" data-glass-light type="button" data-open-spotlight aria-label="Spotlight 검색">
+    {% include icon.html name="search" %}
+  </button>
+
+  <ul class="dock__windows" data-dock-windows aria-label="최소화한 창"></ul>
+</div>

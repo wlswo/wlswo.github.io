@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "데이터베이스 인덱스는 왜 B-Tree인가"
+categories: [database]
 date: 2025-01-23 10:02:00 +0900
 description: "조회가 O(1)인 해시를 두고 B-Tree가 표준이 된 이유를 디스크 접근 비용 관점에서 살펴본다."
 ---

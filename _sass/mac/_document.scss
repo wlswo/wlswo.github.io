@@ -1,0 +1,428 @@
+// ── 글 본문 ─────────────────────────────────────────────────────
+// 문서 창 안의 종이. Pretendard 로 쓰고, 코드만 고정폭.
+
+.article {
+  max-width: calc(44rem + 96px);
+  margin: 0 auto;
+  padding: 34px 48px 72px;
+
+  &__header {
+    padding-bottom: 26px;
+    margin-bottom: 36px;
+    border-bottom: var(--hair) solid var(--ink);
+  }
+
+  &__eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: var(--ink-2);
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+      color: var(--ink);
+
+      .icon {
+        width: 15px;
+        height: 15px;
+      }
+
+      &:hover {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1px;
+      }
+    }
+
+    span {
+      color: var(--ink-4);
+    }
+
+    time {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 700;
+    line-height: 1.28;
+    letter-spacing: -0.03em;
+  }
+
+  &__lede {
+    margin: 14px 0 0;
+    font-size: 16.5px;
+    line-height: 1.65;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+}
+
+.post-content {
+  font-size: 16.5px;
+  line-height: 1.8;
+  color: var(--ink-body);
+  letter-spacing: -0.012em;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--ink);
+    line-height: 1.4;
+    letter-spacing: -0.025em;
+    scroll-margin-top: 64px; // 떠 있는 제목 막대 밑으로 숨지 않게
+  }
+
+  h1 {
+    margin: 60px 0 16px;
+    padding-bottom: 12px;
+    border-bottom: var(--hair) solid var(--ink);
+    font-size: 25px;
+    font-weight: 700;
+  }
+
+  h2 {
+    margin: 52px 0 14px;
+    font-size: 21.5px;
+    font-weight: 700;
+  }
+
+  h3 {
+    margin: 40px 0 10px;
+    font-size: 18px;
+    font-weight: 650;
+  }
+
+  h4,
+  h5,
+  h6 {
+    margin: 30px 0 8px;
+    font-size: 16.5px;
+    font-weight: 650;
+  }
+
+  p {
+    margin: 0 0 1.15em;
+  }
+
+  strong,
+  b {
+    font-weight: 650;
+    color: var(--ink);
+  }
+
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgba(0, 0, 0, 0.3);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s linear;
+
+    &:hover {
+      text-decoration-color: var(--ink);
+    }
+  }
+
+  ul,
+  ol {
+    margin: 0 0 1.2em;
+    padding-left: 1.35em;
+  }
+
+  li {
+    margin-bottom: 0.4em;
+
+    > ul,
+    > ol {
+      margin: 0.4em 0 0;
+    }
+  }
+
+  li::marker {
+    color: var(--ink-3);
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 30px auto;
+    border-radius: 12px;
+    box-shadow: 0 0 0 var(--hair) var(--sep);
+  }
+
+  blockquote {
+    margin: 26px 0;
+    padding: 2px 0 2px 18px;
+    border-left: 2px solid var(--ink);
+    color: var(--ink-2);
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  hr {
+    height: 0;
+    margin: 52px 0;
+    border: 0;
+    border-top: var(--hair) solid var(--ink);
+  }
+
+  // 표. 가로로 넘치면 표만 옆으로 흐른다.
+  table {
+    display: block;
+    max-width: 100%;
+    margin: 30px 0;
+    overflow-x: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    word-break: normal;
+  }
+
+  th,
+  td {
+    padding: 9px 14px 9px 0;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: var(--hair) solid var(--sep);
+  }
+
+  th {
+    font-weight: 650;
+    color: var(--ink);
+    white-space: nowrap;
+    border-bottom-color: var(--ink);
+  }
+
+  tbody tr {
+    transition: background-color 0.12s linear;
+  }
+
+  tbody tr:hover {
+    background-color: var(--fill);
+  }
+
+  // 글자 사이의 짧은 코드
+  code {
+    padding: 0.12em 0.38em;
+    border-radius: 6px;
+    background: var(--fill-2);
+    font-family: var(--mono);
+    font-size: 0.86em;
+    letter-spacing: 0;
+    word-break: break-word;
+  }
+
+  // 코드 블록. Xcode 의 밝은 편집기처럼.
+  div.highlighter-rouge,
+  figure.highlight {
+    margin: 26px 0;
+    border-radius: 12px;
+    background: var(--paper-2);
+    box-shadow: inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  pre {
+    margin: 0;
+    padding: 14px 18px 16px;
+    overflow-x: auto;
+    background: transparent;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.62;
+    letter-spacing: 0;
+    tab-size: 4;
+    word-break: normal;
+  }
+
+  pre code {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    font-size: inherit;
+    word-break: normal;
+  }
+
+  > pre {
+    margin: 26px 0;
+    border-radius: 12px;
+    background: var(--paper-2);
+  }
+}
+
+.code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34px;
+  padding: 0 6px 0 16px;
+  border-bottom: var(--hair) solid rgba(0, 0, 0, 0.08);
+
+  &__lang {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+  }
+
+  &__copy {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: none;
+    color: var(--ink-3);
+    transition:
+      background-color 0.15s linear,
+      color 0.15s linear;
+
+    .icon {
+      width: 15px;
+      height: 15px;
+    }
+
+    &:hover {
+      background: var(--fill-2);
+      color: var(--ink);
+    }
+  }
+}
+
+// ── 끝맺음 ──────────────────────────────────────────────────────
+.article__end {
+  margin-top: 64px;
+  padding-top: 8px;
+  border-top: var(--hair) solid var(--ink);
+}
+
+.pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 36px;
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px 16px;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.2);
+    transition:
+      box-shadow 0.15s linear,
+      background-color 0.15s linear;
+
+    &:hover {
+      background: var(--fill);
+      box-shadow: inset 0 0 0 var(--hair) var(--ink);
+    }
+
+    &--next {
+      grid-column: 2;
+      align-items: flex-end;
+      text-align: right;
+    }
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 12px;
+    color: var(--ink-3);
+
+    .icon {
+      width: 13px;
+      height: 13px;
+      stroke-width: 1.8;
+    }
+  }
+
+  &__title {
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.015em;
+  }
+}
+
+@media (max-width: 640px) {
+  .article {
+    padding: 22px 20px 48px;
+
+    &__header {
+      padding-bottom: 20px;
+      margin-bottom: 28px;
+    }
+
+    &__lede {
+      font-size: 15.5px;
+    }
+  }
+
+  .post-content {
+    font-size: 16px;
+    line-height: 1.78;
+
+    h1 {
+      font-size: 22px;
+      margin-top: 44px;
+    }
+
+    h2 {
+      font-size: 19.5px;
+      margin-top: 40px;
+    }
+
+    h3 {
+      font-size: 17px;
+      margin-top: 32px;
+    }
+
+    pre {
+      font-size: 12px;
+      padding: 12px 14px 14px;
+    }
+
+    div.highlighter-rouge,
+    figure.highlight,
+    > pre {
+      margin-left: -20px;
+      margin-right: -20px;
+      border-radius: 0;
+    }
+  }
+
+  .pager {
+    grid-template-columns: 1fr;
+
+    &__link--next {
+      grid-column: 1;
+    }
+  }
+}

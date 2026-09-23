@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "트랜잭션 격리 수준 다시 읽기"
+categories: [database]
 date: 2025-02-05 08:47:00 +0900
 description: "Read Committed와 Repeatable Read가 실제로 무엇을 막고 무엇을 허용하는지 정리한다."
 ---

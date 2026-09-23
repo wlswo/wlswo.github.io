@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "CORS는 브라우저의 규칙이다"
+categories: [network]
 date: 2025-04-24 23:11:00 +0900
 description: "서버를 고쳐도 안 되던 이유. 동일 출처 정책과 CORS의 관계를 정리한다."
 ---

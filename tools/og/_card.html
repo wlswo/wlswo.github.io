@@ -1,0 +1,369 @@
+<!doctype html>
+<!--
+  공유 썸네일(1200×630)의 틀. generate.mjs 가 이 파일을 개발 서버와 같은 주소
+  (<서버>/__og__/card.html)에 띄워, 배경화면·구체 모듈(/assets/…)을 사이트에서
+  그대로 불러 쓴다. 글마다 window.renderCard(data) 로 내용을 바꿔 넣고 찍는다.
+  이름이 밑줄로 시작해 Jekyll 은 이 파일을 사이트(와 사이트맵)에 싣지 않는다.
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Ephemeris · og card</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --ink: #000;
+    --ink-2: rgba(0, 0, 0, 0.66);
+    --ink-3: rgba(0, 0, 0, 0.55);
+    --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
+      "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  }
+
+  html, body {
+    margin: 0;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+  }
+
+  body {
+    position: relative;
+    font-family: var(--font);
+    color: var(--ink);
+    background: #c9d8fb url("../assets/images/wallpaper@2x.webp") 30% 78% / 132% auto no-repeat;
+    -webkit-font-smoothing: antialiased;
+    font-kerning: normal;
+    font-synthesis: none;
+  }
+
+  /* ── 유리 한 장 ─────────────────────────────────────────── */
+  .card {
+    position: absolute;
+    inset: 40px 44px;
+    box-sizing: border-box;
+    border-radius: 40px;
+    isolation: isolate;
+    padding: 44px 60px 42px;
+    display: flex;
+    flex-direction: column;
+
+    background-color: rgba(255, 255, 255, 0.5);
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55),
+      rgba(255, 255, 255, 0.1) 42%,
+      rgba(255, 255, 255, 0) 62%,
+      rgba(0, 0, 0, 0.012)
+    );
+    backdrop-filter: blur(30px) saturate(1.8) brightness(1.04);
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.07),
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+      inset 0 -1.5px 2px rgba(0, 0, 0, 0.04),
+      inset 0 0 28px rgba(255, 255, 255, 0.4),
+      0 2px 4px rgba(20, 30, 90, 0.06),
+      0 30px 70px -18px rgba(24, 36, 120, 0.4);
+  }
+
+  /* 테두리 빛: 왼쪽 위가 가장 밝고 오른쪽 아래에 한 번 더 맺힌다. */
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(
+      135deg,
+      #fff,
+      rgba(255, 255, 255, 0.25) 26%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(255, 255, 255, 0.18) 78%,
+      rgba(255, 255, 255, 0.85) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  /* 유리 안에 맺힌 빛 */
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background:
+      radial-gradient(120% 90% at 8% 0%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 55%),
+      radial-gradient(60% 70% at 100% 100%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 70%);
+  }
+
+  /* ── 머리: Finder 제목처럼 구체 옆에 카테고리 이름 ───────────── */
+  .head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    /* 구체 캔버스의 안쪽 여백만큼 당겨, 점의 가장자리가 글과 줄을 맞추게 한다 */
+    margin: -8px 0 0 -12px;
+  }
+
+  thinking-orb {
+    display: block;
+    flex: none;
+    width: 120px;
+    height: 120px;
+  }
+
+  .head__name {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  .head__en {
+    margin-top: 4px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .head__name:empty, .head__en:empty { display: none; }
+
+  /* ── 글: 바닥 줄 위에 붙여 쌓는다 ─────────────────────────── */
+  .text {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 12px 0 28px;
+  }
+
+  .title, .desc {
+    flex: none; /* 자리가 모자라도 찌그러지지 않게. 대신 fitTitle 이 글자를 줄인다 */
+  }
+
+  .title {
+    margin: 0;
+    font-size: 68px;
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.03em;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .title.is-clamped {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+
+  .desc {
+    max-width: 940px;
+    margin: 16px 0 0;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--ink-2);
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .desc:empty { display: none; }
+
+  /* ── 바닥 줄 ───────────────────────────────────────────── */
+  .foot {
+    flex: none;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.09);
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .foot b {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .foot__host {
+    color: var(--ink-3);
+  }
+
+  /* 사이트 기본 카드: 제목을 더 크게 */
+  .card.is-site .title {
+    font-size: 104px;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .card.is-site .desc {
+    margin-top: 20px;
+    font-size: 30px;
+  }
+</style>
+<script type="module" src="../assets/js/orb.js"></script>
+</head>
+<body>
+  <main class="card" id="card">
+    <header class="head">
+      <thinking-orb id="orb" state="listening" size="120" preset="64" dots="1.6" theme="light" paused aria-hidden="true"></thinking-orb>
+      <div>
+        <div class="head__name" id="head-name"></div>
+        <div class="head__en" id="head-en"></div>
+      </div>
+    </header>
+    <div class="text" id="text">
+      <h1 class="title" id="title"></h1>
+      <p class="desc" id="desc"></p>
+    </div>
+    <footer class="foot">
+      <span id="foot-left"></span>
+      <span class="foot__host" id="foot-right"></span>
+    </footer>
+  </main>
+
+<script type="module">
+  import { r as resolvePreset } from '../assets/js/vendor/thinking-orbs/engine.js';
+
+  const $ = (id) => document.getElementById(id);
+  const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  function lineCount(el) {
+    return Math.round(el.scrollHeight / parseFloat(getComputedStyle(el).lineHeight));
+  }
+
+  // 글 묶음이 머리(구체) 아래 남은 자리에 들어가는가. 바닥에 붙여 쌓으므로
+  // 넘치면 위로 삐져나간다. 제목의 윗변이 글 칸의 윗변보다 아래에 있으면 된다.
+  function fits() {
+    const text = $('text');
+    const top = text.getBoundingClientRect().top + parseFloat(getComputedStyle(text).paddingTop);
+    return $('title').getBoundingClientRect().top >= top - 0.5;
+  }
+
+  // 제목은 정해 둔 줄 수까지. 넘치면 글자를 한 단계씩 줄이고, 그래도 모자라면
+  // 설명을 한 줄로 줄여 다시 해 보고, 끝까지 넘치면 제목을 말줄임한다.
+  function fitTitle(el, sizes, maxLines) {
+    const desc = $('desc');
+    el.classList.remove('is-clamped');
+    for (const descLines of [2, 1]) {
+      desc.style.webkitLineClamp = String(descLines);
+      for (const size of sizes) {
+        el.style.fontSize = `${size}px`;
+        if (lineCount(el) <= maxLines && fits()) {
+          return { size, lines: lineCount(el), descLines, clamped: false };
+        }
+      }
+    }
+    el.classList.add('is-clamped');
+    return { size: sizes.at(-1), lines: lineCount(el), descLines: 1, clamped: true };
+  }
+
+  // 구체는 멈춘(paused) 채로 모양마다 보기 좋은 한 장면에 세운다. 멈춘 구체는
+  // performance.now() 의 시각으로 그리므로, 그 값을 잠깐 바꿔 끼워 장면을 고른다.
+  // 값은 라이브러리의 장면 시계 t(초 × 속도). 적지 않은 모양은 움직임 줄이기와
+  // 같은 t = 0.6 에 선다. shaping 은 0.6 이면 그냥 원이라 세모가 보이는 때를 고른다.
+  const STILL = { working: 3.5, searching: 9, solving: 12, listening: 2.5, shaping: 3 };
+  const realNow = performance.now.bind(performance);
+  let orbNow = null;
+  performance.now = () => orbNow ?? realNow();
+
+  function placeOrb(state) {
+    const { speed } = resolvePreset(state, 64);
+    orbNow = ((STILL[state] ?? 0.6) / speed) * 1000;
+    // 새 요소로 갈아 끼워야 이전 모양과 겹쳐 넘기는 연출 없이 그 장면이 바로 그려진다.
+    const old = $('orb');
+    const orb = old.cloneNode(false);
+    orb.setAttribute('state', state);
+    old.replaceWith(orb);
+    return orb;
+  }
+
+  // 곧은 따옴표를 둥근 따옴표로(제목·설명은 머리말의 날 글자 그대로 온다).
+  const smart = (s = '') =>
+    s
+      .replace(/(^|[\s(\[{"“])'/g, '$1‘')
+      .replace(/'/g, '’')
+      .replace(/(^|[\s(\[{‘])"/g, '$1“')
+      .replace(/"/g, '”');
+
+  // 구체가 실제로 칠해졌는지(투명하지 않은 픽셀이 있는지) 확인한다.
+  function orbInk(orb) {
+    const canvas = orb.querySelector('canvas');
+    if (!canvas || !canvas.width) return 0;
+    const { data } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+    let n = 0;
+    for (let i = 3; i < data.length; i += 4) if (data[i] > 24) n++;
+    return n;
+  }
+
+  const orbDefined = Promise.race([
+    customElements.whenDefined('thinking-orb'),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('구체 모듈(assets/js/orb.js)을 불러오지 못함')), 10000),
+    ),
+  ]);
+
+  window.renderCard = async (d) => {
+    await orbDefined;
+    const card = $('card');
+    card.classList.toggle('is-site', d.kind === 'site');
+    $('title').textContent = smart(d.title);
+    $('title').style.fontSize = '';
+    $('desc').textContent = smart(d.description);
+    $('head-name').textContent = d.label || '';
+    $('head-en').textContent = d.labelEn || '';
+    $('foot-left').replaceChildren();
+    if (d.footLead) {
+      const b = document.createElement('b');
+      b.textContent = d.footLead;
+      $('foot-left').append(b);
+    }
+    if (d.footTail) $('foot-left').append(d.footLead ? ` · ${d.footTail}` : d.footTail);
+    $('foot-right').textContent = d.host || '';
+    placeOrb(d.orb || 'listening');
+
+    // 글자에 필요한 Pretendard 조각(유니코드 범위별 파일)을 모두 받은 뒤에 줄을 나눈다.
+    const all = [d.title, d.description, d.label, d.labelEn, d.footLead, d.footTail, d.host].join(' ');
+    await document.fonts.load(`700 64px "Pretendard Variable"`, all);
+    await document.fonts.ready;
+
+    const fit = d.kind === 'site'
+      ? fitTitle($('title'), [104, 96, 88, 80], 2)
+      : fitTitle($('title'), [68, 64, 60, 56, 52], 3);
+    await document.fonts.ready;
+    await frame();
+
+    const desc = $('desc');
+    return {
+      fit,
+      fontsOk: document.fonts.check(`700 64px "Pretendard Variable"`, d.title),
+      descClamped: desc.scrollHeight > desc.clientHeight + 1,
+      overflow: !fits() || card.scrollHeight > card.clientHeight + 1,
+      orbInk: orbInk($('orb')),
+    };
+  };
+
+  window.cardReady = true;
+</script>
+</body>
+</html>

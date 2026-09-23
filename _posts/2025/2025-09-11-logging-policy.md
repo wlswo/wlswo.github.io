@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "로그는 어디까지 남겨야 하나"
+categories: [ops]
 date: 2025-09-11 10:15:00 +0900
 description: "사후에 재구성할 수 있는 만큼. 레벨 기준과 남기지 말아야 할 것을 정리한다."
 ---

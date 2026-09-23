@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="{{ site.language | default: "ko" }}" data-theme="light">
+<head>
+  {%- if page.layout == "minimal_post" or page.layout == "minimal_page" or page.layout == "home" %}
+  {% include head.html syntax=true %}
+  {%- else %}
+  {% include head.html %}
+  {%- endif %}
+</head>
+{%- comment -%}
+  맥북의 데스크톱 한 장. 배경화면 위에 메뉴 막대와 Dock, 그 사이에 창이 뜬다.
+  글 목록은 Finder 창(home), 글은 문서 창(minimal_post)이다.
+  배경화면은 _config.yml 의 wallpaper(_2x) 로 바꿀 수 있다.
+{%- endcomment -%}
+{%- assign wall = site.wallpaper | default: '/assets/images/wallpaper.webp' %}
+{%- assign wall2x = site.wallpaper_2x | default: wall %}
+{%- assign wallDark = site.wallpaper_dark | default: wall %}
+{%- assign wallDark2x = site.wallpaper_dark_2x | default: wallDark %}
+<body class="desktop desktop--{{ page.layout | default: 'page' }}" data-posts-src="{{ '/search.json' | relative_url }}" data-wallpaper-tone="{{ site.wallpaper_tone | default: 'light' }}">
+  {% include icons.html %}
+  <div class="wallpaper" aria-hidden="true" style="--wallpaper: url('{{ wall | relative_url }}'); --wallpaper-2x: url('{{ wall2x | relative_url }}'); --wallpaper-dark: url('{{ wallDark | relative_url }}'); --wallpaper-dark-2x: url('{{ wallDark2x | relative_url }}')"></div>
+  <a class="skip-link" href="#main-window">본문으로 건너뛰기</a>
+
+  {% include menubar.html %}
+
+  <main class="workspace" id="workspace">
+    {{ content }}
+  </main>
+
+  {% include dock.html %}
+  {%- if page.layout == "home" %}
+  {%- comment -%}
+    /?c=slug 로 들어왔을 때, 모듈이 돌기 전(첫 그림)부터 걸러진 목록을 보인다.
+    이게 없으면 전체 목록이 한 번 보였다가 줄어들며 화면이 크게 밀린다.
+    finder.js 는 같은 상태를 다시 계산하므로 여기서는 보이는 것만 맞춘다.
+  {%- endcomment %}
+  <script>
+  (function () {
+    var c = new URLSearchParams(location.search).get('c'), side = null, n = 0;
+    if (!c) return;
+    document.querySelectorAll('.finder__item[data-category]').forEach(function (a) {
+      if (a.getAttribute('data-category') === c) side = a;
+    });
+    if (!side) return;
+    document.querySelectorAll('.finder .row').forEach(function (r) {
+      var ok = r.getAttribute('data-category') === c;
+      r.hidden = !ok;
+      if (ok) n++;
+    });
+    document.querySelectorAll('.finder [data-year]').forEach(function (y) {
+      y.hidden = !y.querySelector('.row:not([hidden])');
+    });
+    document.querySelectorAll('.finder__item[data-category], .dock__tab[data-category]').forEach(function (a) {
+      if (a.getAttribute('data-category') === c) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+    document.querySelector('[data-list-title]').textContent = side.querySelector('.finder__label').textContent.trim();
+    document.querySelector('[data-status]').textContent = n + '개 항목';
+  })();
+  </script>
+  {%- endif %}
+  {% include spotlight.html %}
+
+  <script type="module" src="{{ "/assets/js/orb.js" | relative_url }}"></script>
+  <script type="module" src="{{ "/assets/js/glass.js" | relative_url }}"></script>
+  <script type="module" src="{{ "/assets/js/desktop.js" | relative_url }}"></script>
+  {%- if page.layout == "home" %}
+  <script type="module" src="{{ "/assets/js/finder.js" | relative_url }}"></script>
+  <script type="module" src="{{ "/assets/js/docs.js" | relative_url }}"></script>
+  {%- elsif page.layout == "minimal_post" or page.layout == "minimal_page" %}
+  <script type="module" src="{{ "/assets/js/post.js" | relative_url }}"></script>
+  {%- endif %}
+</body>
+</html>

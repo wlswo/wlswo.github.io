@@ -1,197 +1,65 @@
-.highlight {
-  background: #000000;
-  color: #cccccc;
-}
-.highlight .c {
-  color: #999999;
-}
-.highlight .err {
-  color: #cccccc;
-}
-.highlight .k {
-  color: #cc99cc;
-}
-.highlight .l {
-  color: #f99157;
-}
-.highlight .n {
-  color: #cccccc;
-}
-.highlight .o {
-  color: #66cccc;
-}
-.highlight .p {
-  color: #cccccc;
-}
-.highlight .cm {
-  color: #999999;
-}
-.highlight .cp {
-  color: #999999;
-}
-.highlight .c1 {
-  color: #999999;
-}
-.highlight .cs {
-  color: #999999;
-}
-.highlight .gd {
-  color: #f2777a;
-}
-.highlight .ge {
-  font-style: italic;
-}
-.highlight .gh {
-  color: #cccccc;
-  font-weight: bold;
-}
-.highlight .gi {
-  color: #99cc99;
-}
-.highlight .gp {
-  color: #999999;
-  font-weight: bold;
-}
-.highlight .gs {
-  font-weight: bold;
-}
-.highlight .gu {
-  color: #66cccc;
-  font-weight: bold;
-}
-.highlight .kc {
-  color: #cc99cc;
-}
-.highlight .kd {
-  color: #cc99cc;
-}
-.highlight .kn {
-  color: #66cccc;
-}
-.highlight .kp {
-  color: #cc99cc;
-}
-.highlight .kr {
-  color: #cc99cc;
-}
-.highlight .kt {
-  color: #ffcc66;
-}
-.highlight .ld {
-  color: #99cc99;
-}
-.highlight .m {
-  color: #f99157;
-}
-.highlight .s {
-  color: #99cc99;
-}
-.highlight .na {
-  color: #f2777a;
-}
-.highlight .nb {
-  color: #cccccc;
-}
-.highlight .nc {
-  color: #ffcc66;
-}
-.highlight .no {
-  color: #f2777a;
-}
-.highlight .nd {
-  color: #66cccc;
-}
-.highlight .ni {
-  color: #cccccc;
-}
-.highlight .ne {
-  color: #f2777a;
-  font-weight: bold;
-}
-.highlight .nf {
-  color: #f2777a;
-}
-.highlight .nl {
-  color: #cccccc;
-}
-.highlight .nn {
-  color: #ffcc66;
-}
-.highlight .nx {
-  color: #f2777a;
-}
-.highlight .py {
-  color: #cccccc;
-}
-.highlight .nt {
-  color: #66cccc;
-}
-.highlight .nv {
-  color: #f2777a;
-}
-.highlight .ow {
-  color: #66cccc;
-}
-.highlight .w {
-  color: #cccccc;
-}
-.highlight .mf {
-  color: #f99157;
-}
-.highlight .mh {
-  color: #f99157;
-}
-.highlight .mi {
-  color: #f99157;
-}
-.highlight .mo {
-  color: #f99157;
-}
-.highlight .sb {
-  color: #99cc99;
-}
-.highlight .sc {
-  color: #cccccc;
-}
-.highlight .sd {
-  color: #999999;
-}
-.highlight .s2 {
-  color: #99cc99;
-}
-.highlight .se {
-  color: #f99157;
-}
-.highlight .sh {
-  color: #99cc99;
-}
-.highlight .si {
-  color: #f99157;
-}
-.highlight .sx {
-  color: #99cc99;
-}
-.highlight .sr {
-  color: #99cc99;
-}
-.highlight .s1 {
-  color: #99cc99;
-}
-.highlight .ss {
-  color: #99cc99;
-}
-.highlight .bp {
-  color: #cccccc;
-}
-.highlight .vc {
-  color: #f2777a;
-}
-.highlight .vg {
-  color: #f2777a;
-}
-.highlight .vi {
-  color: #f2777a;
-}
-.highlight .il {
-  color: #f99157;
-}
+/*
+ * 코드 색. Xcode 의 기본 밝은 테마(Default Light)를 옮겼다.
+ * 바탕은 main.css 의 코드 블록이 칠한다.
+ */
+.highlight { color: #000000; }
+
+/* 주석 */
+.highlight .c, .highlight .c1, .highlight .cm, .highlight .cs, .highlight .cd { color: #5d6c79; }
+.highlight .cp, .highlight .cpf { color: #643820; }
+
+/* 예약어 */
+.highlight .k, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr,
+.highlight .kt, .highlight .kc, .highlight .kv, .highlight .ow { color: #9b2393; font-weight: 600; }
+
+/* 문자열 */
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sb, .highlight .sc, .highlight .sd,
+.highlight .se, .highlight .sh, .highlight .si, .highlight .sx, .highlight .sr, .highlight .ss,
+.highlight .dl, .highlight .sa { color: #c41a16; }
+
+/* 숫자 */
+.highlight .m, .highlight .mi, .highlight .mf, .highlight .mh, .highlight .mo,
+.highlight .mb, .highlight .mx, .highlight .il { color: #1c00cf; }
+
+/* 이름 */
+.highlight .nc, .highlight .nn, .highlight .ne { color: #0b4f79; }
+.highlight .nf, .highlight .fm, .highlight .no { color: #326d74; }
+.highlight .nb, .highlight .bp { color: #3900a0; }
+.highlight .nd { color: #815f03; }
+.highlight .na, .highlight .nt, .highlight .nl { color: #0f68a0; }
+.highlight .nv, .highlight .vi, .highlight .vc, .highlight .vg { color: #326d74; }
+
+/* 기호 · 기타 */
+.highlight .o, .highlight .p, .highlight .n, .highlight .w { color: inherit; }
+.highlight .err { color: inherit; background: none; }
+.highlight .gd { color: #c41a16; }
+.highlight .gi { color: #1a7f37; }
+.highlight .gh, .highlight .gu { font-weight: 600; }
+.highlight .ge { font-style: italic; }
+.highlight .gs { font-weight: 600; }
+
+/* 다크 모양: Xcode 의 기본 어두운 테마(Default Dark) */
+html[data-theme="dark"] .highlight { color: #e6e6e8; }
+html[data-theme="dark"] .highlight .c, html[data-theme="dark"] .highlight .c1, html[data-theme="dark"] .highlight .cm,
+html[data-theme="dark"] .highlight .cs, html[data-theme="dark"] .highlight .cd { color: #7f8c98; }
+html[data-theme="dark"] .highlight .cp, html[data-theme="dark"] .highlight .cpf { color: #fd8f3f; }
+html[data-theme="dark"] .highlight .k, html[data-theme="dark"] .highlight .kd, html[data-theme="dark"] .highlight .kn,
+html[data-theme="dark"] .highlight .kp, html[data-theme="dark"] .highlight .kr, html[data-theme="dark"] .highlight .kt,
+html[data-theme="dark"] .highlight .kc, html[data-theme="dark"] .highlight .kv, html[data-theme="dark"] .highlight .ow { color: #fc5fa3; }
+html[data-theme="dark"] .highlight .s, html[data-theme="dark"] .highlight .s1, html[data-theme="dark"] .highlight .s2,
+html[data-theme="dark"] .highlight .sb, html[data-theme="dark"] .highlight .sc, html[data-theme="dark"] .highlight .sd,
+html[data-theme="dark"] .highlight .se, html[data-theme="dark"] .highlight .sh, html[data-theme="dark"] .highlight .si,
+html[data-theme="dark"] .highlight .sx, html[data-theme="dark"] .highlight .sr, html[data-theme="dark"] .highlight .ss,
+html[data-theme="dark"] .highlight .dl, html[data-theme="dark"] .highlight .sa { color: #fc6a5d; }
+html[data-theme="dark"] .highlight .m, html[data-theme="dark"] .highlight .mi, html[data-theme="dark"] .highlight .mf,
+html[data-theme="dark"] .highlight .mh, html[data-theme="dark"] .highlight .mo, html[data-theme="dark"] .highlight .mb,
+html[data-theme="dark"] .highlight .mx, html[data-theme="dark"] .highlight .il { color: #d0bf69; }
+html[data-theme="dark"] .highlight .nc, html[data-theme="dark"] .highlight .nn, html[data-theme="dark"] .highlight .ne { color: #5dd8ff; }
+html[data-theme="dark"] .highlight .nf, html[data-theme="dark"] .highlight .fm, html[data-theme="dark"] .highlight .no { color: #67b7a4; }
+html[data-theme="dark"] .highlight .nb, html[data-theme="dark"] .highlight .bp { color: #d0a8ff; }
+html[data-theme="dark"] .highlight .nd { color: #bf8555; }
+html[data-theme="dark"] .highlight .na, html[data-theme="dark"] .highlight .nt, html[data-theme="dark"] .highlight .nl { color: #41a1c0; }
+html[data-theme="dark"] .highlight .nv, html[data-theme="dark"] .highlight .vi, html[data-theme="dark"] .highlight .vc,
+html[data-theme="dark"] .highlight .vg { color: #67b7a4; }
+html[data-theme="dark"] .highlight .gd { color: #fc6a5d; }
+html[data-theme="dark"] .highlight .gi { color: #67b7a4; }

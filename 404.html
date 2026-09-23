@@ -1,56 +1,17 @@
 ---
+layout: desktop
 permalink: /404.html
+title: 페이지를 찾을 수 없습니다
+sitemap: false
+robots: noindex
 ---
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>페이지를 찾을 수 없습니다</title>
-  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #fff;
-      text-align: center;
-      font-family: "Pretendard", "Inter", "Helvetica", system-ui, sans-serif;
-    }
-    .not-found-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 500;
-      margin: 0;
-      color: #111;
-    }
-    .back-link {
-      font-size: 1.1rem;
-      color: #555;
-      text-decoration: underline;
-      text-underline-offset: 4px;
-      cursor: pointer;
-      font-weight: 300;
-      background: none;
-      border: none;
-      padding: 0;
-    }
-    .back-link:hover {
-      color: #000;
-    }
-  </style>
-</head>
-<body>
-  <div class="not-found-container">
-    <h1>없는 페이지 입니다.</h1>
-    <button class="back-link" onclick="history.back()">뒤로가기</button>
+{%- comment -%} 없는 주소. 데스크톱 한가운데에 맥의 경고 창이 하나 뜬다. {%- endcomment -%}
+<section class="window alert" id="main-window" tabindex="-1" aria-labelledby="alert-title" aria-describedby="alert-desc" data-window="alert">
+  <img class="alert__icon" src="{{ '/assets/logo.ico/android-chrome-192x192.png' | relative_url }}" width="64" height="64" alt="">
+  <h1 class="alert__title" id="alert-title">페이지를 찾을 수 없습니다</h1>
+  <p class="alert__desc" id="alert-desc">주소가 바뀌었거나 지워진 글일 수 있습니다.</p>
+  <div class="alert__actions">
+    <button class="button" type="button" data-history-back>뒤로</button>
+    <a class="button button--primary" href="{{ '/' | relative_url }}">글 목록 열기</a>
   </div>
-</body>
-</html>
+</section>

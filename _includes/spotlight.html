@@ -1,0 +1,19 @@
+{%- comment -%}
+  Spotlight. ⌘K(또는 Ctrl+K), 메뉴 막대의 돋보기로 연다. 글 목록은
+  /search.json 에서 처음 열 때 한 번 받아 온다(posts.js, 달력과 함께 쓴다). 초성(ㄷㅇㅌ)으로도 찾는다.
+{%- endcomment -%}
+<dialog class="spotlight" aria-label="Spotlight 검색" data-spotlight>
+  <div class="spotlight__panel glass" data-refract="regular">
+    <div class="spotlight__field">
+      {% include icon.html name="search" class="spotlight__icon" %}
+      <input class="spotlight__input" type="text" placeholder="Spotlight 검색" autocomplete="off" spellcheck="false" enterkeyhint="go"
+        role="combobox" aria-label="글 검색" aria-expanded="true" aria-controls="spotlight-results" aria-autocomplete="list" data-spotlight-input>
+    </div>
+    <ul class="spotlight__results" id="spotlight-results" role="listbox" aria-label="검색 결과" data-spotlight-results></ul>
+    <p class="spotlight__none" hidden data-spotlight-none></p>
+    <p class="sr-only" role="status" data-spotlight-status></p>
+    <p class="spotlight__foot" aria-hidden="true">
+      <span><kbd>↑</kbd><kbd>↓</kbd> 이동</span><span><kbd>↩</kbd> 열기</span><span><kbd>esc</kbd> 닫기</span>
+    </p>
+  </div>
+</dialog>

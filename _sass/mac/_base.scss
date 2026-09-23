@@ -1,0 +1,187 @@
+// ── 기반 ────────────────────────────────────────────────────────
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+// 문서 사이를 넘어갈 때 브라우저가 직접 전환을 그린다(Chrome, Safari 18.2+).
+@view-transition {
+  navigation: auto;
+}
+
+// 데스크톱은 한 화면이다. 문서 전체는 움직이지 않고, 창 안에서만 스크롤된다.
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  // 한 번 누른 것이 글자 선택으로 번지지 않게. 본문과 입력 칸은 아래에서 되돌린다.
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.post-content,
+.article,
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font);
+  text-wrap: balance;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  cursor: default;
+}
+
+kbd {
+  font-family: var(--font);
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.icon {
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+thinking-orb {
+  display: block;
+  flex: none;
+  width: var(--orb-size, 64px);
+  height: var(--orb-size, 64px);
+}
+
+// orb.js 가 돌기 전(느린 망, 스크립트 꺼짐)에도 자리가 맞게, 쓰이는 크기를 미리 적는다.
+@each $s in 18, 20, 28, 32, 36, 64 {
+  thinking-orb[size="#{$s}"] {
+    --orb-size: #{$s}px;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: 600;
+  transform: translate(-50%, -200%);
+  transition: transform 0.3s var(--ease-out);
+
+  &:focus-visible {
+    transform: translate(-50%, 0);
+    outline-offset: 3px;
+  }
+}
+
+// 알약 단추 (경고 창 따위)
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow:
+    inset 0 0 0 var(--hair) var(--window-edge),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  transition: background-color 0.15s linear;
+
+  &:hover {
+    background: var(--paper-2);
+  }
+
+  &--primary {
+    background: var(--ink);
+    color: var(--on-ink);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      background: #222222;
+    }
+  }
+}

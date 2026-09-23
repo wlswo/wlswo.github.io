@@ -1,6 +1,7 @@
 ---
 layout: minimal_post
 title: "캐시 무효화 전략 세 가지"
+categories: [distributed]
 date: 2025-10-08 17:36:00 +0900
 description: "TTL, 명시적 삭제, 버전 키. 각각이 무엇을 보장하고 무엇을 포기하는지."
 ---

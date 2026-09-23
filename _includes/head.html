@@ -1,0 +1,71 @@
+<meta charset="UTF-8">
+  {%- comment -%} 모양(라이트·다크)을 첫 그림 전에 정한다. 자세한 것은 assets/js/theme.js {%- endcomment %}
+  <script>
+    (function () {
+      try {
+        var v = localStorage.getItem('ephemeris:appearance') || 'auto';
+        var dark = v === 'dark' || (v === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#ffffff">
+  {%- if page.robots %}
+  <meta name="robots" content="{{ page.robots }}">
+  {%- endif %}
+  <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% if site.subtitle and site.subtitle != "" %} - {{ site.subtitle }}{% endif %}{% endif %}</title>
+  {%- comment -%}
+    공유 썸네일. 글이면 tools/og 가 구워 둔 assets/og/<글 날짜의 유닉스 초>.jpg,
+    없거나 글이 아니면 사이트 카드(default.jpg), 그것도 없으면 옛 썸네일을 쓴다.
+    이름을 %s(유닉스 초)로 짓는 까닭: 로컬(KST)과 GitHub Pages(UTC)는 같은 글의
+    날짜·시각을 다르게 적지만 유닉스 초는 어디서 빌드해도 같다.
+    where 에 빈 값을 주면 Jekyll 3 은 배열 전체를 돌려주므로, 날짜가 있을 때만 찾는다.
+  {%- endcomment %}
+  {%- assign og_file = nil %}
+  {%- if page.date %}
+    {%- capture og_path %}/assets/og/{{ page.date | date: "%s" }}.jpg{% endcapture %}
+    {%- assign og_file = site.static_files | where: "path", og_path | first %}
+  {%- endif %}
+  {%- unless og_file %}
+    {%- assign og_file = site.static_files | where: "path", "/assets/og/default.jpg" | first %}
+  {%- endunless %}
+  {%- if og_file %}
+    {%- assign og_image = og_file.path | absolute_url %}
+  {%- else %}
+    {%- assign og_image = "/assets/images/thumbnail.png" | absolute_url %}
+  {%- endif %}
+  <meta property="og:image" content="{{ og_image }}" />
+  {%- if og_file %}
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  {%- endif %}
+  <meta name="twitter:image" content="{{ og_image }}" />
+  <link rel="icon" type="image/png" href="{{ "/assets/logo.ico/favicon-32x32.png" | relative_url }}" sizes="32x32" />
+  <link rel="icon" type="image/png" href="{{ "/assets/logo.ico/favicon-16x16.png" | relative_url }}" sizes="16x16" />
+  <link rel="shortcut icon" href="{{ "/assets/logo.ico/favicon.ico" | relative_url }}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ "/assets/logo.ico/apple-touch-icon.png" | relative_url }}" />
+  <link rel="manifest" href="{{ "/assets/logo.ico/site.webmanifest" | relative_url }}" />
+  {%- comment -%}
+    글꼴은 어디서나 Pretendard 하나. 쓰이는 글자 범위만 나눠 받는
+    가변 분할본이라 첫 화면에 필요한 조각만 내려온다.
+  {%- endcomment %}
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  {%- comment -%} 글꼴 CDN 이 느려도 화면이 비지 않게, 기다리지 않고 받는다. 늦게 오면 그때 바뀐다. {%- endcomment %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
+  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+  {%- if include.syntax %}
+  <link rel="stylesheet" href="{{ "/assets/css/syntax.css" | relative_url }}">
+  {%- endif %}
+  <link rel="modulepreload" href="{{ "/assets/js/vendor/thinking-orbs/engine.js" | relative_url }}">
+  {%- comment -%}
+    jekyll-seo-tag 은 page.image 가 없으면 twitter:card 를 summary(작은 정사각 썸네일)로
+    적는다. 1200×630 카드를 붙였을 때만 그 한 줄을 큰 카드로 바꿔, 태그가 겹치지 않게 한다.
+  {%- endcomment %}
+  {%- capture seo_tags %}{% seo title=false %}{% endcapture %}
+  {%- if og_file %}
+    {%- assign seo_tags = seo_tags | replace: '<meta name="twitter:card" content="summary" />', '<meta name="twitter:card" content="summary_large_image" />' %}
+  {%- endif %}
+  {{ seo_tags }}

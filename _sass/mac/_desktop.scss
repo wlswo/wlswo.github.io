@@ -1,0 +1,1293 @@
+// ── 데스크톱 ────────────────────────────────────────────────────
+// 배경화면 · 메뉴 막대 · 데스크톱 폴더 · Dock · Spotlight · 달력
+
+// ── 배경화면 ────────────────────────────────────────────────────
+// 그림은 desktop.html 이 --wallpaper(-2x) 로 넘긴다(_config.yml 에서 바꾼다).
+// 위쪽이 밝은 그림이라 메뉴 막대의 검은 글자가 그대로 읽힌다.
+.wallpaper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-color: #dbe6fb;
+  background-image: var(--wallpaper);
+  background-image: -webkit-image-set(var(--wallpaper) 1x, var(--wallpaper-2x) 2x);
+  background-image: image-set(var(--wallpaper) 1x, var(--wallpaper-2x) 2x);
+  background-position: center bottom;
+  background-size: cover;
+  pointer-events: none;
+}
+
+// ── 어두운 배경화면 ─────────────────────────────────────────────
+// 배경화면이 어두우면(_config.yml 의 wallpaper_tone: dark) 라이트 모양에서도
+// 배경화면 위에 바로 놓인 것 — 메뉴 막대의 글자와 단추, 데스크톱 폴더 이름,
+// 선택 상자 — 을 밝게 쓴다. 창과 메뉴 판 안은 모양을 그대로 따른다.
+body[data-wallpaper-tone="dark"] {
+  .menubar {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.45);
+
+    &__item {
+      color: #ffffff;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.16);
+      }
+    }
+
+    .menu.is-open > .menubar__item,
+    .menubar__clock[aria-expanded="true"] {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .menu__panel,
+    .calendar {
+      text-shadow: none;
+    }
+  }
+
+  .desktop-icon__label {
+    color: #ffffff;
+    text-shadow:
+      0 0 2px rgba(0, 0, 0, 0.75),
+      0 1px 6px rgba(0, 0, 0, 0.6);
+  }
+
+  .desktop-icon.is-selected .desktop-icon__label {
+    text-shadow: none;
+  }
+
+  .desktop-icon.is-selected .folder,
+  .desktop-icon.is-selected .paper {
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .marquee {
+    border-color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.14);
+  }
+}
+
+// 라이트 모양 + 어두운 배경화면: Dock 은 맥처럼 밝은 서리 유리가 된다. 맑은 유리로
+// 두면 어두운 그림이 그대로 비쳐 칸 이름(검은 글자)이 묻힌다.
+html[data-theme="light"] body[data-wallpaper-tone="dark"] .dock .glass {
+  --glass-bg: rgba(255, 255, 255, 0.66);
+  --glass-blur: 24px;
+
+  &.is-refracting {
+    --glass-bg: rgba(255, 255, 255, 0.58);
+  }
+}
+
+// ── 메뉴 막대 ───────────────────────────────────────────────────
+.menubar {
+  --glass-bg: transparent;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--menubar-h);
+  padding: 0 var(--safe-r, 8px) 0 var(--safe-l, 8px);
+  background-image: none;
+  // macOS 26 처럼 막대 자체는 투명하다. 배경화면 위에 글자와 단추만 뜬다.
+  // 뒤를 흐리지 않으니(backdrop-filter 없음) 그 안의 메뉴 판과 달력이 진짜 유리가 된다.
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+
+  &::after {
+    display: none;
+  }
+
+  &__left,
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 9px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    white-space: nowrap;
+    color: var(--ink);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    &:focus-visible {
+      outline-offset: -2px;
+    }
+  }
+
+  .menu.is-open > &__item,
+  &__clock[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  &__logo {
+    padding: 0 7px;
+  }
+
+  &__app {
+    font-weight: 700;
+  }
+
+  &__icon .icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.6;
+  }
+
+  &__clock {
+    font-variant-numeric: tabular-nums;
+
+    &:hover {
+      background: none;
+    }
+  }
+}
+
+// ── 메뉴 ────────────────────────────────────────────────────────
+.menu {
+  position: relative;
+
+  &__panel {
+    --glass-bg: rgba(255, 255, 255, 0.84);
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    min-width: 236px;
+    padding: 5px;
+    border-radius: 12px;
+    font-weight: 400;
+    animation: menu-in 0.16s var(--ease-out);
+  }
+
+  &--wide &__panel {
+    width: 360px;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    height: 28px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 7px;
+    background: none;
+    font-size: 13.5px;
+    text-align: left;
+    color: var(--ink);
+    white-space: nowrap;
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      color: var(--ink-2);
+    }
+
+    &[aria-current] {
+      font-weight: 600;
+
+      .icon {
+        color: var(--ink);
+      }
+    }
+
+    &:hover,
+    &:focus-visible {
+      outline: none;
+      background: var(--ink);
+      color: var(--on-ink);
+
+      .icon,
+      .menu__meta,
+      .menu__kbd {
+        color: rgba(255, 255, 255, 0.78);
+      }
+    }
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__meta,
+  &__kbd {
+    margin-left: auto;
+    padding-left: 14px;
+    font-size: 12.5px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__sep {
+    height: 0;
+    margin: 4px 10px;
+    border-top: var(--hair) solid rgba(0, 0, 0, 0.14);
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// ── RunCat ──────────────────────────────────────────────────────
+.menubar__cat {
+  padding: 0 6px;
+}
+
+.runcat {
+  display: block;
+  width: 30px;
+  height: 18px;
+}
+
+.menu--right .menu__panel {
+  left: auto;
+  right: 0;
+}
+
+.menu__info {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.menu__item[role="menuitemcheckbox"][aria-checked="true"]::after {
+  content: "✓";
+  margin-left: auto;
+  padding-left: 14px;
+}
+
+// ── 창이 떠 있는 곳 ─────────────────────────────────────────────
+// 메뉴 막대 아래부터 화면 끝까지. 창의 위치는 이 상자를 기준으로 잡는다.
+.workspace {
+  position: fixed;
+  top: var(--menubar-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+}
+
+// ── 선택 상자 ───────────────────────────────────────────────────
+// 바탕을 끌 때 그려지는 맥의 선택 상자: 옅은 회색 면과 조금 짙은 테두리.
+.marquee {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1; // 폴더와 같은 층, 창보다는 아래
+  border: 1px solid rgba(70, 80, 100, 0.55);
+  border-radius: 2px;
+  background: rgba(90, 100, 125, 0.16);
+  pointer-events: none;
+  transition: opacity 0.16s linear;
+
+  &.is-leaving {
+    opacity: 0;
+  }
+}
+
+// ── 데스크톱 폴더 ───────────────────────────────────────────────
+// 맥의 파란 폴더. 오른쪽 위부터 아래로 쌓이고, 넘치면 왼쪽으로 한 줄 더.
+// 고르면 아이콘 뒤에 회색 판이, 이름에 파란 알약이 깔린다(맥의 선택 색).
+.desktop-icons {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  z-index: 1;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 100px);
+  gap: 2px 4px;
+  max-height: calc(100% - var(--dock-reserve) - 14px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  direction: rtl;
+
+  > li {
+    direction: ltr;
+  }
+}
+
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  -webkit-user-drag: none;
+  width: 92px;
+  padding: 4px 2px;
+  border-radius: 8px;
+  cursor: default;
+
+  &:focus-visible {
+    outline-offset: 0;
+  }
+
+  &__label {
+    max-width: 90px;
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    text-align: center;
+    color: var(--ink);
+    // 그림 위에서도 읽히게 글자 둘레에 옅은 빛
+    text-shadow:
+      0 0 2px var(--label-glow),
+      0 0 8px var(--label-glow);
+  }
+
+  &.is-selected &__label {
+    text-shadow: none;
+    background: #0a64d8;
+    color: #ffffff;
+  }
+}
+
+.folder,
+.paper {
+  display: block;
+  width: 72px;
+  height: 60px;
+  padding: 4px;
+  border-radius: 8px;
+  overflow: visible;
+  filter: drop-shadow(0 1px 1.2px rgba(0, 0, 0, 0.16));
+
+  .desktop-icon.is-selected & {
+    background: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.folder__back {
+  fill: url(#folder-back);
+}
+
+.folder__front {
+  fill: url(#folder-front);
+}
+
+.folder__lip {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+
+// 앞판에 눌러 찍은 카테고리 기호: 짙은 파랑 선 아래로 옅은 빛 한 줄
+.folder__glyph,
+.folder__glyph-light {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.folder__glyph {
+  stroke: #2f79c4;
+  opacity: 0.85;
+}
+
+.folder__glyph-light {
+  stroke: rgba(255, 255, 255, 0.55);
+}
+
+.paper__sheet {
+  fill: #ffffff;
+  stroke: rgba(0, 0, 0, 0.28);
+  stroke-width: 0.7;
+}
+
+.paper__fold {
+  fill: #eeeef0;
+  stroke: rgba(0, 0, 0, 0.28);
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+
+.paper__lines {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.3);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+}
+
+// ── Dock: Liquid Glass 탭 막대 ──────────────────────────────────
+// iOS 27 의 떠 있는 탭 막대. 알약 모양 유리 막대에 칸마다 그 카테고리의
+// 구체가 돌고, 고른 칸 뒤에 렌즈가 깔린다. 누르면 렌즈가 떠올라 부풀고
+// 칸 위로 올라와 아래를 키워 비춘다. 오른쪽에 동그란 유리 단추(Spotlight).
+.dock {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+
+  &__bar {
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    padding: 4px;
+    border-radius: 999px;
+  }
+
+  &__tabs {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    touch-action: none;
+
+    .lens {
+      border-radius: 999px;
+    }
+  }
+
+  &__tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 76px;
+    height: 58px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--ink-2);
+    white-space: nowrap;
+    -webkit-user-drag: none;
+    transition: color 0.15s linear;
+
+    thinking-orb,
+    .dock__label {
+      transition: scale 0.35s var(--spring-fallback);
+      transition-timing-function: var(--spring);
+    }
+
+    thinking-orb {
+      width: 28px;
+      height: 28px;
+    }
+
+    &[aria-current],
+    &.is-hot {
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    // 떠오른 렌즈 밑의 칸: 돋보기 아래처럼 커진다.
+    &.is-hot thinking-orb {
+      scale: 1.22;
+    }
+
+    &.is-hot .dock__label {
+      scale: 1.08;
+    }
+
+    &:focus-visible {
+      outline-offset: -3px;
+      border-radius: 999px;
+    }
+  }
+
+  &__short {
+    display: none;
+  }
+
+  // 렌즈: 쉴 때는 칸 뒤에 깔린 옅은 판.
+  &__tabs .lens__body {
+    background: rgba(0, 0, 0, 0.065);
+    background-image: none;
+    box-shadow: none;
+    transition:
+      inset 0.42s var(--spring-fallback),
+      background-color 0.2s linear,
+      box-shadow 0.25s linear;
+    transition-timing-function: var(--spring), linear, linear;
+  }
+
+  // 누르는 동안: 렌즈가 칸 위로 떠올라 막대보다 크게 부푼다. 맑은 유리라
+  // 밑에서 커진 구체와 이름이 그대로 비쳐 보인다.
+  &__tabs .lens.is-pressed {
+    z-index: 3;
+  }
+
+  // 크기는 scale 이 아니라 가장자리를 넓혀 키운다. 그래야 유리의 굴절 지도가
+  // 실제 크기에 맞게 다시 그려져, 밑의 글자가 제자리에서 휜다.
+  &__tabs .lens.is-pressed .lens__body {
+    inset: -7px -9px;
+    scale: 1;
+    background: rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: saturate(1.4);
+    backdrop-filter: saturate(1.4);
+    box-shadow:
+      inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.14),
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.6),
+      inset 0 0 12px rgba(255, 255, 255, 0.35),
+      0 8px 24px -6px rgba(0, 0, 0, 0.25);
+  }
+
+  // 끄는 동안에는 렌즈가 손끝에 붙어 다닌다(스프링 없이).
+  .lens.is-following {
+    transition-property: width, height, opacity;
+  }
+
+  &__tabs.is-scrubbing &__tab {
+    cursor: grabbing;
+  }
+
+  &__search,
+  &__window {
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 66px;
+    height: 66px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink);
+    transition: scale 0.35s var(--spring-fallback);
+    transition-timing-function: var(--spring);
+
+    .icon {
+      width: 24px;
+      height: 24px;
+      stroke-width: 1.6;
+    }
+
+    &:active {
+      scale: 0.94;
+    }
+
+    &:focus-visible {
+      border-radius: 50%;
+      outline-offset: 3px;
+    }
+  }
+
+  &__windows {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__window {
+    width: 56px;
+    height: 56px;
+
+    .icon {
+      width: 22px;
+      height: 22px;
+      stroke-width: 1.4;
+    }
+
+    &:hover .dock__tip,
+    &:focus-visible .dock__tip {
+      opacity: 1;
+    }
+  }
+
+  // 최소화한 창 칸 위에 뜨는 이름표
+  &__tip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    max-width: 260px;
+    padding: 4px 10px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow:
+      inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.16),
+      0 4px 12px -4px rgba(0, 0, 0, 0.2);
+    font-size: 12.5px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s linear;
+  }
+}
+
+// ── Spotlight ───────────────────────────────────────────────────
+.spotlight {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 16vh 16px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+
+  &[open] {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  &__panel {
+    --glass-bg: rgba(255, 255, 255, 0.74);
+    width: 660px;
+    max-width: 100%;
+    padding: 6px;
+    border-radius: 26px;
+    animation: spot-in 0.34s var(--spring-fallback) both;
+    animation-timing-function: var(--spring);
+  }
+
+  &__field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  &__icon {
+    width: 22px;
+    height: 22px;
+    color: var(--ink-2);
+    stroke-width: 1.5;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+
+    &::placeholder {
+      color: var(--ink-3);
+    }
+  }
+
+  &__results {
+    max-height: 48vh;
+    margin: 0;
+    padding: 4px 0 6px;
+    overflow-y: auto;
+    list-style: none;
+    border-top: var(--hair) solid rgba(0, 0, 0, 0.1);
+  }
+
+  &__group {
+    padding: 8px 14px 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+
+  &__hit {
+    cursor: default;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+    margin: 0 4px;
+    padding: 0 12px;
+    border-radius: 10px;
+    font-size: 14.5px;
+    color: var(--ink);
+
+    .icon {
+      width: 17px;
+      height: 17px;
+      color: var(--ink-2);
+    }
+  }
+
+  &__hit[aria-selected="true"] &__row {
+    background: var(--ink);
+    color: var(--on-ink);
+
+    .icon,
+    .spotlight__meta {
+      color: rgba(255, 255, 255, 0.78);
+    }
+  }
+
+  &__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    mark {
+      background: none;
+      color: inherit;
+      font-weight: 700;
+    }
+  }
+
+  &__meta {
+    font-size: 12.5px;
+    color: var(--ink-3);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__none {
+    padding: 18px 14px 14px;
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+
+  &__foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin: 0;
+    padding: 8px 14px 6px;
+    border-top: var(--hair) solid rgba(0, 0, 0, 0.1);
+    font-size: 11.5px;
+    color: var(--ink-3);
+
+    kbd {
+      display: inline-block;
+      min-width: 18px;
+      margin-right: 3px;
+      padding: 0 4px;
+      border-radius: 4px;
+      box-shadow: inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.25);
+      font-size: 11px;
+      line-height: 17px;
+      text-align: center;
+    }
+  }
+}
+
+@keyframes spot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// ── 달력 ────────────────────────────────────────────────────────
+// 메뉴 막대의 날짜를 누르면 내려오는, 맥 캘린더 앱의 '월' 보기. 유리 대신
+// 불투명한 종이에 가는 칸 선, 주말 칸은 옅은 회색, 오늘은 빨간 동그라미.
+// 글은 그 카테고리 색의 종일 일정처럼 칸에 적히고, 고른 날의 글이 아래에 붙는다.
+.calendar-root {
+  position: relative;
+}
+
+.calendar {
+  --cal-line: var(--sep);
+  --cal-weekend: rgba(0, 0, 0, 0.025);
+  --cal-pick: rgba(10, 100, 216, 0.1);
+  --cal-today: #ff3b30;
+  --cal-control: #ffffff;
+  --cal-control-edge: rgba(0, 0, 0, 0.16);
+  --cal-tint: 0.22;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  width: 364px;
+  max-height: calc(100vh - var(--menubar-h) - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 400;
+  text-shadow: none;
+  box-shadow:
+    0 0 0 var(--hair) var(--window-edge),
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 22px 56px -14px rgba(0, 0, 0, 0.45);
+  animation: menu-in 0.18s var(--ease-out);
+
+  // 머리: 캘린더 앱의 도구 막대처럼 옅은 회색 띠에 '2026년 9월'과 ‹ 오늘 ›
+  &__head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 46px;
+    padding: 0 10px 0 14px;
+    background: var(--finder-bar);
+    border-bottom: var(--hair) solid var(--cal-line);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+
+    strong {
+      font-weight: 700;
+    }
+  }
+
+  // 붙어 있는 세 칸 단추(맥의 분할 컨트롤)
+  &__nav {
+    display: flex;
+    align-items: stretch;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--cal-control);
+    box-shadow:
+      0 0 0 var(--hair) var(--cal-control-edge),
+      0 1px 1.5px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  &__btn {
+    display: grid;
+    place-items: center;
+    min-width: 26px;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 500;
+
+    & + & {
+      border-left: var(--hair) solid var(--cal-control-edge);
+    }
+
+    .icon {
+      width: 13px;
+      height: 13px;
+      stroke-width: 2;
+    }
+
+    &:hover {
+      background: var(--fill);
+    }
+
+    &:active {
+      background: var(--fill-2);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    &--today {
+      padding: 0 10px;
+    }
+  }
+
+  // 한 달: 칸마다 가는 선. 요일 이름과 날짜는 칸의 오른쪽 위에.
+  &__grid {
+    flex: none;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    th {
+      padding: 6px 7px 4px 0;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-3);
+      text-align: right;
+    }
+
+    td {
+      height: 54px;
+      padding: 0;
+      vertical-align: top;
+      border-top: var(--hair) solid var(--cal-line);
+    }
+
+    td + td {
+      border-left: var(--hair) solid var(--cal-line);
+    }
+
+    td.is-weekend {
+      background: var(--cal-weekend);
+    }
+  }
+
+  &__day {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    height: 54px;
+    padding: 3px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    overflow: hidden;
+
+    &:hover {
+      background: var(--fill);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+  }
+
+  [aria-selected="true"] > &__day {
+    background: var(--cal-pick);
+  }
+
+  &__date {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+    height: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__num {
+    display: grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    border-radius: 10px;
+  }
+
+  .is-outside &__date {
+    color: var(--ink-3);
+  }
+
+  [aria-selected="true"] > &__day &__num {
+    font-weight: 700;
+  }
+
+  // 오늘: 캘린더 앱의 빨간 동그라미
+  &__day[aria-current="date"] &__num {
+    background: var(--cal-today);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  // 칸 안의 글: 카테고리 색을 옅게 깐 종일 일정
+  &__events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__event {
+    position: relative;
+    z-index: 0;
+    display: block;
+    padding: 0 3px 0 5px;
+    border-radius: 3px;
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: inset 2px 0 0 var(--c, var(--ink-3));
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      background: var(--c, var(--ink-3));
+      opacity: var(--cal-tint);
+    }
+  }
+
+  &__more {
+    padding-left: 5px;
+    font-size: 10px;
+    line-height: 12px;
+    color: var(--ink-3);
+  }
+
+  // 고른 날의 글
+  &__agenda {
+    flex: none;
+    padding: 10px 8px;
+    border-top: var(--hair) solid var(--cal-line);
+  }
+
+  &__day-title {
+    margin: 0 0 6px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  &__posts {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    a {
+      display: flex;
+      align-items: stretch;
+      gap: 9px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      color: var(--ink);
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        background: var(--accent);
+        color: #ffffff;
+        outline: none;
+
+        .calendar__post-cat {
+          color: rgba(255, 255, 255, 0.82);
+        }
+
+        .calendar__bar {
+          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+        }
+      }
+    }
+  }
+
+  &__bar {
+    flex: none;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--c, var(--ink-3));
+  }
+
+  &__post {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  &__post-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  &__post-cat {
+    font-size: 11.5px;
+    color: var(--ink-3);
+  }
+
+  &__empty {
+    margin: 0 0 2px 6px;
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+}
+
+@media (max-width: 899px) {
+  .calendar {
+    position: fixed;
+    top: calc(var(--menubar-h) + 4px);
+    right: var(--safe-r, 8px);
+    width: clamp(0px, calc(100vw - 16px), 364px); // min() 은 옛 Sass 가 제 함수로 알아 clamp 로
+  }
+}
+
+// ── 좁은 화면 ───────────────────────────────────────────────────
+// 폰에서는 데스크톱 폴더를 걷고, 창이 화면을 채운다. 메뉴 막대는 상태
+// 막대처럼 줄고, Dock 은 iOS 의 탭 막대 그대로 화면 아래에 뜬다.
+@media (max-width: 899px) {
+  .menu__desktop-only {
+    display: none;
+  }
+
+  .menubar {
+    padding: 0 var(--safe-r, 6px) 0 var(--safe-l, 6px);
+
+    &__left .menu:not(:first-child),
+    &__date {
+      display: none;
+    }
+  }
+
+  .desktop-icons {
+    display: none;
+  }
+
+  .dock {
+    left: var(--safe-l, 8px);
+    right: var(--safe-r, 8px);
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    gap: 8px;
+    transform: none;
+
+    &__bar {
+      flex: 1;
+      min-width: 0;
+      padding: 3px;
+    }
+
+    &__tabs {
+      justify-content: space-between;
+    }
+
+    &__tabs > li:not(.lens) {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &__tab {
+      width: 100%;
+      height: 54px;
+      font-size: 10px;
+      letter-spacing: -0.02em;
+
+      thinking-orb {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    &__search {
+      width: 60px;
+      height: 60px;
+    }
+
+    &__windows {
+      display: none;
+    }
+  }
+
+  .spotlight {
+    padding-top: calc(var(--menubar-h) + 12px);
+
+    &__foot {
+      display: none;
+    }
+
+    &__input {
+      font-size: 19px;
+    }
+  }
+}
+
+// 폰 폭: 칸이 좁아 짧은 이름을 보인다. 긴 이름은 화면 낭독기에만 남긴다.
+// (그 사이 폭에서는 긴 이름이 그대로 들어간다.)
+@media (max-width: 559px) {
+  .dock__long {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .dock__short {
+    display: inline;
+  }
+}
+
+// 아주 좁은 폰(320px): 검색 단추를 줄여 칸에 자리를 준다.
+@media (max-width: 340px) {
+  .dock {
+    gap: 6px;
+  }
+
+  .dock__search {
+    width: 52px;
+    height: 52px;
+  }
+
+  .dock__tab {
+    font-size: 9.5px;
+    letter-spacing: -0.04em;
+  }
+}

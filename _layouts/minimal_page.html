@@ -1,40 +1,5 @@
-<!DOCTYPE html>
-<html lang="{{ site.language | default: "en" }}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ page.title }}</title>
-  <meta property="og:image" content="{{ "/assets/images/thumbnail.png" | absolute_url }}" />
-  <meta name="twitter:image" content="{{ "/assets/images/thumbnail.png" | absolute_url }}" />
-  <link rel="icon" type="image/png" href="{{ "/assets/logo.ico/favicon-32x32.png" | relative_url }}" sizes="32x32" />
-  <link rel="icon" type="image/png" href="{{ "/assets/logo.ico/favicon-16x16.png" | relative_url }}" sizes="16x16" />
-  <link rel="shortcut icon" href="{{ "/assets/logo.ico/favicon.ico" | relative_url }}" />
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ "/assets/logo.ico/apple-touch-icon.png" | relative_url }}" />
-  <link rel="manifest" href="{{ "/assets/logo.ico/site.webmanifest" | relative_url }}" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
-  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
-  <link rel="stylesheet" href="{{ "/assets/css/syntax.css" | relative_url }}">
-</head>
-<body>
-  <div class="scroll-line" aria-hidden="true"></div>
-
-  <header class="topbar">
-    <a href="{{ '/' | relative_url }}">&larr; Back</a>
-    <a class="topbar__home" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-  </header>
-
-  <div class="post-container">
-    <header class="post-header">
-      <div class="post-title-area">
-        <h1>{{ page.title }}</h1>
-      </div>
-    </header>
-
-    <main class="post-content">
-      {{ content }}
-    </main>
-  </div>
-</body>
-</html>
+---
+layout: minimal_post
+---
+{%- comment -%} 날짜·카테고리가 없는 쪽. 글 레이아웃을 그대로 빌려 쓰고, 날짜가 없으니 머리말과 끝맺음만 빠진다. {%- endcomment -%}
+{{ content }}
