@@ -3,6 +3,8 @@ layout: minimal_post
 title: "JWT를 세션 대신 쓸 때의 비용"
 categories: [network]
 date: 2025-05-06 07:52:00 +0900
+redirect_from:
+  - /2025/05/05/jwt-vs-session/
 description: "무상태의 장점 뒤에 따라오는 대가 — 즉시 무효화가 안 된다는 문제를 중심으로."
 ---
 

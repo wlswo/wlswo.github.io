@@ -20,12 +20,17 @@ highlighter: rouge
 
 permalink: /:year/:month/:day/:title/
 
+# 글의 날짜와 주소를 한국 시간으로 셈한다. 이 줄이 없으면 GitHub Pages(UTC)에서
+# 새벽 0~9시에 쓴 글의 주소가 하루 앞 날짜로 만들어진다.
+timezone: Asia/Seoul
+
 # Plugins
 plugins:
   - jemoji
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-seo-tag
+  - jekyll-redirect-from # 주소가 바뀐 글의 옛 주소(redirect_from)를 새 주소로 넘긴다
 
 # ---------------------------------------------------------------
 # Exclude

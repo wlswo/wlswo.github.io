@@ -3,6 +3,8 @@ layout: minimal_post
 title: "스레드 풀과 비동기는 대체재가 아니다"
 categories: [runtime]
 date: 2025-11-13 08:24:00 +0900
+redirect_from:
+  - /2025/11/12/threadpool-vs-async/
 description: "비동기의 이득이 어디서 오는지, 그리고 그 이득이 사라지는 조건."
 ---
 
