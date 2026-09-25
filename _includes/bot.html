@@ -1,0 +1,17 @@
+{%- comment -%}
+  캐릭터: 까만 동그라미에 흰 알약 모양 눈 두 개. 마우스가 움직이면 눈이 그쪽으로
+  옮겨 가 쳐다보고(bot.js), 몸도 그쪽으로 살짝 쏠린다. 가끔 눈을 깜빡이고,
+  아주 가끔 한쪽 눈으로 윙크한다.
+  쓰는 곳: 잠금 화면의 사용자 자리, About 창의 아이콘.
+{%- endcomment -%}
+<svg class="bot{% if include.class %} {{ include.class }}{% endif %}" viewBox="0 0 120 120" data-bot aria-hidden="true" focusable="false">
+  <g class="bot__body" data-bot-head>
+    <circle cx="60" cy="60" r="56"/>
+    <g class="bot__face" data-bot-face>
+      <g transform="rotate(7 60 55)">
+        <rect class="bot__eye bot__eye--l" x="38.5" y="41" width="13" height="28" rx="6.5"/>
+        <rect class="bot__eye bot__eye--r" x="65.5" y="41" width="13" height="28" rx="6.5"/>
+      </g>
+    </g>
+  </g>
+</svg>

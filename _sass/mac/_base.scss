@@ -33,7 +33,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.55;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
@@ -107,20 +107,6 @@ kbd {
   overflow: visible;
 }
 
-thinking-orb {
-  display: block;
-  flex: none;
-  width: var(--orb-size, 64px);
-  height: var(--orb-size, 64px);
-}
-
-// orb.js 가 돌기 전(느린 망, 스크립트 꺼짐)에도 자리가 맞게, 쓰이는 크기를 미리 적는다.
-@each $s in 18, 20, 28, 32, 36, 64 {
-  thinking-orb[size="#{$s}"] {
-    --orb-size: #{$s}px;
-  }
-}
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -142,7 +128,7 @@ thinking-orb {
   border-radius: 999px;
   background: var(--ink);
   color: var(--bg);
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 600;
   transform: translate(-50%, -200%);
   transition: transform 0.3s var(--ease-out);
@@ -166,7 +152,7 @@ thinking-orb {
   box-shadow:
     inset 0 0 0 var(--hair) var(--window-edge),
     0 1px 2px rgba(0, 0, 0, 0.06);
-  font-size: 13.5px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--ink);
   transition: background-color 0.15s linear;

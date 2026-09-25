@@ -12,7 +12,6 @@
  * 네 모서리 → 1/4. 끄는 동안 붙을 자리가 유리로 먼저 보인다. 붙은 창을 다시
  * 끌어내면 붙기 전의 크기로 돌아온다.
  */
-import { refractAll } from './glass.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -34,7 +33,7 @@ const dockWindows = $('[data-dock-windows]');
 const minimized = new Map(); // 창 → Dock 의 칸
 const closers = new WeakMap(); // 창 → 닫을 때 할 일 (글 창은 docs.js 가 정한다)
 const snapped = new WeakMap(); // 창 → 붙기 전의 자리
-export const MIN = { finder: [560, 380], doc: [460, 360] };
+export const MIN = { finder: [560, 380], doc: [460, 360], obsidian: [620, 400], games: [380, 300], notes: [560, 380], terminal: [460, 280] };
 const EDGES = ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'];
 let order = []; // 뒤 → 앞
 
@@ -145,18 +144,6 @@ function restoreFrame(win) {
   else clearFrame(win);
 }
 
-// 숨은 창(최소화·닫힘) 안의 구체는 세워 둔다. 원래 멈춰 있던 것은 건드리지 않는다.
-function holdOrbs(win, hold) {
-  for (const orb of win.querySelectorAll('thinking-orb')) {
-    if (hold && !orb.hasAttribute('paused')) {
-      orb.dataset.held = '';
-      orb.setAttribute('paused', '');
-    } else if (!hold && orb.hasAttribute('data-held')) {
-      delete orb.dataset.held;
-      orb.removeAttribute('paused');
-    }
-  }
-}
 
 // ── 열기 · 닫기 · 최소화 ────────────────────────────────────────
 // 창을 다른 사각형(Dock 칸, 목록의 한 줄)으로 빨려 들어가듯 줄인다(reverse 면 거기서 나온다).
@@ -171,6 +158,43 @@ export function flyTo(win, target, reverse = false) {
   return animate(win, reverse ? frames.reverse() : frames, { duration: 460, easing: 'cubic-bezier(.5,0,.2,1)' });
 }
 
+// 맥의 '지니' 효과: 최소화하면 창이 Dock 의 칸으로 빨려 들어간다.
+// 창을 실제로 휘게 할 수는 없어서, 잘라 내는 모양(clip-path)으로 흉내 낸다.
+//   1) 창의 아랫변이 Dock 칸의 폭으로 오므라들며 깔때기가 되고
+//   2) 윗변까지 그 폭으로 좁아지는 동안 창이 아래로 미끄러지며 칸 높이로 줄어든다.
+// 잘린 기둥은 처음부터 Dock 칸 바로 위에 있으므로 가로로는 움직이지 않는다.
+// reverse 면 칸에서 거꾸로 솟아 나온다.
+function genie(win, target, reverse = false) {
+  if (reducedMotion.matches || !win.animate) return Promise.resolve();
+  const w = win.offsetWidth;
+  const h = win.offsetHeight;
+  const from = win.getBoundingClientRect();
+  const to = target.getBoundingClientRect();
+  const pad = 70; // 창 그림자까지 잘리지 않게 둘레에 남기는 몫
+  const L = Math.max(-pad, to.left - from.left);
+  const R = Math.min(w + pad, to.right - from.left);
+  const pt = (x, y) => `${x.toFixed(1)}px ${y.toFixed(1)}px`;
+  const poly = (...pts) => `polygon(${pts.join(', ')})`;
+  const full = poly(pt(-pad, -pad), pt(w + pad, -pad), pt(w + pad, h + pad), pt(-pad, h + pad));
+  // 아랫변만 칸 폭으로(윗변은 아직 창 폭)
+  const funnel = poly(pt(-pad, -pad), pt(w + pad, -pad), pt(R, h + pad), pt(L, h + pad));
+  // 중간: 윗변도 반쯤 오므라들고 조금 내려온다
+  const mid = poly(pt((L - pad) / 2, -pad), pt((R + w + pad) / 2, -pad), pt(R, h + pad), pt(L, h + pad));
+  const column = poly(pt(L, -pad), pt(R, -pad), pt(R, h + pad), pt(L, h + pad));
+  const dy = to.top - from.top;
+  const sy = Math.max(0.02, to.height / h);
+  let frames = [
+    { offset: 0, clipPath: full, transform: 'none', opacity: 1 },
+    { offset: 0.3, clipPath: funnel, transform: 'none', opacity: 1 },
+    { offset: 0.6, clipPath: mid, transform: `translateY(${(dy * 0.35).toFixed(1)}px) scaleY(${(1 - (1 - sy) * 0.35).toFixed(3)})`, opacity: 1 },
+    { offset: 1, clipPath: column, transform: `translateY(${dy.toFixed(1)}px) scaleY(${sy.toFixed(3)})`, opacity: 0.4 },
+  ];
+  if (reverse) frames = frames.reverse().map((f) => ({ ...f, offset: 1 - f.offset }));
+  return win
+    .animate(frames, { duration: 620, easing: 'cubic-bezier(.45,0,.25,1)' })
+    .finished.catch(() => {});
+}
+
 function windowTitle(win) {
   const id = win.getAttribute('aria-labelledby');
   return (id && document.getElementById(id)?.textContent.trim()) || document.title;
@@ -181,20 +205,19 @@ export async function minimizeWindow(win) {
   const slot = document.createElement('li');
   const tile = document.createElement('button');
   tile.type = 'button';
-  tile.className = 'dock__window glass';
-  tile.dataset.refract = 'clear';
-  tile.innerHTML = '<svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-doc"/></svg><span class="dock__tip"></span>';
+  tile.className = 'dock__app dock__window';
+  tile.innerHTML = '<span class="dock__icon dock__icon--window" aria-hidden="true"><svg class="icon" viewBox="0 0 20 20"><use href="#i-doc"/></svg></span><span class="dock__tip"></span>';
   $('.dock__tip', tile).textContent = windowTitle(win);
   tile.setAttribute('aria-label', `${windowTitle(win)} 창 다시 열기`);
   tile.addEventListener('click', () => restoreWindow(win));
   slot.append(tile);
   dockWindows.append(slot);
-  refractAll(slot);
   minimized.set(win, slot);
   const hadFocus = win.contains(document.activeElement);
-  await flyTo(win, tile);
+  win.style.transformOrigin = '0 0';
+  await genie(win, $('.dock__icon', tile) || tile);
+  win.style.transformOrigin = '';
   win.classList.add('is-minimized');
-  holdOrbs(win, true);
   focusNext();
   if (hadFocus) tile.focus();
 }
@@ -204,9 +227,10 @@ export async function restoreWindow(win) {
   if (!slot) return;
   minimized.delete(win);
   win.classList.remove('is-minimized');
-  holdOrbs(win, false);
   focusWindow(win);
-  await flyTo(win, slot.firstElementChild, true);
+  win.style.transformOrigin = '0 0';
+  await genie(win, $('.dock__icon', slot) || slot.firstElementChild, true);
+  win.style.transformOrigin = '';
   slot.remove();
   win.focus({ preventScroll: true });
 }
@@ -220,14 +244,13 @@ export async function closeWindow(win, { remove = false } = {}) {
     win.remove();
   } else {
     win.classList.add('is-closed');
-    holdOrbs(win, true);
   }
   focusNext();
   // 초점이 사라진 창 안에 있었다면, 다음 창이나 창을 다시 열 수 있는 곳(Dock)으로 옮긴다.
   if (hadFocus) {
     const next = frontWindow();
     if (next) next.focus({ preventScroll: true });
-    else ($('.dock__tab[aria-current]') ?? $('.dock__tab'))?.focus();
+    else $('.dock__app')?.focus();
   }
 }
 
@@ -238,7 +261,6 @@ export async function openWindow(win) {
   focusWindow(win);
   if (!win.classList.contains('is-closed')) return;
   win.classList.remove('is-closed');
-  holdOrbs(win, false);
   await animate(win, [{ opacity: 0, scale: '0.94' }, { opacity: 1, scale: '1' }], { duration: 260 });
 }
 
@@ -637,26 +659,6 @@ DESKTOP.addEventListener('change', (e) => {
   for (const win of $$('[data-window].is-closed')) openWindow(win);
 });
 
-// 창 자리 고르기(메뉴): 끌지 않고도 맨 앞의 창을 채우거나 반으로 나눈다.
-for (const item of $$('[data-window-preset]')) {
-  item.addEventListener('click', () => {
-    const win = frontWindow() ?? $('#main-window');
-    if (!win || !(win.dataset.window in MIN) || !DESKTOP.matches) return;
-    openWindow(win);
-    zoom(win, false, { instant: true });
-    snapped.delete(win);
-    const preset = item.dataset.windowPreset;
-    if (preset === 'default') {
-      clearFrame(win);
-      store.set(frameKey(win), 'null');
-      return;
-    }
-    const ws = workspace.getBoundingClientRect();
-    setFrame(win, snapFrame(preset, ws));
-    saveFrame(win);
-  });
-}
-
 // Finder 의 ◀ ▶: 브라우저의 뒤로·앞으로. 갈 곳이 없으면(알 수 있는 브라우저에서) 흐리게.
 const historyButtons = $$('[data-history]');
 function syncHistoryButtons() {
@@ -691,10 +693,8 @@ export function notify(text) {
   }
   const t = document.createElement('div');
   t.className = 'toast glass';
-  t.dataset.refract = 'regular';
   t.textContent = text;
   toasts.append(t);
-  refractAll(toasts);
   setTimeout(() => {
     t.classList.add('is-leaving');
     setTimeout(() => t.remove(), reducedMotion.matches ? 0 : 260);
@@ -704,4 +704,4 @@ export function notify(text) {
 // 페이지에 처음부터 있는 창들
 $$('[data-window]').forEach((win) => setupWindow(win));
 const main = $('#main-window');
-if (main) focusWindow(main);
+if (main && !main.classList.contains('is-closed')) focusWindow(main);

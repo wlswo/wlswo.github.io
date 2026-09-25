@@ -5,7 +5,7 @@
  * 똑같이 쓰인다(initDoc). 본문은 창 안(.doc__scroll)에서 스크롤되므로 목차와
  * 읽는 자리 표시도 그 상자를 기준으로 잰다. 닫기·끌기·확대는 windows.js 몫이다.
  */
-import { createLens, refractAll } from './glass.js';
+import { createLens } from './glass.js';
 import { notify } from './windows.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -113,7 +113,6 @@ function initToc(win, scroller, content) {
     win.classList.toggle('doc--toc', open);
     if (remember && !narrow()) store.set('ephemeris:toc', open ? '1' : '0');
     if (open) {
-      refractAll(tocPanel);
       requestAnimationFrame(() => active && lens.moveTo(active.a, { instant: true }));
     }
   }
@@ -239,11 +238,9 @@ function initZoom(content) {
       big.className = 'lightbox__img';
       const panel = document.createElement('div');
       panel.className = 'lightbox__panel glass';
-      panel.dataset.refract = 'regular';
       panel.append(big);
       view.append(panel);
       document.body.append(view);
-      refractAll(view);
       view.focus();
       const shut = () => {
         view.classList.add('is-leaving');

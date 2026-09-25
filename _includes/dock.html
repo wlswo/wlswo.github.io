@@ -1,33 +1,65 @@
 {%- comment -%}
-  Dock. iOS 27 의 Liquid Glass 탭 막대 모양을 빌렸다. 칸마다 그 카테고리의
-  구체가 살아 돌고, 고른 칸 뒤에 유리 렌즈가 놓인다. 누른 채로 옆으로 끌면
-  렌즈가 떠올라 손끝을 따라오고, 놓은 자리의 카테고리가 열린다.
-  오른쪽의 동그란 유리 단추는 Spotlight. 최소화한 창은 그 옆에 붙는다.
+  Dock. 맥의 Dock 그대로: 화면 아래 반투명 판에 앱 아이콘이 줄지어 서고,
+  마우스를 대면 이름표가 뜨고, 떠 있는 앱 밑에는 작은 점이 찍힌다.
+  Finder · Obsidian(글을 노트로 읽기) · 메모 · 터미널 · 게임(개인 프로젝트) · Spotify(음악) | 휴지통.
+  구분선 오른쪽에는 최소화한 창도 선다. 아이콘 그림은 assets/images/dock/.
 {%- endcomment -%}
-{%- assign cur_slug = page.categories | first %}
+{%- assign dock = '/assets/images/dock/' | relative_url %}
 <div class="dock" data-dock>
-  <nav class="dock__bar glass" data-refract="clear" data-glass-light aria-label="카테고리">
-    <ul class="dock__tabs" data-dock-tabs data-lens-group>
+  <nav class="dock__bar" aria-label="Dock">
+    <ul class="dock__apps">
       <li>
-        <a class="dock__tab" href="{{ '/' | relative_url }}" data-category="" data-orb="listening"{% if page.layout == "home" %} aria-current="true"{% endif %}>
-          <thinking-orb state="listening" size="28" preset="32" aria-hidden="true"></thinking-orb>
-          <span class="dock__label">전체</span>
+        <a class="dock__app{% if page.layout == 'home' %} is-running{% endif %}" href="{{ '/' | relative_url }}" data-dock-finder aria-label="Finder (글 목록)">
+          <img class="dock__icon" src="{{ dock }}finder-128.png" srcset="{{ dock }}finder-128.png 1x, {{ dock }}finder-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">Finder</span>
         </a>
       </li>
-      {%- for cat in site.data.categories %}
       <li>
-        <a class="dock__tab" href="{{ '/' | relative_url }}?c={{ cat.slug }}" data-category="{{ cat.slug }}" data-orb="{{ cat.orb }}"{% if cat.slug == cur_slug %} aria-current="true"{% endif %}{% if cat.short and cat.short != cat.name %} aria-label="{{ cat.name }} ({{ cat.short }})"{% endif %}>
-          <thinking-orb state="{{ cat.orb }}" size="28" preset="32" aria-hidden="true"></thinking-orb>
-          <span class="dock__label"><span class="dock__long">{{ cat.name }}</span><span class="dock__short" aria-hidden="true">{{ cat.short | default: cat.name }}</span></span>
-        </a>
+        <button class="dock__app" type="button" data-dock-obsidian data-folders="{{ site.data.categories | map: 'slug' | join: ' ' }}" aria-label="Obsidian (글을 노트로 읽기)">
+          <img class="dock__icon" src="{{ dock }}obsidian-128.png" srcset="{{ dock }}obsidian-128.png 1x, {{ dock }}obsidian-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">Obsidian</span>
+        </button>
       </li>
-      {%- endfor %}
+      <li>
+        <button class="dock__app" type="button" data-dock-notes aria-label="메모">
+          <img class="dock__icon" src="{{ dock }}notes-128.png" srcset="{{ dock }}notes-128.png 1x, {{ dock }}notes-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">메모</span>
+        </button>
+      </li>
+      <li>
+        <button class="dock__app" type="button" data-dock-terminal aria-label="터미널">
+          <img class="dock__icon" src="{{ dock }}terminal-128.png" srcset="{{ dock }}terminal-128.png 1x, {{ dock }}terminal-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">터미널</span>
+        </button>
+      </li>
+      <li>
+        <button class="dock__app" type="button" data-dock-games aria-label="게임 (개인 프로젝트)">
+          <img class="dock__icon" src="{{ dock }}games-128.png" srcset="{{ dock }}games-128.png 1x, {{ dock }}games-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">게임</span>
+        </button>
+      </li>
+      <li>
+        <button class="dock__app" type="button" data-dock-music aria-label="Spotify (음악 플레이어)">
+          <img class="dock__icon" src="{{ dock }}spotify-128.png" srcset="{{ dock }}spotify-128.png 1x, {{ dock }}spotify-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">Spotify</span>
+        </button>
+      </li>
+    </ul>
+
+    <span class="dock__sep" aria-hidden="true"></span>
+    <ul class="dock__windows" data-dock-windows aria-label="최소화한 창"></ul>
+    <ul class="dock__apps">
+      <li>
+        <button class="dock__app" type="button" data-dock-trash aria-label="휴지통">
+          <img class="dock__icon" src="{{ dock }}trash-128.png" srcset="{{ dock }}trash-128.png 1x, {{ dock }}trash-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">휴지통</span>
+        </button>
+      </li>
     </ul>
   </nav>
-
-  <button class="dock__search glass" data-refract="clear" data-glass-light type="button" data-open-spotlight aria-label="Spotlight 검색">
-    {% include icon.html name="search" %}
-  </button>
-
-  <ul class="dock__windows" data-dock-windows aria-label="최소화한 창"></ul>
 </div>
+{%- comment -%} 게임 창의 앱들(_data/projects.yml). games.js 가 읽는다. {%- endcomment %}
+<script type="application/json" id="projects-data">{{ site.data.projects | jsonify }}</script>
+{%- comment -%} 메모 앱의 고정 메모(_data/about_me.yml)와 터미널이 읽는 사이트 정보. {%- endcomment %}
+{%- assign latest = site.posts | first %}
+<script type="application/json" id="site-data">{"about": {{ site.data.about_me | jsonify }}, "posts": {{ site.posts | size }}, "latest": {{ latest.title | jsonify }}, "author": {{ site.author | jsonify }}, "title": {{ site.title | jsonify }}, "first": {{ site.posts.last.date | date: "%Y-%m-%d" | jsonify }}}</script>

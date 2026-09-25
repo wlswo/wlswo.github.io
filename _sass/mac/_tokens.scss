@@ -40,7 +40,8 @@
   --paper: #ffffff; // 창 안의 종이(목록, 본문)
   --paper-2: #f6f6f7; // 코드 블록
   --paper-veil: rgba(255, 255, 255, 0.86); // 종이 위에 뜬 반투명 막(열 머리)
-  --on-ink: #ffffff; // 먹색 바탕 위의 글자(메뉴의 고른 항목 따위)
+  --on-ink: #ffffff; // 먹색 바탕 위의 글자(검은 단추 따위)
+  --pick: rgba(0, 0, 0, 0.075); // 메뉴 · Spotlight 에서 고른 항목의 옅은 회색 판
   --window-edge: rgba(0, 0, 0, 0.26); // 창 둘레의 머리카락 선
   --glass-window: rgba(250, 250, 251, 0.62); // 창 전체가 유리인 창(Finder, About)
   --traffic-off: #d3d3d6; // 뒤에 있는 창의 신호등
@@ -92,7 +93,7 @@
 @media (max-width: 899px) {
   :root {
     --menubar-h: 34px;
-    --dock-reserve: calc(84px + env(safe-area-inset-bottom));
+    --dock-reserve: calc(72px + env(safe-area-inset-bottom));
     --r-window: 20px;
   }
 }

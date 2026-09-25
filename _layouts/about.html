@@ -13,14 +13,13 @@ layout: desktop
     {% include traffic-lights.html nozoom=true %}
   </div>
   <div class="about__body">
-    <img class="about__icon" src="{{ '/assets/logo.ico/android-chrome-192x192.png' | relative_url }}" width="96" height="96" alt="">
+    <div class="about__icon">{% include bot.html %}</div>
     <h1 class="about__title" id="about-title">{{ site.title }}</h1>
-    <p class="about__sub">{{ site.author }}의 기술 블로그</p>
 
     <dl class="about__specs">
       <div><dt>쓴 사람</dt><dd>{{ site.author }}</dd></div>
       <div><dt>글</dt><dd>{{ site.posts | size }}편</dd></div>
-      <div><dt>카테고리</dt><dd>{% for cat in site.data.categories %}{{ cat.name }}{% unless forloop.last %} · {% endunless %}{% endfor %}</dd></div>
+      <div><dt>카테고리</dt><dd>Computer Science</dd></div>
       {%- if oldest %}
       <div><dt>첫 글</dt><dd><time datetime="{{ oldest.date | date: '%Y-%m-%d' }}">{{ oldest.date | date: "%Y년 %-m월 %-d일" }}</time></dd></div>
       <div><dt>최근 글</dt><dd><a href="{{ newest.url | relative_url }}">{{ newest.title }}</a></dd></div>

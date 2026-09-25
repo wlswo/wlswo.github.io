@@ -18,7 +18,8 @@
   .window,
   .glass,
   .menu__panel,
-  .calendar {
+  .calendar,
+  .dock__bar {
     border: 1px solid CanvasText;
   }
 
@@ -41,21 +42,13 @@
     outline: 2px solid Highlight;
   }
 
-  // 달력: 칸 선, 고른 날, 오늘 동그라미, 일정 띠를 테두리로
-  .calendar__grid td {
-    border-color: CanvasText;
-  }
-
+  // 달력: 고른 날과 오늘 동그라미를 테두리로
   .calendar [aria-selected="true"] > .calendar__day {
     outline: 2px solid Highlight;
     outline-offset: -2px;
   }
 
-  .calendar__day[aria-current="date"] .calendar__num {
-    border: 1px solid CanvasText;
-  }
-
-  .calendar__event {
+  .calendar__day[aria-current="date"] {
     border: 1px solid CanvasText;
   }
 

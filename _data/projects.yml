@@ -1,0 +1,26 @@
+# Dock 의 '게임'을 누르면 뜨는 창에 앱 아이콘으로 서는 개인 프로젝트. 순서대로 놓인다.
+#
+# name  아이콘 밑의 이름
+# desc  이름 밑의 한 줄 설명
+# url   누르면 새 탭으로 여는 주소(마우스를 대면 창 아래 상태 막대에 뜬다)
+# icon  assets/images/apps/<icon>-128.png · -256.png (둥근 사각형 앱 아이콘 그림)
+
+- name: 퍼필
+  desc: 나만의 독서 기록앱
+  url: https://wlswo.me/perfil/
+  icon: perfil
+
+- name: Lucidus
+  desc: digital business cards
+  url: https://github.com/wlswo/Lucidus
+  icon: lucidus
+
+- name: xray
+  desc: screenshot
+  url: https://github.com/wlswo/xray
+  icon: xray
+
+- name: moco
+  desc: study platform
+  url: https://github.com/MoCo-v2/moco-v2-backend
+  icon: moco

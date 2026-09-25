@@ -20,6 +20,7 @@ html[data-theme="dark"] {
   --paper-2: #28282b;
   --paper-veil: rgba(30, 30, 32, 0.86);
   --on-ink: #000000;
+  --pick: rgba(255, 255, 255, 0.11);
   --window-edge: rgba(255, 255, 255, 0.16);
   --glass-window: rgba(36, 36, 40, 0.64);
   --traffic-off: #4a4a4f;
@@ -43,64 +44,8 @@ html[data-theme="dark"] {
     background-image: image-set(var(--wallpaper-dark) 1x, var(--wallpaper-dark-2x) 2x);
   }
 
-  // 유리: 흰 막 대신 짙은 막. 테두리 빛은 남기되 한결 옅게.
-  .glass {
-    --glass-bg: rgba(40, 40, 44, 0.5);
-    --glass-edge: rgba(255, 255, 255, 0.14);
-    background-image: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.1),
-      rgba(255, 255, 255, 0.02) 45%,
-      rgba(255, 255, 255, 0) 60%
-    );
-    box-shadow:
-      inset 0 0 0 var(--hair) var(--glass-edge),
-      inset 0 1px 1px rgba(255, 255, 255, 0.22),
-      inset 0 -1px 1.5px rgba(0, 0, 0, 0.25),
-      0 1px 2px rgba(0, 0, 0, 0.3),
-      0 8px 28px -8px rgba(0, 0, 0, 0.5);
-
-    &::after {
-      opacity: 0.35;
-    }
-
-    &::before {
-      background: radial-gradient(
-        circle 90px at var(--gx, 50%) var(--gy, 0%),
-        rgba(255, 255, 255, 0.18),
-        rgba(255, 255, 255, 0) 70%
-      );
-    }
-
-    &.is-refracting {
-      --glass-bg: rgba(40, 40, 44, 0.3);
-
-      &::after {
-        opacity: 0.2;
-      }
-    }
-
-    &[data-refract="regular"] {
-      --glass-bg: rgba(38, 38, 42, 0.7);
-
-      &.is-refracting {
-        --glass-bg: rgba(38, 38, 42, 0.58);
-      }
-    }
-  }
-
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass {
-      --glass-bg: rgba(38, 38, 42, 0.96);
-    }
-  }
-
-  // 메뉴 막대: 배경화면 위의 흰 글자. 막대 자체는 여전히 투명하다
-  // (위의 .glass 규칙이 짙은 막을 입히지 않게 되돌린다).
+  // 메뉴 막대: 배경화면 위의 흰 글자. 막대 자체는 투명하다.
   .menubar {
-    --glass-bg: transparent;
-    background-image: none;
-    box-shadow: none;
     text-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
 
     &__item:hover {
@@ -110,18 +55,6 @@ html[data-theme="dark"] {
     .menu.is-open > .menubar__item,
     .menubar__clock[aria-expanded="true"] {
       background: rgba(255, 255, 255, 0.2);
-    }
-  }
-
-  // 메뉴 · Spotlight 의 고른 항목(흰 바탕에 검은 글자)
-  .menu__item:hover,
-  .menu__item:focus-visible,
-  .spotlight__hit[aria-selected="true"] .spotlight__row {
-    .icon,
-    .menu__meta,
-    .menu__kbd,
-    .spotlight__meta {
-      color: rgba(0, 0, 0, 0.6);
     }
   }
 
@@ -141,38 +74,18 @@ html[data-theme="dark"] {
     background: rgba(255, 255, 255, 0.1);
   }
 
-  // 달력: 캘린더 앱의 다크 모양(짙은 종이, 밝은 칸 선, 조금 진한 일정 색)
-  .calendar {
-    --cal-weekend: rgba(255, 255, 255, 0.03);
-    --cal-pick: rgba(10, 132, 255, 0.22);
-    --cal-today: #ff453a;
-    --cal-control: #3a3a3e;
-    --cal-control-edge: rgba(255, 255, 255, 0.12);
-    --cal-tint: 0.34;
-    box-shadow:
-      0 0 0 var(--hair) rgba(0, 0, 0, 0.6),
-      inset 0 0 0 var(--hair) var(--window-edge),
-      0 22px 56px -14px rgba(0, 0, 0, 0.7);
-  }
-
-  // 데스크톱 폴더 이름: 배경화면 위의 흰 글자와 어두운 둘레
+  // 데스크톱 아이콘 이름: 배경화면 위의 흰 글자와 어두운 둘레
   .desktop-icon__label {
     color: #ffffff;
   }
 
-  .desktop-icon.is-selected .folder,
-  .desktop-icon.is-selected .paper {
+  .desktop-icon.is-selected .desktop-icon__img {
     background: rgba(255, 255, 255, 0.16);
   }
 
   .marquee {
     border-color: rgba(255, 255, 255, 0.5);
     background: rgba(255, 255, 255, 0.12);
-  }
-
-  // 목차 판
-  .doc__toc {
-    --glass-bg: rgba(46, 46, 50, 0.72);
   }
 
   // 렌즈: 흰 알약 대신 옅게 빛나는 알약
@@ -185,18 +98,19 @@ html[data-theme="dark"] {
       0 4px 14px -4px rgba(0, 0, 0, 0.5);
   }
 
-  .dock__tabs .lens__body {
-    background: rgba(255, 255, 255, 0.1);
-    background-image: none;
-    box-shadow: none;
+  // 메뉴의 꺼진 스위치
+  .menu__switch .switch {
+    background: rgba(255, 255, 255, 0.2);
   }
 
-  .dock__tabs .lens.is-pressed .lens__body {
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow:
-      inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.22),
-      inset 0 1.5px 1px rgba(255, 255, 255, 0.3),
-      0 8px 24px -6px rgba(0, 0, 0, 0.55);
+  // Dock: 스크린샷 속 맥의 다크 Dock 처럼 짙은 판에 밝은 머리카락 테두리
+  .dock {
+    --dock-bg: rgba(30, 30, 32, 0.48);
+    --dock-edge: rgba(255, 255, 255, 0.2);
+    --dock-sep: rgba(255, 255, 255, 0.26);
+    --dock-dot: rgba(255, 255, 255, 0.7);
+    --tip-bg: rgba(44, 44, 46, 0.94);
+    --tip-ink: #f5f5f7;
   }
 
   // 알약 단추

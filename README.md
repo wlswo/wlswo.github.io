@@ -1,9 +1,16 @@
 # Ephemeris
 
-맥북 데스크톱처럼 생긴 Jekyll 블로그입니다. 배경화면 위에 메뉴 막대와 Dock 이
-있고, 글 목록은 Finder 창, 글은 문서 창으로 뜹니다. Dock 은 유리(Liquid Glass)
-표면이고, [thinking-orbs](https://libraries.dev/orbs) 점 구체는 Dock 과 메뉴 막대
-로고에만 포인트로 씁니다.
+맥북 데스크톱처럼 생긴 Jekyll 블로그입니다. 잠금 화면으로 시작해, 배경화면 위에
+메뉴 막대와 Dock 이 있습니다. Dock 에는 Finder · Obsidian · 메모 · 터미널 · 게임 ·
+Spotify · 휴지통이 섭니다(아이콘 그림은 `assets/images/dock/`).
+
+- 글은 Obsidian(창) 이나 Finder 의 Obsidian 폴더 · 태그에서 찾고, 문서 창으로 읽습니다.
+- 바탕의 About.txt 는 메모 앱의 '📍about me' 메모로 열립니다(`_data/about_me.yml`).
+  방문자가 쓴 메모는 그 브라우저의 localStorage 에만 저장됩니다.
+- 터미널은 블로그를 작은 파일 시스템으로 보여 줍니다(`help` 로 명령 목록).
+- 게임 창의 앱은 `_data/projects.yml`, Spotify 는 유튜브 임베드로 SZA 앨범을 틉니다
+  (유튜브가 `127.0.0.1` 에서는 재생을 막으니 로컬에서는 `localhost` 로 여세요).
+- 메뉴 막대의 Wi-Fi · 배터리 메뉴는 모형 자료입니다.
 
 ## 블로그 포스트 작성 방법
 
@@ -34,7 +41,7 @@ categories: [database]
 *   **categories**: `_data/categories.yml` 에 있는 slug 하나를 적습니다.
     (`database` · `network` · `runtime` · `distributed` · `ops` · `notes`)
     새 카테고리가 필요하면 `_data/categories.yml` 에 항목을 더하세요. 이름, 아이콘,
-    그리고 Dock 의 칸 구체가 입을 모양(`orb`)을 정합니다.
+    그리고 달력에서 그 카테고리 글이 입는 색(`color`)을 정합니다.
 *   **description**: 목록과 Spotlight 에 보이는 한 줄 요약입니다.
 
 ### 3. 본문 작성

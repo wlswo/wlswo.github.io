@@ -4,10 +4,12 @@
  * 모든 쪽에서 돈다. 글 목록(finder.js)과 글(post.js)은 여기서 내보내는
  * openWindow() 따위를 가져다 쓴다.
  */
-import { refractAll, createLens } from './glass.js';
 import { loadPosts as fetchPosts } from './posts.js';
-import { DESKTOP, openWindow, frontWindow } from './windows.js';
+import { DESKTOP, openWindow, frontWindow, notify } from './windows.js';
 import './calendar.js';
+import './status.js';
+import './power.js';
+import './bot.js';
 import './contextmenu.js';
 import './runcat.js';
 
@@ -74,7 +76,6 @@ function showMenu(m, focus) {
   m.button.setAttribute('aria-expanded', 'true');
   m.root.classList.add('is-open');
   openMenu = m;
-  refractAll(m.panel);
   if (focus === 'first') itemsOf(m)[0]?.focus();
   if (focus === 'last') itemsOf(m).at(-1)?.focus();
 }
@@ -135,7 +136,7 @@ menus.forEach((m) => {
   });
   // 항목을 고르면 닫고, 초점은 메뉴 이름으로 돌려놓는다(고른 항목이 사라지므로).
   m.panel.addEventListener('click', (e) => {
-    if (e.target.closest('[role^="menuitem"]:not([aria-disabled="true"])')) hideMenu(m, true);
+    if (e.target.closest('[role^="menuitem"]:not([aria-disabled="true"]):not([data-keep-open])')) hideMenu(m, true);
   });
 });
 
@@ -158,97 +159,69 @@ document.addEventListener('keydown', (e) => {
 // ── 창 ──────────────────────────────────────────────────────────
 // 창 관리(옮기기·크기·붙이기·앞뒤·닫기·최소화)는 windows.js 에 있다.
 
-// ── Dock: Liquid Glass 탭 막대 ──────────────────────────────────
-// 고른 칸 뒤에 유리 렌즈가 놓인다. 칸을 누르면 렌즈가 떠올라 부풀고,
-// 누른 채 옆으로 끌면 손끝을 따라 미끄러진다. 렌즈 밑에 든 칸(.is-hot)은
-// 구체와 이름이 커져 돋보기 아래처럼 보인다. 놓으면 가장 가까운 칸에
-// 내려앉고 그 카테고리가 열린다.
-const tabs = $('[data-dock-tabs]');
+// ── Dock ────────────────────────────────────────────────────────
+// 맥의 Dock 처럼: 아이콘을 누르면 한 번 통통 튀고, 떠 있는 앱 밑에는 점이
+// 찍힌다(.is-running). Finder 는 글 목록 창을, Obsidian 은 글을 노트처럼
+// 읽는 창(obsidian.js)을, 메모(notes.js) · 터미널(terminal.js) · 게임(games.js) ·
+// Spotify(music.js)는 제 창을 연다. 앱 모듈은 누를 때 불러온다.
+// 바탕의 About.txt 는 메모 앱을 about me 메모로 연다(ephemeris:about-note).
+const dock = $('[data-dock]');
 
-export function syncDock({ instant = false } = {}) {
-  if (!tabs) return;
-  dockLens.moveTo($('.dock__tab[aria-current]', tabs) ?? null, { instant });
-  if (!$('.dock__tab[aria-current]', tabs)) dockLens.hide();
+if (dock) {
+  dock.addEventListener('click', (e) => {
+    const app = e.target.closest('.dock__app');
+    if (!app || reducedMotion.matches) return;
+    const icon = $('.dock__icon', app);
+    icon.classList.remove('is-bouncing');
+    void icon.offsetWidth; // 연달아 눌러도 처음부터 다시 튄다
+    icon.classList.add('is-bouncing');
+  });
+  dock.addEventListener('animationend', (e) => e.target.classList.remove('is-bouncing'));
+
+  // Finder: 첫 화면이면 쪽을 넘기지 않고 Finder 창을 앞으로(닫혀 있었다면 다시 띄운다).
+  $('[data-dock-finder]', dock)?.addEventListener('click', (e) => {
+    const finder = $('[data-window="finder"]');
+    if (!finder || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    openWindow(finder);
+  });
+
+  $('[data-dock-obsidian]', dock)?.addEventListener('click', async (e) => {
+    const button = e.currentTarget; // await 뒤에는 비어 버리므로 먼저 잡아 둔다
+    const { openObsidian } = await import('./obsidian.js');
+    openObsidian(button);
+  });
+
+  $('[data-dock-notes]', dock)?.addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    const { openNotes } = await import('./notes.js');
+    openNotes(button);
+  });
+
+  $('[data-dock-terminal]', dock)?.addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    const { openTerminal } = await import('./terminal.js');
+    openTerminal(button);
+  });
+
+  $('[data-dock-games]', dock)?.addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    const { openGames } = await import('./games.js');
+    openGames(button);
+  });
+
+  $('[data-dock-music]', dock)?.addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    const { openMusic } = await import('./music.js');
+    openMusic(button);
+  });
+  $('[data-dock-trash]', dock)?.addEventListener('click', () => notify('휴지통이 비어 있습니다'));
 }
 
-// 떠오른 렌즈는 맑은 유리: 밑의 구체와 이름이 테두리에서 휘어 보인다.
-const dockLens = tabs ? createLens(tabs, { glass: 'clear' }) : null;
-
-if (tabs) {
-  let press = null;
-
-  tabs.addEventListener('pointerdown', (e) => {
-    const tab = e.target.closest('.dock__tab');
-    if (!tab || e.button !== 0) return;
-    press = { id: e.pointerId, x: e.clientX, tab, moved: false, hot: tab };
-    tab.classList.add('is-hot');
-    dockLens.press(tab);
-  });
-
-  tabs.addEventListener('pointermove', (e) => {
-    if (!press || e.pointerId !== press.id) return;
-    if (!press.moved && Math.abs(e.clientX - press.x) < 6) return;
-    if (!press.moved) {
-      press.moved = true;
-      tabs.setPointerCapture(e.pointerId); // 이제부터는 끌기. 링크의 누름은 없던 일로.
-      tabs.classList.add('is-scrubbing');
-    }
-    const hot = dockLens.follow(e.clientX);
-    if (hot && hot !== press.hot) {
-      press.hot?.classList.remove('is-hot');
-      hot.classList.add('is-hot');
-      press.hot = hot;
-    }
-  });
-
-  const finish = (e) => {
-    if (!press || (e && e.pointerId !== press.id)) return;
-    // 손가락은 처음 닿은 요소(구체의 캔버스)가 포인터를 쥐고 있다. 끌기가 시작되어
-    // 목록이 그걸 넘겨받을 때 캔버스 쪽에서 오는 '놓침'은 끝이 아니다.
-    if (e && e.type === 'lostpointercapture' && e.target !== tabs) return;
-    const { moved, hot } = press;
-    press = null;
-    hot?.classList.remove('is-hot');
-    tabs.classList.remove('is-scrubbing');
-    dockLens.release();
-    if (moved && hot) {
-      dockLens.moveTo(hot);
-      // 링크를 누른 것과 똑같이 다룬다. 첫 화면이면 finder.js 가 걸러 보이고,
-      // 다른 쪽이면 그 주소로 간다.
-      if (!hot.hasAttribute('aria-current')) hot.click();
-      else syncDock();
-    } else if (!e || e.type !== 'pointerup') {
-      syncDock();
-    } else {
-      // 끌지 않고 뗐다면 곧 click 이 온다. 렌즈는 그대로 두고 그쪽에 맡긴다.
-      // 칸 밖에서 떼어 click 이 오지 않으면 원래 자리로 돌려놓는다.
-      clicked = false;
-      setTimeout(() => {
-        if (!clicked) syncDock();
-      }, 0);
-    }
-  };
-  tabs.addEventListener('pointerup', finish);
-  tabs.addEventListener('pointercancel', finish);
-  tabs.addEventListener('lostpointercapture', finish);
-  // 끌기가 시작되기 전에 막대 밖에서 뗀 경우(아직 포인터를 쥐지 않았다).
-  document.addEventListener('pointerup', finish);
-  document.addEventListener('pointercancel', finish);
-
-  // 링크를 곧장 누른 경우: 다른 쪽으로 넘어가는 동안 렌즈가 먼저 그 칸으로 간다.
-  let clicked = false;
-  tabs.addEventListener('click', (e) => {
-    const tab = e.target.closest('.dock__tab');
-    if (!tab) return;
-    clicked = true;
-    // ⌘·Ctrl 로 새 탭에 여는 경우엔 이 쪽은 그대로다.
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) syncDock();
-    else dockLens.moveTo(tab);
-  });
-
-  new ResizeObserver(() => syncDock({ instant: true })).observe(tabs);
-  syncDock({ instant: true });
-}
+addEventListener('ephemeris:about-note', async () => {
+  const { openNotes } = await import('./notes.js');
+  openNotes($('[data-dock-notes]'), { note: 'about-me' });
+});
 
 // ── Spotlight ───────────────────────────────────────────────────
 // 입력 칸(combobox)이 초점을 쥔 채, 방향키로 목록(listbox)의 선택지를 옮긴다.
@@ -395,7 +368,6 @@ export function openSpotlight() {
   active = 0;
   loadError = false;
   spot.showModal();
-  refractAll(spot);
   renderSpot();
   loadPosts()
     .then(renderSpot)
@@ -456,24 +428,17 @@ if (!isMac) {
 const STILL = 'ephemeris:still';
 function applyStill(on) {
   document.documentElement.classList.toggle('is-still', on);
-  for (const orb of $$('thinking-orb')) {
-    if (on && !orb.hasAttribute('paused')) {
-      orb.dataset.still = '';
-      orb.setAttribute('paused', '');
-    } else if (!on && orb.hasAttribute('data-still')) {
-      delete orb.dataset.still;
-      if (!orb.hasAttribute('data-held')) orb.removeAttribute('paused');
-    }
-  }
-  $('[data-still-toggle]')?.setAttribute('aria-checked', String(on));
+  for (const t of $$('[data-still-toggle]')) t.setAttribute('aria-checked', String(on));
   dispatchEvent(new Event('ephemeris:still'));
 }
 applyStill(store.get(STILL) === '1');
-$('[data-still-toggle]')?.addEventListener('click', () => {
-  const on = store.get(STILL) !== '1';
-  store.set(STILL, on ? '1' : '0');
-  applyStill(on);
-});
+for (const t of $$('[data-still-toggle]')) {
+  t.addEventListener('click', () => {
+    const on = store.get(STILL) !== '1';
+    store.set(STILL, on ? '1' : '0');
+    applyStill(on);
+  });
+}
 
 // ── 본문으로 건너뛰기 ───────────────────────────────────────────
 // 앞에 선 창을(숨어 있었다면 다시 띄워) 그 안의 스크롤 칸으로 들어간다.
@@ -508,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // 방향키·스페이스로 곧장 스크롤할 수 있게, 앞에 선 창의 본문에 초점을 둔다.
   // 이렇게 들어간 초점에는 테두리를 그리지 않는다. 사용자가 키를 누르면 그때부터 그린다.
-  const main = $('#main-window [data-scroll]');
+  const main = $('#main-window:not(.is-closed) [data-scroll]');
   if (main && document.activeElement === document.body && !location.hash) {
     main.dataset.autofocus = '';
     const clear = () => delete main.dataset.autofocus;
@@ -519,7 +484,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── 카테고리가 바뀌면 ───────────────────────────────────────────
-// finder.js 가 알린다. Dock 의 렌즈가 그 칸으로 옮겨 간다.
-addEventListener('ephemeris:category', () => syncDock());
 
 document.documentElement.classList.add('is-ready');

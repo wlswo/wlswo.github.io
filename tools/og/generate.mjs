@@ -30,7 +30,17 @@ const OUT = path.join(ROOT, 'assets/og');
 // 밑줄로 시작하는 파일은 Jekyll 이 읽지 않는다(사이트와 사이트맵에 실리지 않게).
 const TEMPLATE = path.join(HERE, '_card.html');
 // 그림에 그대로 찍히는 사이트 파일. 이것들이 바뀌어도 다시 굽는다.
-const LOOK = ['assets/images/wallpaper@2x.webp', 'assets/js/vendor/thinking-orbs/engine.js'];
+const LOOK = ['assets/images/wallpaper@2x.webp', 'tools/og/orb/vendor/thinking-orbs/engine.js'];
+// 카드의 구체 모양. 사이트에서는 구체를 걷어냈고, 공유 썸네일에만 남았다.
+// (구체 코드도 이 도구 안의 orb/ 로 옮겨 왔다.)
+const ORBS = {
+  database: 'searching',
+  network: 'connecting',
+  runtime: 'working',
+  distributed: 'weaving',
+  ops: 'shaping',
+  notes: 'composing',
+};
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -173,7 +183,7 @@ async function main() {
           kind: 'post',
           title: p.title,
           description: p.description || '',
-          orb: cat.orb || 'listening',
+          orb: ORBS[p.slug] || 'listening',
           label: cat.name || p.category || '',
           labelEn: cat.en || '',
           footLead: config.title || 'Ephemeris',
@@ -244,6 +254,17 @@ async function main() {
     await page.route(cardUrl, (route) =>
       route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: template }),
     );
+    // 구체 코드는 사이트에 없고 이 도구 안(orb/)에 있다. 카드 옆 주소로 내어 준다.
+    await page.route(`${base}/__og__/orb/**`, async (route) => {
+      const rel = decodeURIComponent(new URL(route.request().url()).pathname.replace(/^\/__og__\//, ''));
+      const file = path.join(HERE, rel);
+      if (!file.startsWith(path.join(HERE, 'orb') + path.sep)) return route.fulfill({ status: 404 });
+      try {
+        route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: await readFile(file) });
+      } catch {
+        route.fulfill({ status: 404 });
+      }
+    });
     try {
       await page.goto(cardUrl, { waitUntil: 'load' });
       await page.waitForFunction(() => window.cardReady === true, null, { timeout: 15000 });

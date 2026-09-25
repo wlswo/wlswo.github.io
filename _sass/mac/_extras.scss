@@ -7,7 +7,7 @@
 
   .traffic__btn {
     background: var(--traffic-off);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+    box-shadow: inset 0 0 0 0.75px rgba(0, 0, 0, 0.16);
   }
 
   // 마우스를 대면 맥처럼 제 색이 돌아온다.
@@ -34,7 +34,7 @@
 // 꺼진 단추(About 창의 확대)
 .traffic__btn:disabled {
   background: var(--traffic-off);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 0 0 0.75px rgba(0, 0, 0, 0.16);
 
   .icon {
     display: none;
@@ -95,7 +95,7 @@
   min-width: 220px;
   padding: 12px 16px;
   border-radius: 18px;
-  font-size: 13.5px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--ink);
   animation: toast-in 0.4s var(--spring-fallback) both;
@@ -124,7 +124,6 @@
 
 // ── 우클릭 메뉴 ─────────────────────────────────────────────────
 .context-menu {
-  --glass-bg: rgba(255, 255, 255, 0.78);
   position: fixed;
   z-index: 95;
   display: flex;
@@ -223,9 +222,9 @@
 
 // ── About: '이 Mac에 관하여' ────────────────────────────────────
 .about {
-  top: calc(40% - 260px);
-  left: calc(50% - 180px);
-  width: 360px;
+  top: calc(40% - 280px);
+  left: calc(50% - 205px);
+  width: 410px;
   background: var(--glass-window);
   -webkit-backdrop-filter: blur(34px) saturate(1.8);
   backdrop-filter: blur(34px) saturate(1.8);
@@ -246,25 +245,23 @@
     overflow-y: auto;
   }
 
+  // 아이콘 자리: 마우스를 쳐다보는 까만 동그라미 캐릭터(bot.html)
   &__icon {
-    display: block;
-    width: 96px;
-    height: 96px;
-    border-radius: 22px;
-    box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.35);
+    width: 108px;
+    height: 108px;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+
+    .bot {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   &__title {
-    margin: 12px 0 2px;
-    font-size: 26px;
+    margin: 12px 0 16px;
+    font-size: 31px;
     font-weight: 700;
     letter-spacing: -0.03em;
-  }
-
-  &__sub {
-    margin: 0 0 18px;
-    font-size: 13.5px;
-    color: var(--ink-2);
   }
 
   &__specs {
@@ -272,7 +269,7 @@
     gap: 6px;
     width: 100%;
     margin: 0 0 16px;
-    font-size: 12.5px;
+    font-size: 15px;
 
     div {
       display: grid;
@@ -304,7 +301,7 @@
   &__text {
     width: 100%;
     margin-bottom: 18px;
-    font-size: 13.5px;
+    font-size: 16px;
     line-height: 1.65;
     color: var(--ink-body);
 
@@ -320,7 +317,7 @@
 
   &__legal {
     margin: 16px 0 0;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--ink-3);
   }
 }
@@ -339,5 +336,305 @@
 
   .snap-preview {
     display: none;
+  }
+}
+
+// ── 잠금 화면 ───────────────────────────────────────────────────
+// 맥의 잠금 화면: 배경화면 위 가운데에 유리 글씨의 날짜와 큰 시계, 아래에
+// 사용자 사진과 이름(lockscreen.html · power.js). 아무 데나 누르면 열린다.
+.lock {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(7vh, 40px) 16px calc(max(7vh, 36px) + env(safe-area-inset-bottom));
+  background-color: #1b1236;
+  background-image: var(--lock-wall);
+  background-image: -webkit-image-set(var(--lock-wall) 1x, var(--lock-wall-2x) 2x);
+  background-image: image-set(var(--lock-wall) 1x, var(--lock-wall-2x) 2x);
+  background-position: center bottom;
+  background-size: cover;
+  color: #ffffff;
+  text-align: center;
+  outline: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+  cursor: pointer;
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s var(--ease-out);
+
+  &[hidden] {
+    display: none;
+  }
+
+  // 글자가 어느 그림 위에서도 읽히게 위아래를 살짝 어둡게
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, 0) 62%, rgba(0, 0, 0, 0.3));
+  }
+
+  &.is-leaving {
+    opacity: 0;
+    transform: scale(1.04);
+    pointer-events: none;
+  }
+
+  // 유리 글씨: 위는 밝고 아래로 갈수록 비치는 반투명 흰 글자에, 가장자리에
+  // 맺힌 옅은 빛과 부드러운 그림자. 뒤의 배경화면 색이 글자 안에 비친다.
+  // (text-stroke 는 가변 글꼴의 겹친 윤곽선이 드러나서 쓰지 않는다.)
+  &__date,
+  &__time {
+    margin: 0;
+    color: transparent;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(255, 255, 255, 0.55) 48%,
+      rgba(255, 255, 255, 0.3) 72%,
+      rgba(255, 255, 255, 0.5) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 0 0.6px rgba(255, 255, 255, 0.75)) drop-shadow(0 1px 0.5px rgba(255, 255, 255, 0.35))
+      drop-shadow(0 8px 22px rgba(0, 0, 0, 0.25));
+  }
+
+  &__date {
+    font-size: 26.5px;
+    font-weight: 700;
+  }
+
+  &__time {
+    margin-top: 2px;
+    font-size: clamp(115px, 15.5vw, 192px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  // 사용자 사진 자리: 마우스를 쳐다보는 까만 동그라미 캐릭터
+  &__open {
+    display: grid;
+    place-items: center;
+    width: 100px;
+    height: 100px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
+    transition: transform 0.2s var(--ease-out);
+
+    &:hover {
+      transform: scale(1.04);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.85);
+      outline-offset: 4px;
+    }
+  }
+
+  &__avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  &__name {
+    margin: 2px 0 0;
+    font-size: 18px;
+    font-weight: 600;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  &__hint {
+    margin: 4px 0 0;
+    font-size: 14.5px;
+    opacity: 0.75;
+  }
+}
+
+// ── 전원: 잠자기 · 재시동 · 시스템 종료 ─────────────────────────
+.power {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  background: #000000;
+  color: #ffffff;
+  outline: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+
+  &.is-on {
+    opacity: 1;
+  }
+
+  &__boot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+  }
+
+  &__apple {
+    width: 76px;
+    height: 90px;
+    fill: #ffffff;
+  }
+
+  &__bar {
+    width: 190px;
+    height: 5px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.24);
+
+    span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: #ffffff;
+      transform-origin: left center;
+      animation: power-boot 2.5s cubic-bezier(0.4, 0, 0.3, 1) both;
+    }
+  }
+
+  &__button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: rgba(255, 255, 255, 0.55);
+    font: inherit;
+    font-size: 15.5px;
+    animation: fade-in 0.6s linear;
+
+    .icon {
+      box-sizing: content-box;
+      width: 22px;
+      height: 22px;
+      padding: 12px;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.3);
+      stroke-width: 1.8;
+    }
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: 6px;
+      border-radius: 12px;
+    }
+  }
+}
+
+@keyframes power-boot {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+// ── 캐릭터(bot.html · bot.js) ───────────────────────────────────
+// 까만 동그라미와 흰 알약 눈. 눈은 마우스를 좇고, 깜빡이고, 가끔 윙크한다.
+.bot {
+  display: block;
+  overflow: visible;
+
+  &__body {
+    fill: #0b0b0d;
+    transition: transform 0.35s var(--ease-out);
+  }
+
+  &__face {
+    transform-box: view-box;
+    transform-origin: 60px 55px;
+    transition: transform 0.14s ease-out;
+  }
+
+  &__eye {
+    fill: #ffffff;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: bot-blink 4.6s infinite;
+  }
+
+  // 오른쪽 눈은 네 번에 한 번꼴로 깜빡이는 대신 윙크(가로 막대)로 감는다.
+  &__eye--r {
+    animation: bot-wink 18.4s infinite;
+  }
+}
+
+@keyframes bot-blink {
+  0%,
+  93%,
+  100% {
+    transform: none;
+  }
+
+  96% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes bot-wink {
+  0%,
+  23.25%,
+  25%,
+  48.25%,
+  50%,
+  73.25%,
+  100% {
+    transform: none;
+  }
+
+  24%,
+  49%,
+  74% {
+    transform: scaleY(0.08);
+  }
+
+  // 윙크: 잠깐 눈이 가로로 누운 막대가 된다
+  93% {
+    transform: none;
+  }
+
+  95%,
+  98% {
+    transform: rotate(-84deg) scaleX(0.55);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bot__eye {
+    animation: none;
   }
 }

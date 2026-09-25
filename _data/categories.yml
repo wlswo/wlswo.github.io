@@ -2,12 +2,9 @@
 #
 # slug  글 머리말의 `categories: [slug]` 와 주소(?c=slug)에 쓰인다
 # name  화면에 보이는 이름
-# short 폰의 Dock 처럼 자리가 좁은 곳에 쓰는 짧은 이름
+# short 자리가 좁은 곳에 쓰는 짧은 이름
 # en    영문 이름. 보조 표기와 aria 에 쓴다
 # icon  _includes/icons.html 의 심볼 이름
-# orb   이 카테고리의 구체 모양. Dock 의 칸 구체가 이 모양을 입는다
-#       (working · searching · solving · listening · connecting ·
-#        weaving · composing · breathing · shaping)
 # color 달력에서 이 카테고리 글이 입는 색. 맥 캘린더 앱의 캘린더 색에서 골랐다
 #       (빨강은 '오늘' 동그라미와 겹쳐 쓰지 않는다)
 
@@ -16,7 +13,6 @@
   short: DB
   en: Database
   icon: cylinder
-  orb: searching
   color: "#1badf8"
 
 - slug: network
@@ -24,7 +20,6 @@
   short: 네트워크
   en: Network
   icon: globe
-  orb: connecting
   color: "#63da38"
 
 - slug: runtime
@@ -32,7 +27,6 @@
   short: 런타임
   en: Runtime
   icon: cpu
-  orb: working
   color: "#ff9500"
 
 - slug: distributed
@@ -40,7 +34,6 @@
   short: 분산
   en: Distributed
   icon: nodes
-  orb: weaving
   color: "#cc73e1"
 
 - slug: ops
@@ -48,7 +41,6 @@
   short: 운영
   en: Operations
   icon: shippingbox
-  orb: shaping
   color: "#ffcc00"
 
 - slug: notes
@@ -56,5 +48,4 @@
   short: 노트
   en: Notes
   icon: note
-  orb: composing
   color: "#a2845e"

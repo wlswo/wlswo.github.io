@@ -2,40 +2,26 @@
 layout: desktop
 ---
 {%- comment -%}
-  첫 화면: 데스크톱 위에 Finder 창 하나가 열려 있다.
+  첫 화면: 맥을 막 켠 데스크톱. Finder 창은 닫힌 채로 시작한다(Dock 의 Finder 로
+  연다). 바탕에는 About.txt 하나만
+  놓인다(한 번 누르면 고르고, 두 번 누르면 또는 ↩ 로 연다). About.txt 는
+  메모 앱의 '📍about me' 메모로 열린다.
 
-  오른쪽 위에는 카테고리마다 맥의 파란 폴더가 놓인다. 한 번 누르면 고르고, 두 번 누르면
-  (또는 ↩) Finder 창이 그 카테고리를 연다. Finder 창의 사이드바, Dock, 메뉴
-  막대의 카테고리 메뉴도 모두 같은 일을 한다. 걸러 보이는 일은 finder.js 가
-  맡고, 스크립트가 없으면 글이 전부 보인다.
-{%- endcomment -%}
+  Finder 는 맥처럼 사이드바의 위치를 오간다: 응용 프로그램(Dock 의 앱들),
+  데스크탑(About.txt), Obsidian(글이 텍스트 파일로 줄지은 폴더). 카테고리는
+  '태그'로, 누르면 Obsidian 폴더의 그 글만 보인다. 주소는 ?at=위치, ?c=태그.
+  보이고 숨기는 일은 finder.js 가 맡고, 스크립트가 없으면 글 목록이 보인다.
+{%- endcomment %}
 <ul class="desktop-icons" aria-label="데스크톱" data-desktop-icons>
-  {%- for cat in site.data.categories %}
   <li>
-    <a class="desktop-icon" href="{{ '/' | relative_url }}?c={{ cat.slug }}" data-category="{{ cat.slug }}" data-desktop-icon data-no-current>
-      <svg class="folder" viewBox="0 0 64 52" aria-hidden="true" focusable="false">
-        <path class="folder__back" d="M4 9a4 4 0 0 1 4-4h14.6a4 4 0 0 1 2.9 1.25L28 9h28a4 4 0 0 1 4 4v31a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/>
-        <path class="folder__front" d="M4 18a4 4 0 0 1 4-4h48a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/>
-        <path class="folder__lip" d="M8.5 14.7h47"/>
-        <use class="folder__glyph-light" href="#i-{{ cat.icon }}" x="23" y="23.7" width="18" height="18"/>
-        <use class="folder__glyph" href="#i-{{ cat.icon }}" x="23" y="22.9" width="18" height="18"/>
-      </svg>
-      <span class="desktop-icon__label">{{ cat.name }}</span>
-    </a>
-  </li>
-  {%- endfor %}
-  <li>
-    <a class="desktop-icon" href="{{ '/about/' | relative_url }}" data-desktop-icon>
-      <svg class="paper" viewBox="0 0 64 52" aria-hidden="true" focusable="false">
-        <path class="paper__sheet" d="M20.5 3.5h17l9 9v33a2.5 2.5 0 0 1-2.5 2.5H20.5A2.5 2.5 0 0 1 18 45.5v-39.5a2.5 2.5 0 0 1 2.5-2.5z"/>
-        <path class="paper__fold" d="M37.5 3.5v6.5a2.5 2.5 0 0 0 2.5 2.5h6.5z"/>
-        <path class="paper__lines" d="M22.5 19h19M22.5 23.5h19M22.5 28h19M22.5 32.5h19M22.5 37h12"/>
-      </svg>
+    <a class="desktop-icon" href="{{ '/about/' | relative_url }}" data-desktop-icon data-about-note>
+      <img class="desktop-icon__img" src="{{ '/assets/images/dock/notes-128.png' | relative_url }}" srcset="{{ '/assets/images/dock/notes-128.png' | relative_url }} 1x, {{ '/assets/images/dock/notes-256.png' | relative_url }} 2x" width="64" height="64" alt="" draggable="false">
       <span class="desktop-icon__label">About.txt</span>
     </a>
   </li>
 </ul>
 
+<noscript><style>.finder [data-place-view="obsidian"] { display: block !important; } .finder [data-place-view="apps"] { display: none; }</style></noscript>
 <section class="window finder" id="main-window" tabindex="-1" data-window="finder" aria-labelledby="finder-title">
   <aside class="finder__sidebar" aria-label="Finder 사이드바">
     <div class="finder__chrome" data-window-drag>
@@ -45,17 +31,24 @@ layout: desktop
     <nav class="finder__section" aria-labelledby="finder-fav">
       <p class="finder__heading" id="finder-fav">즐겨찾기</p>
       <ul class="finder__items">
+        <li><a class="finder__item" href="{{ '/' | relative_url }}" data-place="apps" aria-current="true">{% include icon.html name="apps" %}<span class="finder__label">응용 프로그램</span></a></li>
+        <li><a class="finder__item" href="{{ '/' | relative_url }}?at=desktop" data-place="desktop">{% include icon.html name="desktop" %}<span class="finder__label">데스크탑</span></a></li>
         <li>
-          <a class="finder__item" href="{{ '/' | relative_url }}" data-category="" aria-current="true">
-            {% include icon.html name="all" %}
-            <span class="finder__label">전체</span>
-            <span class="finder__count">{{ site.posts | size }}</span>
+          <a class="finder__item" href="{{ '/' | relative_url }}?at=obsidian" data-place="obsidian">
+            {% include icon.html name="folder" %}<span class="finder__label">Obsidian</span><span class="finder__count">{{ site.posts | size }}</span>
           </a>
         </li>
+      </ul>
+    </nav>
+
+    {%- comment -%} 카테고리는 맥 Finder 의 '태그'처럼 색 점으로. 누르면 Obsidian 폴더의 그 글만. {%- endcomment %}
+    <nav class="finder__section" aria-labelledby="finder-tags">
+      <p class="finder__heading" id="finder-tags">태그</p>
+      <ul class="finder__items">
         {%- for cat in site.data.categories %}
         <li>
-          <a class="finder__item" href="{{ '/' | relative_url }}?c={{ cat.slug }}" data-category="{{ cat.slug }}" data-orb="{{ cat.orb }}">
-            {% include icon.html name=cat.icon %}
+          <a class="finder__item" href="{{ '/' | relative_url }}?c={{ cat.slug }}" data-category="{{ cat.slug }}">
+            <span class="finder__tag" style="--c: {{ cat.color | default: '#8e8e93' }}" aria-hidden="true"></span>
             <span class="finder__label">{{ cat.name }}</span>
             <span class="finder__count">{{ site.categories[cat.slug] | size }}</span>
           </a>
@@ -80,21 +73,49 @@ layout: desktop
         <button class="finder__navbtn" type="button" data-history="forward" aria-label="앞으로">{% include icon.html name="chevron-right" %}</button>
       </div>
       <div class="finder__titles">
-        <h1 class="finder__title" id="finder-title" data-list-title>전체</h1>
+        <h1 class="finder__title" id="finder-title" data-list-title>응용 프로그램</h1>
       </div>
       <div class="search" data-no-drag>
         <label class="search__field">
           {% include icon.html name="search" class="search__icon" %}
-          <span class="sr-only">이 폴더에서 검색</span>
+          <span class="sr-only">글 검색</span>
           <input class="search__input" type="search" placeholder="검색" autocomplete="off" spellcheck="false" enterkeyhint="search" data-search>
         </label>
         <button class="search__clear" type="button" aria-label="검색어 지우기" hidden data-search-clear>
           {% include icon.html name="clear" %}
         </button>
       </div>
+      {%- comment -%} 폰에는 사이드바가 없다. 그 자리를 이 세 칸이 맡는다. {%- endcomment %}
+      <nav class="finder__places" aria-label="위치" data-no-drag>
+        <a href="{{ '/' | relative_url }}" data-place="apps" aria-current="true">응용 프로그램</a>
+        <a href="{{ '/' | relative_url }}?at=desktop" data-place="desktop">데스크탑</a>
+        <a href="{{ '/' | relative_url }}?at=obsidian" data-place="obsidian">Obsidian</a>
+      </nav>
     </header>
 
-    <div class="finder__list" tabindex="0" role="region" data-scroll="finder" aria-label="글 목록">
+    {%- comment -%}
+      응용 프로그램: Dock 의 앱들. 한 번 누르면 고르고, 두 번 누르면(또는 ↩) 연다.
+      여는 일은 Dock 의 그 앱 단추를 누른 것과 같다(finder.js).
+    {%- endcomment %}
+    <div class="finder__place finder__grid" data-place-view="apps" role="region" aria-label="응용 프로그램" tabindex="0">
+      <ul class="ficons">
+        <li><button class="ficon" type="button" data-open-app="finder"><img src="{{ '/assets/images/dock/' | relative_url }}finder-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Finder</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="obsidian"><img src="{{ '/assets/images/dock/' | relative_url }}obsidian-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Obsidian</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="notes"><img src="{{ '/assets/images/dock/' | relative_url }}notes-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">메모</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="terminal"><img src="{{ '/assets/images/dock/' | relative_url }}terminal-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">터미널</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="games"><img src="{{ '/assets/images/dock/' | relative_url }}games-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">게임</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="music"><img src="{{ '/assets/images/dock/' | relative_url }}spotify-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Spotify</span></button></li>
+      </ul>
+    </div>
+
+    <div class="finder__place finder__grid" data-place-view="desktop" role="region" aria-label="데스크탑" tabindex="0" hidden>
+      <ul class="ficons">
+        <li><a class="ficon" href="{{ '/about/' | relative_url }}" data-about-note><img src="{{ '/assets/images/dock/' | relative_url }}notes-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">About.txt</span></a></li>
+      </ul>
+    </div>
+
+    {%- comment -%} Obsidian 폴더: 글이 텍스트 파일로 줄지어 선다(목록 보기). {%- endcomment %}
+    <div class="finder__place finder__list" tabindex="0" role="region" data-scroll="finder" data-place-view="obsidian" aria-label="Obsidian 폴더의 글" hidden>
       <div class="columns" aria-hidden="true">
         <span class="columns__name">이름</span>
         <span class="columns__cat">카테고리</span>
@@ -109,11 +130,11 @@ layout: desktop
           {%- for post in year.items %}
           {%- assign slug = post.categories | first %}
           {%- assign cat = nil %}{%- if slug %}{%- assign cat = site.data.categories | where: "slug", slug | first %}{%- endif %}
-          <li class="row" data-category="{{ slug }}" data-orb="{{ cat.orb | default: 'listening' }}"
+          <li class="row" data-category="{{ slug }}"
               data-search="{{ post.title | append: ' ' | append: post.description | append: ' ' | append: cat.name | append: ' ' | append: cat.en | append: ' ' | append: cat.short | strip_html | downcase | escape }}">
             {%- comment -%} Finder 의 목록 보기처럼 한 줄. 설명은 마우스를 올리면 뜬다. {%- endcomment %}
             <a class="row__link" href="{{ post.url | relative_url }}"{% if post.description %} title="{{ post.description | strip_html | escape }}"{% endif %}>
-              <span class="row__icon" aria-hidden="true">{% include icon.html name="doc" %}</span>
+              <img class="row__icon" src="{{ '/assets/images/dock/' | relative_url }}file-txt-32.png" srcset="{{ '/assets/images/dock/' | relative_url }}file-txt-32.png 1x, {{ '/assets/images/dock/' | relative_url }}file-txt-64.png 2x" alt="" width="18" height="18" draggable="false">
               <span class="row__body">
                 <span class="row__title">{{ post.title }}</span>
               </span>
@@ -134,8 +155,19 @@ layout: desktop
     </div>
 
     <footer class="finder__status">
-      <span data-status role="status">{{ site.posts | size }}개 항목</span>
+      <span data-status role="status">6개 항목</span>
     </footer>
   </div>
 </section>
+{%- comment -%}
+  처음 들어오면 Finder 는 닫혀 있다(맥을 켰을 때처럼 바탕만). Dock 의 Finder 나
+  태그 · 위치 주소(?c= · ?at=)로 들어오면 열린다. 첫 그림 전에 정한다.
+  스크립트가 없으면 이 줄이 돌지 않아 Finder(와 글 목록)가 그대로 보인다.
+{%- endcomment %}
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    if (!q.get('c') && !q.get('at')) document.getElementById('main-window').classList.add('is-closed');
+  })();
+</script>
 {% include frame-restore.html %}

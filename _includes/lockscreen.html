@@ -1,0 +1,41 @@
+{%- comment -%}
+  잠금 화면. 이 탭에서 처음 들어오면(세션마다 한 번) 맥의 잠금 화면이 먼저 뜬다:
+  배경화면 위에 유리 글씨의 날짜와 큰 시계, 아래에 사용자(마우스를 눈으로 좇는 까만
+  동그라미 캐릭터, bot.html). 암호는 없다 —
+  아무 데나 누르거나 아무 키나 누르면(폰은 위로 쓸어 올려도) 열린다(power.js).
+  애플 메뉴의 잠자기 · 재시동 · 시스템 종료 뒤에도 이 화면으로 돌아온다.
+
+  스크립트가 없거나 검색 로봇이면 뜨지 않는다(hidden 으로 시작해, 아래 스크립트가
+  첫 그림 전에 연다). 그래서 데스크톱이 먼저 비쳤다가 가려지는 일이 없다.
+{%- endcomment -%}
+{%- assign lockWall = site.wallpaper | default: '/assets/images/wallpaper.webp' %}
+{%- assign lockWall2x = site.wallpaper_2x | default: lockWall %}
+<div class="lock" data-lock hidden tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="lock-name" aria-describedby="lock-hint" style="--lock-wall: url('{{ lockWall | relative_url }}'); --lock-wall-2x: url('{{ lockWall2x | relative_url }}')">
+  <div class="lock__top">
+    <p class="lock__date" data-lock-date></p>
+    <p class="lock__time" data-lock-time></p>
+  </div>
+  <div class="lock__user">
+    <button class="lock__open" type="button" data-lock-open aria-label="잠금 해제">
+      {% include bot.html class="lock__avatar" %}
+    </button>
+    <p class="lock__name" id="lock-name">{{ site.author }}</p>
+    <p class="lock__hint" id="lock-hint" data-lock-hint>아무 데나 누르면 열립니다</p>
+  </div>
+</div>
+<script>
+  (function () {
+    var lock = document.querySelector('[data-lock]');
+    var open = true;
+    try { open = sessionStorage.getItem('ephemeris:unlocked') === '1'; } catch (e) {}
+    if (open || /bot|crawl|spider|slurp|facebookexternalhit|lighthouse/i.test(navigator.userAgent)) return;
+    var d = new Date();
+    lock.querySelector('[data-lock-date]').textContent =
+      (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + '일월화수목금토'.charAt(d.getDay()) + '요일';
+    lock.querySelector('[data-lock-time]').textContent =
+      (d.getHours() % 12 || 12) + ':' + String(d.getMinutes()).padStart(2, '0');
+    if (matchMedia('(pointer: coarse)').matches) lock.querySelector('[data-lock-hint]').textContent = '위로 쓸어 올리거나 눌러서 열기';
+    lock.hidden = false;
+    document.documentElement.classList.add('is-locked');
+  })();
+</script>

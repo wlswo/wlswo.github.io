@@ -158,7 +158,7 @@ if (canvas) {
   scale();
 
   let resting = store.get('ephemeris:runcat') === 'rest';
-  let idle = false; // 한동안 아무 입력이 없으면 orb.js 가 알려 준다
+  let idle = false; // 한동안 아무 입력이 없으면 쉰다(아래)
   let phase = 0;
   let prev = 0;
   let drawn = 0;
@@ -217,15 +217,21 @@ if (canvas) {
     store.set('ephemeris:runcat', resting ? 'rest' : 'run');
     sync();
   });
-  addEventListener('ephemeris:idle', () => {
-    idle = true;
-    sync();
-  });
+  // 아무 입력 없이 12초가 지나면 고양이도 쉰다. 글을 읽는 내내 캔버스를
+  // 다시 그리지 않게. 손을 대면 곧바로 다시 달린다.
+  const IDLE_MS = 12000;
+  let idleTimer = 0;
   const wakeCat = () => {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      idle = true;
+      sync();
+    }, IDLE_MS);
     if (!idle) return;
     idle = false;
     sync();
   };
+  wakeCat();
   for (const type of ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll']) {
     addEventListener(type, wakeCat, { passive: true, capture: true });
   }

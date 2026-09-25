@@ -3,13 +3,12 @@
  *
  * 맥처럼 누른 자리에 유리 메뉴가 뜬다. 어디를 눌렀는지에 따라 항목이 다르다:
  *   바탕           Finder 열기 · 아이콘 정리 · Spotlight · 모양(자동/라이트/다크)
- *   데스크톱 폴더   열기 · 새 탭에서 열기 · 링크 복사
+ *   데스크톱 아이콘 열기 · 새 탭에서 열기 · 링크 복사
  *   글 목록의 한 줄 열기 · 새 탭에서 열기 · 링크 복사
- *   Dock 의 칸     열기 · 새 탭에서 열기 · 링크 복사
+ *   Dock 의 앱     열기(링크인 Finder 는 새 탭에서 열기 · 링크 복사도)
  * 그 밖의 자리(본문의 글자, 링크, 입력 칸)는 브라우저의 메뉴를 그대로 둔다.
  * 키보드로는 초점이 간 항목에서 ContextMenu 키나 ⇧F10 으로 연다.
  */
-import { refractAll } from './glass.js';
 import { notify, openWindow } from './windows.js';
 import { getAppearance, setAppearance } from './theme.js';
 
@@ -43,15 +42,15 @@ function itemsFor(target) {
   if (icon) return linkItems(icon, () => icon.dispatchEvent(new CustomEvent('ephemeris:open-icon', { bubbles: true })));
   const row = target.closest('.row__link');
   if (row) return linkItems(row, () => row.click());
-  const tab = target.closest('.dock__tab');
-  if (tab) return linkItems(tab, () => tab.click());
+  const app = target.closest('.dock__app');
+  if (app) return app.href ? linkItems(app, () => app.click()) : [{ label: '열기', run: () => app.click() }];
   if (target === workspace) {
     const finder = $('[data-window="finder"]');
     const a = getAppearance();
     return [
       {
         label: 'Finder 열기',
-        run: () => (finder ? openWindow(finder) : (location.href = document.querySelector('.menubar__app')?.href || '/')),
+        run: () => (finder ? openWindow(finder) : (location.href = '/')),
       },
       ...(finder ? [{ label: '아이콘 정리', run: () => dispatchEvent(new Event('ephemeris:icons-cleanup')) }] : []),
       { label: 'Spotlight 검색', run: () => $('[data-open-spotlight]')?.click() },
@@ -81,7 +80,6 @@ function open(list, x, y, { keyboard = false, from = null } = {}) {
   returnTo = from ?? document.activeElement;
   menu = document.createElement('div');
   menu.className = 'context-menu glass';
-  menu.dataset.refract = 'regular';
   menu.setAttribute('role', 'menu');
   menu.setAttribute('aria-label', '바로 가기 메뉴');
   menu.tabIndex = -1;
@@ -110,7 +108,6 @@ function open(list, x, y, { keyboard = false, from = null } = {}) {
     menu.append(b);
   }
   document.body.append(menu);
-  refractAll(menu);
   const r = menu.getBoundingClientRect();
   menu.style.left = `${Math.max(6, Math.min(x, innerWidth - r.width - 6))}px`;
   menu.style.top = `${Math.max(6, Math.min(y, innerHeight - r.height - 6))}px`;

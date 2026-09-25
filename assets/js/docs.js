@@ -15,7 +15,6 @@
  */
 import { setupWindow, focusWindow, closeWindow, setCloser, flyTo, restoreWindow } from './windows.js';
 import { initDoc } from './post.js';
-import { refractAll } from './glass.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -143,7 +142,6 @@ export async function openDoc(path, { push = true, from = null, replace = null, 
   setCloser(win, (w) => closeDoc(w));
   open.set(path, win);
   initDoc(win);
-  refractAll(win);
   focusWindow(win);
 
   if (replace) closeDoc(replace, { record: false });

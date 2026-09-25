@@ -15,7 +15,7 @@ layout: desktop
     {% include traffic-lights.html %}
     <a class="doc__back" href="{{ '/' | relative_url }}" data-back aria-label="글 목록으로">{% include icon.html name="chevron-left" %}</a>
 
-    <div class="doc__proxy glass" data-refract="clear" data-glass-light>
+    <div class="doc__proxy glass">
       {% include icon.html name="doc" class="doc__icon" %}
       <span class="doc__name">{{ page.title }}</span>
       {%- if cat %}<span class="doc__kind">— {{ cat.name }}</span>{% endif %}
@@ -25,7 +25,7 @@ layout: desktop
       {% include icon.html name="sidebar" %}
     </button>
     {%- comment -%} 오른쪽 끝의 공유: 폰에서는 공유 시트, 그 밖에서는 링크 복사 {%- endcomment %}
-    <button class="doc__share glass glass-button" type="button" data-share data-refract="clear" data-glass-light data-no-drag aria-label="링크 공유">
+    <button class="doc__share glass glass-button" type="button" data-share data-no-drag aria-label="링크 공유">
       {% include icon.html name="share" %}
     </button>
   </header>

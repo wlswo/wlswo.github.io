@@ -5,9 +5,23 @@
 {%- endcomment -%}
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
-    <!-- 맥의 파란 폴더: 뒤판은 짙게, 앞판은 밝게 위에서 아래로 -->
-    <linearGradient id="folder-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#59aef2"/><stop offset="1" stop-color="#3a8de0"/></linearGradient>
-    <linearGradient id="folder-front" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#90d0fd"/><stop offset="1" stop-color="#60b2f5"/></linearGradient>
+    <!-- 메뉴 막대: 애플 메뉴 자리의 사과, Wi-Fi 부채꼴, 자물쇠 -->
+    <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 20 20"><path d="M6.96 13.16a4.3 4.3 0 0 1 6.08 0M4.27 10.47a8.1 8.1 0 0 1 11.46 0M1.59 7.79a11.9 11.9 0 0 1 16.82 0" fill="none" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="16.2" r="1.7" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-wifi-off" viewBox="0 0 20 20"><path d="M6.96 13.16a4.3 4.3 0 0 1 6.08 0M4.27 10.47a8.1 8.1 0 0 1 11.46 0M1.59 7.79a11.9 11.9 0 0 1 16.82 0" fill="none" stroke-width="2" stroke-linecap="round" opacity=".32"/><circle cx="10" cy="16.2" r="1.7" fill="currentColor" stroke="none" opacity=".32"/><path d="m3.6 2.8 12.8 14.4" fill="none" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4.6" y="8.8" width="10.8" height="8" rx="1.8" fill="currentColor" stroke="none"/><path d="M7 8.8V6.4a3 3 0 0 1 6 0v2.4" fill="none" stroke-width="1.7"/></symbol>
+    <!-- 애플 메뉴: 이 Mac · 잠자기 · 재시동 · 시스템 종료 · 테마(자동 · 라이트 · 다크) -->
+    <symbol id="i-mac" viewBox="0 0 20 20"><rect x="2.6" y="3.6" width="14.8" height="10" rx="1.8"/><path d="M1.4 16.4h17.2"/></symbol>
+    <symbol id="i-sleep" viewBox="0 0 20 20"><path d="M14.6 12.6a6.2 6.2 0 0 1-7.2-7.2 6.2 6.2 0 1 0 7.2 7.2z"/><path d="M12.4 3.2h3l-3 3.4h3M16.2 7.6h1.8l-1.8 2h1.8"/></symbol>
+    <symbol id="i-restart" viewBox="0 0 20 20"><path d="M16.2 10a6.2 6.2 0 1 1-1.9-4.5"/><path d="M14.8 2.4v3.4h-3.4"/></symbol>
+    <symbol id="i-power" viewBox="0 0 20 20"><path d="M10 2.6v6.6"/><path d="M6.1 5.1a6.2 6.2 0 1 0 7.8 0"/></symbol>
+    <symbol id="i-theme-auto" viewBox="0 0 20 20"><circle cx="10" cy="10" r="6.8"/><path d="M10 3.2a6.8 6.8 0 0 1 0 13.6z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.4"/><path d="M10 2v1.8M10 16.2V18M2 10h1.8M16.2 10H18M4.3 4.3l1.3 1.3M14.4 14.4l1.3 1.3M4.3 15.7l1.3-1.3M14.4 5.6l1.3-1.3"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 20 20"><path d="M15.4 12.8A6.6 6.6 0 0 1 7.2 4.6a6.6 6.6 0 1 0 8.2 8.2z"/></symbol>
+    <!-- Finder 사이드바: 응용 프로그램 · 데스크탑 · 폴더 -->
+    <symbol id="i-apps" viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.6"/><rect x="11" y="3" width="6" height="6" rx="1.6"/><rect x="3" y="11" width="6" height="6" rx="1.6"/><rect x="11" y="11" width="6" height="6" rx="1.6"/></symbol>
+    <symbol id="i-desktop" viewBox="0 0 20 20"><rect x="2.6" y="3.4" width="14.8" height="10" rx="1.8"/><path d="M7.4 16.6h5.2M10 13.4v3.2"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 20 20"><path d="M2.8 6.2a1.6 1.6 0 0 1 1.6-1.6h3.4l1.6 1.8h6.2a1.6 1.6 0 0 1 1.6 1.6v6.6a1.6 1.6 0 0 1-1.6 1.6H4.4a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M2.8 8.6h14.4"/></symbol>
     <symbol id="i-all" viewBox="0 0 20 20"><rect x="3" y="7.2" width="14" height="9.8" rx="2.6"/><path d="M5 4.4h10M7.2 1.8h5.6"/></symbol>
     <symbol id="i-cylinder" viewBox="0 0 20 20"><ellipse cx="10" cy="4.7" rx="6" ry="2.3"/><path d="M4 4.7v10.6c0 1.3 2.7 2.4 6 2.4s6-1.1 6-2.4V4.7"/><path d="M4 10c0 1.3 2.7 2.4 6 2.4s6-1.1 6-2.4"/></symbol>
     <symbol id="i-globe" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.2"/><ellipse cx="10" cy="10" rx="3.1" ry="7.2"/><path d="M2.8 10h14.4"/></symbol>
@@ -28,7 +42,7 @@
     <symbol id="i-sidebar" viewBox="0 0 20 20"><rect x="2.6" y="3.8" width="14.8" height="12.4" rx="2.6"/><path d="M8 3.8v12.4M4.6 7h1.6M4.6 9.6h1.6"/></symbol>
     <symbol id="i-close" viewBox="0 0 20 20"><path d="m6 6 8 8m0-8-8 8"/></symbol>
     <symbol id="i-minus" viewBox="0 0 20 20"><path d="M5 10h10"/></symbol>
-    <symbol id="i-zoom" viewBox="0 0 20 20"><path d="M6.2 13.8V7.6l6.2 6.2zM13.8 6.2v6.2L7.6 6.2z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-zoom" viewBox="0 0 20 20"><path d="M5.2 14.8V7.6l7.2 7.2zM14.8 5.2v7.2L7.6 5.2z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-share" viewBox="0 0 20 20"><path d="M10 12.2V2.8M6.6 6 10 2.6 13.4 6"/><path d="M6.4 8.4H5.4a1.8 1.8 0 0 0-1.8 1.8v5.4a1.8 1.8 0 0 0 1.8 1.8h9.2a1.8 1.8 0 0 0 1.8-1.8v-5.4a1.8 1.8 0 0 0-1.8-1.8h-1"/></symbol>
     <symbol id="i-return" viewBox="0 0 20 20"><path d="M15.4 4.6v5.2a2 2 0 0 1-2 2H4.8"/><path d="m8 8.4-3.4 3.4L8 15.2"/></symbol>
   </defs>

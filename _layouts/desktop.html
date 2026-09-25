@@ -18,6 +18,7 @@
 {%- assign wallDark2x = site.wallpaper_dark_2x | default: wallDark %}
 <body class="desktop desktop--{{ page.layout | default: 'page' }}" data-posts-src="{{ '/search.json' | relative_url }}" data-wallpaper-tone="{{ site.wallpaper_tone | default: 'light' }}">
   {% include icons.html %}
+  {% include lockscreen.html %}
   <div class="wallpaper" aria-hidden="true" style="--wallpaper: url('{{ wall | relative_url }}'); --wallpaper-2x: url('{{ wall2x | relative_url }}'); --wallpaper-dark: url('{{ wallDark | relative_url }}'); --wallpaper-dark-2x: url('{{ wallDark2x | relative_url }}')"></div>
   <a class="skip-link" href="#main-window">본문으로 건너뛰기</a>
 
@@ -30,38 +31,51 @@
   {% include dock.html %}
   {%- if page.layout == "home" %}
   {%- comment -%}
-    /?c=slug 로 들어왔을 때, 모듈이 돌기 전(첫 그림)부터 걸러진 목록을 보인다.
-    이게 없으면 전체 목록이 한 번 보였다가 줄어들며 화면이 크게 밀린다.
-    finder.js 는 같은 상태를 다시 계산하므로 여기서는 보이는 것만 맞춘다.
+    /?at=위치 · /?c=태그 로 들어왔을 때, 모듈이 돌기 전(첫 그림)부터 그 위치와
+    걸러진 목록을 보인다. 이게 없으면 응용 프로그램이 한 번 보였다가 바뀌며
+    화면이 크게 밀린다. finder.js 는 같은 상태를 다시 계산하므로 여기서는
+    보이는 것만 맞춘다.
   {%- endcomment %}
   <script>
   (function () {
-    var c = new URLSearchParams(location.search).get('c'), side = null, n = 0;
-    if (!c) return;
-    document.querySelectorAll('.finder__item[data-category]').forEach(function (a) {
-      if (a.getAttribute('data-category') === c) side = a;
+    var q = new URLSearchParams(location.search), c = q.get('c'), at = q.get('at'), tag = null, n = 0;
+    var names = { desktop: '데스크탑', obsidian: 'Obsidian' };
+    if (c) {
+      document.querySelectorAll('.finder__item[data-category]').forEach(function (a) {
+        if (a.getAttribute('data-category') === c) tag = a;
+      });
+      if (!tag) return;
+      at = 'obsidian';
+    }
+    if (!names[at]) return;
+    document.querySelectorAll('.finder [data-place-view]').forEach(function (v) {
+      v.hidden = v.getAttribute('data-place-view') !== at;
     });
-    if (!side) return;
-    document.querySelectorAll('.finder .row').forEach(function (r) {
-      var ok = r.getAttribute('data-category') === c;
-      r.hidden = !ok;
-      if (ok) n++;
-    });
-    document.querySelectorAll('.finder [data-year]').forEach(function (y) {
-      y.hidden = !y.querySelector('.row:not([hidden])');
-    });
-    document.querySelectorAll('.finder__item[data-category], .dock__tab[data-category]').forEach(function (a) {
-      if (a.getAttribute('data-category') === c) a.setAttribute('aria-current', 'true');
+    document.querySelectorAll('.finder a[data-place]').forEach(function (a) {
+      var on = a.getAttribute('data-place') === at && (!tag || a.closest('.finder__places'));
+      if (on) a.setAttribute('aria-current', 'true');
       else a.removeAttribute('aria-current');
     });
-    document.querySelector('[data-list-title]').textContent = side.querySelector('.finder__label').textContent.trim();
+    if (at === 'obsidian') {
+      document.querySelectorAll('.finder .row').forEach(function (r) {
+        var ok = !tag || r.getAttribute('data-category') === c;
+        r.hidden = !ok;
+        if (ok) n++;
+      });
+      document.querySelectorAll('.finder [data-year]').forEach(function (y) {
+        y.hidden = !y.querySelector('.row:not([hidden])');
+      });
+    } else {
+      n = document.querySelectorAll('.finder [data-place-view="' + at + '"] .ficon').length;
+    }
+    if (tag) tag.setAttribute('aria-current', 'true');
+    document.querySelector('[data-list-title]').textContent = tag ? tag.querySelector('.finder__label').textContent.trim() : names[at];
     document.querySelector('[data-status]').textContent = n + '개 항목';
   })();
   </script>
   {%- endif %}
   {% include spotlight.html %}
 
-  <script type="module" src="{{ "/assets/js/orb.js" | relative_url }}"></script>
   <script type="module" src="{{ "/assets/js/glass.js" | relative_url }}"></script>
   <script type="module" src="{{ "/assets/js/desktop.js" | relative_url }}"></script>
   {%- if page.layout == "home" %}

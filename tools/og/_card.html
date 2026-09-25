@@ -221,7 +221,7 @@
     font-size: 30px;
   }
 </style>
-<script type="module" src="../assets/js/orb.js"></script>
+<script type="module" src="./orb/orb.js"></script>
 </head>
 <body>
   <main class="card" id="card">
@@ -243,7 +243,7 @@
   </main>
 
 <script type="module">
-  import { r as resolvePreset } from '../assets/js/vendor/thinking-orbs/engine.js';
+  import { r as resolvePreset } from './orb/vendor/thinking-orbs/engine.js';
 
   const $ = (id) => document.getElementById(id);
   const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
@@ -319,7 +319,7 @@
   const orbDefined = Promise.race([
     customElements.whenDefined('thinking-orb'),
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('구체 모듈(assets/js/orb.js)을 불러오지 못함')), 10000),
+      setTimeout(() => reject(new Error('구체 모듈(tools/og/orb/orb.js)을 불러오지 못함')), 10000),
     ),
   ]);
 
