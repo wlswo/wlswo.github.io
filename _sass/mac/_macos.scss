@@ -5,7 +5,8 @@
 // ── 커서 ────────────────────────────────────────────────────────
 // 맥의 검은 화살표(흰 테두리). 어느 운영체제로 보든 같은 모양.
 :root {
-  --cursor: url("../images/cursor/arrow.svg") 5 3, default;
+  // 옛 Sass(GitHub Pages)가 url() 을 값으로 읽지 못해 문자열로 넘긴다
+  --cursor: #{"url(\"../images/cursor/arrow.svg\") 5 3, default"};
 }
 
 html,
