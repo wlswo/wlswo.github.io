@@ -12,6 +12,9 @@ import './power.js';
 import './bot.js';
 import './contextmenu.js';
 import './runcat.js';
+import './controlcenter.js';
+import { busy, activateApp } from './macos.js';
+import { APPS } from './apps.js';
 
 export {
   DESKTOP,
@@ -189,44 +192,46 @@ if (dock) {
 
   $('[data-dock-obsidian]', dock)?.addEventListener('click', async (e) => {
     const button = e.currentTarget; // await 뒤에는 비어 버리므로 먼저 잡아 둔다
-    const { openObsidian } = await import('./obsidian.js');
+    const { openObsidian } = await busy(import('./obsidian.js'));
     openObsidian(button);
   });
 
   $('[data-dock-notes]', dock)?.addEventListener('click', async (e) => {
     const button = e.currentTarget;
-    const { openNotes } = await import('./notes.js');
+    const { openNotes } = await busy(import('./notes.js'));
     openNotes(button);
   });
 
   $('[data-dock-terminal]', dock)?.addEventListener('click', async (e) => {
     const button = e.currentTarget;
-    const { openTerminal } = await import('./terminal.js');
+    const { openTerminal } = await busy(import('./terminal.js'));
     openTerminal(button);
   });
 
   $('[data-dock-games]', dock)?.addEventListener('click', async (e) => {
     const button = e.currentTarget;
-    const { openGames } = await import('./games.js');
+    const { openGames } = await busy(import('./games.js'));
     openGames(button);
   });
 
   $('[data-dock-music]', dock)?.addEventListener('click', async (e) => {
     const button = e.currentTarget;
-    const { openMusic } = await import('./music.js');
+    const { openMusic } = await busy(import('./music.js'));
     openMusic(button);
   });
-  $('[data-dock-trash]', dock)?.addEventListener('click', () => notify('휴지통이 비어 있습니다'));
+  $('[data-dock-trash]', dock)?.addEventListener('click', () =>
+    notify('휴지통이 비어 있어요', { title: '휴지통', icon: '/assets/images/dock/trash-128.png' }),
+  );
 }
 
 addEventListener('ephemeris:about-note', async () => {
-  const { openNotes } = await import('./notes.js');
+  const { openNotes } = await busy(import('./notes.js'));
   openNotes($('[data-dock-notes]'), { note: 'about-me' });
 });
 
 // 바탕의 Apache Druid 는 Druid 의 동작을 그림으로 보여 주는 창을 연다(druid.js).
 addEventListener('ephemeris:druid', async (e) => {
-  const { openDruid } = await import('./druid.js');
+  const { openDruid } = await busy(import('./druid.js'));
   openDruid(e.detail?.from, e.detail?.href);
 });
 
@@ -277,37 +282,142 @@ function mark(title, q) {
   return `${escapeHTML(title.slice(0, i))}<mark>${escapeHTML(title.slice(i, i + q.length))}</mark>${escapeHTML(title.slice(i + q.length))}`;
 }
 
+// 계산기: 숫자와 + − × ÷ % ^ ( ) 만으로 된 식이면 값을 셈한다(eval 은 쓰지 않는다).
+function calc(expr) {
+  const src = expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/,/g, '').replace(/\s+/g, '');
+  if (!/^[\d.+\-*/%^()]+$/.test(src) || !/\d/.test(src) || !/[+\-*/%^]/.test(src.replace(/^-/, ''))) return null;
+  let i = 0;
+  const peek = () => src[i];
+  const num = () => {
+    if (peek() === '(') {
+      i++;
+      const v = add();
+      if (peek() !== ')') throw new Error('paren');
+      i++;
+      return v;
+    }
+    if (peek() === '-') {
+      i++;
+      return -num();
+    }
+    const m = /^\d*\.?\d+/.exec(src.slice(i));
+    if (!m) throw new Error('num');
+    i += m[0].length;
+    return Number(m[0]);
+  };
+  const pow = () => {
+    const b = num();
+    if (peek() === '^') {
+      i++;
+      return b ** pow();
+    }
+    return b;
+  };
+  const mul = () => {
+    let v = pow();
+    while ('*/%'.includes(peek() ?? '_')) {
+      const op = src[i++];
+      const r = pow();
+      v = op === '*' ? v * r : op === '/' ? v / r : v % r;
+    }
+    return v;
+  };
+  const add = () => {
+    let v = mul();
+    while ('+-'.includes(peek() ?? '_')) {
+      const op = src[i++];
+      const r = mul();
+      v = op === '+' ? v + r : v - r;
+    }
+    return v;
+  };
+  try {
+    const v = add();
+    if (i !== src.length || !Number.isFinite(v)) return null;
+    return Math.round(v * 1e10) / 1e10;
+  } catch {
+    return null;
+  }
+}
+
+// Spotlight 의 결과: 계산 → 앱 → 글 순서. 모든 항목은 { kind, … } 로 한 줄에 선다.
 function search(qRaw) {
   const q = norm(qRaw.trim());
-  if (!posts) return { label: '', list: [], q };
-  if (!q) return { label: '최근 글', list: posts.slice(0, 6), q };
-  const onlyCho = /^[ㄱ-ㅎ\s]+$/.test(q);
-  const qc = q.replace(/\s+/g, '');
-  const scored = [];
-  for (const p of posts) {
-    const t = norm(p.title);
-    let score = 0;
-    if (t.startsWith(q)) score = 4;
-    else if (t.includes(q)) score = 3;
-    else if (onlyCho && p.cho.includes(qc)) score = 2;
-    else if (p.hay.includes(q)) score = 1;
-    if (score) scored.push({ p, score });
+  const groups = [];
+  const value = q ? calc(qRaw.trim()) : null;
+  if (value !== null) groups.push({ label: '계산기', items: [{ kind: 'calc', value, expr: qRaw.trim() }] });
+  if (q) {
+    const apps = Object.entries(APPS)
+      .filter(([key, a]) => key !== 'preview' && key !== 'system' && (norm(a.name).includes(q) || norm(a.keywords).includes(q)))
+      .map(([key, a]) => ({ kind: 'app', key, app: a, starts: norm(a.name).startsWith(q) }))
+      .sort((a, b) => b.starts - a.starts)
+      .slice(0, 4);
+    if (apps.length) groups.push({ label: '응용 프로그램', items: apps });
   }
-  scored.sort((a, b) => b.score - a.score);
-  return { label: '글', list: scored.slice(0, 8).map((s) => s.p), q };
+  if (posts) {
+    if (!q) groups.push({ label: '최근 글', items: posts.slice(0, 6).map((p) => ({ kind: 'post', p })) });
+    else {
+      const onlyCho = /^[ㄱ-ㅎ\s]+$/.test(q);
+      const qc = q.replace(/\s+/g, '');
+      const scored = [];
+      for (const p of posts) {
+        const t = norm(p.title);
+        let score = 0;
+        if (t.startsWith(q)) score = 4;
+        else if (t.includes(q)) score = 3;
+        else if (onlyCho && p.cho.includes(qc)) score = 2;
+        else if (p.hay.includes(q)) score = 1;
+        if (score) scored.push({ p, score });
+      }
+      scored.sort((a, b) => b.score - a.score);
+      if (scored.length) groups.push({ label: '글', items: scored.slice(0, 8).map((x) => ({ kind: 'post', p: x.p })) });
+    }
+  }
+  return { groups, q };
 }
 
 const optionId = (i) => `spot-${gen}-${i}`;
+const fmtNum = (v) => v.toLocaleString('ko-KR', { maximumFractionDigits: 10 });
+
+function hitHTML(h, i, q) {
+  const sel = `aria-selected="${i === active}"`;
+  if (h.kind === 'calc') {
+    return `<li class="spotlight__hit spotlight__hit--calc" role="option" id="${optionId(i)}" data-i="${i}" ${sel}>
+      <span class="spotlight__row">
+        <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="2.8" width="12" height="14.4" rx="2"/><path d="M7 6.4h6M7.2 10.2h.1M10 10.2h.1M12.8 10.2h.1M7.2 13.4h.1M10 13.4h.1M12.8 13.4h.1"/></svg>
+        <span class="spotlight__title">= ${escapeHTML(fmtNum(h.value))}</span>
+        <span class="spotlight__meta">↩ 결과 복사</span>
+      </span></li>`;
+  }
+  if (h.kind === 'app') {
+    return `<li class="spotlight__hit" role="option" id="${optionId(i)}" data-i="${i}" ${sel}>
+      <span class="spotlight__row">
+        <img class="spotlight__appicon" src="${escapeHTML(h.app.icon)}" alt="" width="22" height="22" draggable="false">
+        <span class="spotlight__title">${mark(h.app.name, q)}</span>
+        <span class="spotlight__meta">응용 프로그램</span>
+      </span></li>`;
+  }
+  const p = h.p;
+  return `<li class="spotlight__hit" role="option" id="${optionId(i)}" data-i="${i}" ${sel}>
+    <span class="spotlight__row">
+      <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-${escapeHTML(p.icon)}"/></svg>
+      <span class="spotlight__title">${mark(p.title, q)}</span>
+      <span class="spotlight__meta">${escapeHTML(p.category || '')}, ${escapeHTML(p.date)}</span>
+    </span></li>`;
+}
 
 function renderSpot() {
-  const { label, list, q } = search(spotInput.value);
-  hits = list;
+  const { groups, q } = search(spotInput.value);
+  hits = groups.flatMap((g) => g.items);
   gen++;
   active = Math.min(active, Math.max(0, hits.length - 1));
 
   let message = '';
-  if (!posts) message = loadError ? '글 목록을 불러오지 못했습니다' : '불러오는 중…';
-  else if (!hits.length) message = `“${spotInput.value.trim()}”에 대한 결과 없음`;
+  if (!hits.length) {
+    if (!posts && !q) message = loadError ? '글 목록을 불러오지 못했습니다' : '불러오는 중…';
+    else if (!posts) message = loadError ? '글 목록을 불러오지 못했습니다' : '불러오는 중…';
+    else message = `“${spotInput.value.trim()}”에 대한 결과 없음`;
+  }
 
   if (message) {
     spotList.hidden = true;
@@ -319,29 +429,18 @@ function renderSpot() {
   } else {
     spotNone.hidden = true;
     spotList.hidden = false;
-    spotList.setAttribute('aria-label', label);
-    spotList.innerHTML =
-      `<li class="spotlight__group" aria-hidden="true">${label}</li>` +
-      hits
-        .map(
-          (p, i) => `<li class="spotlight__hit" role="option" id="${optionId(i)}" data-i="${i}" data-href="${escapeHTML(p.url)}" aria-selected="${i === active}">
-            <span class="spotlight__row">
-              <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-${escapeHTML(p.icon)}"/></svg>
-              <span class="spotlight__title">${mark(p.title, q)}</span>
-              <span class="spotlight__meta">${escapeHTML(p.category || '')} · ${escapeHTML(p.date)}</span>
-            </span>
-          </li>`,
-        )
-        .join('');
+    spotList.setAttribute('aria-label', groups.map((g) => g.label).join(', '));
+    let i = 0;
+    spotList.innerHTML = groups
+      .map((g) => `<li class="spotlight__group" aria-hidden="true">${g.label}</li>` + g.items.map((h) => hitHTML(h, i++, q)).join(''))
+      .join('');
     spotInput.setAttribute('aria-expanded', 'true');
     spotInput.setAttribute('aria-activedescendant', optionId(active));
   }
 
   // 결과 수를 알린다(처음 열 때의 '최근 글'은 조용히).
   if (spotStatus) {
-    spotStatus.textContent = !posts
-      ? loadError ? message : ''
-      : q ? (hits.length ? `${hits.length}개 결과` : '결과 없음') : '';
+    spotStatus.textContent = message && loadError ? message : q ? (hits.length ? `${hits.length}개 결과` : '결과 없음') : '';
   }
 }
 
@@ -355,8 +454,22 @@ function moveActive(delta) {
   document.getElementById(optionId(active))?.scrollIntoView({ block: 'nearest' });
 }
 
-function openHit(href, newTab) {
-  if (!href) return;
+function openHit(h, newTab) {
+  if (!h) return;
+  if (h.kind === 'calc') {
+    navigator.clipboard
+      ?.writeText(String(h.value))
+      .then(() => notify(`${h.expr} = ${fmtNum(h.value)}`, { title: '계산 결과를 복사했어요' }))
+      .catch(() => {});
+    spot.close();
+    return;
+  }
+  if (h.kind === 'app') {
+    spot.close();
+    activateApp(h.key);
+    return;
+  }
+  const href = h.p.url;
   if (newTab) {
     window.open(href, '_blank', 'noopener');
     return;
@@ -400,7 +513,7 @@ if (spot) {
       moveActive(-1);
     } else if (e.key === 'Enter' && hits[active]) {
       e.preventDefault();
-      openHit(hits[active].url, e.metaKey || e.ctrlKey);
+      openHit(hits[active], e.metaKey || e.ctrlKey);
     }
   });
   spotList.addEventListener('pointermove', (e) => {
@@ -409,7 +522,7 @@ if (spot) {
   });
   spotList.addEventListener('click', (e) => {
     const li = e.target.closest('[role="option"]');
-    if (li) openHit(li.dataset.href, e.metaKey || e.ctrlKey);
+    if (li) openHit(hits[Number(li.dataset.i)], e.metaKey || e.ctrlKey);
   });
   // 패널 바깥(흐린 배경)을 누르면 닫힌다.
   spot.addEventListener('click', (e) => {

@@ -3,7 +3,7 @@
  *
  * 맥처럼 누른 자리에 유리 메뉴가 뜬다. 어디를 눌렀는지에 따라 항목이 다르다:
  *   바탕           Finder 열기 · 아이콘 정리 · Spotlight · 모양(자동/라이트/다크)
- *   데스크톱 아이콘 열기 · 새 탭에서 열기 · 링크 복사
+ *   데스크톱 아이콘 열기 · 새 탭에서 열기 · 링크 복사 · 정보 가져오기 · 이름 변경 · Finder 에서 보기
  *   글 목록의 한 줄 열기 · 새 탭에서 열기 · 링크 복사
  *   Dock 의 앱     열기(링크인 Finder 는 새 탭에서 열기 · 링크 복사도)
  * 그 밖의 자리(본문의 글자, 링크, 입력 칸)는 브라우저의 메뉴를 그대로 둔다.
@@ -11,6 +11,7 @@
  */
 import { notify, openWindow } from './windows.js';
 import { getAppearance, setAppearance } from './theme.js';
+import { iconInfo, renameIcon, revealInFinder } from './macos.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -39,7 +40,15 @@ function linkItems(el, open) {
 
 function itemsFor(target) {
   const icon = target.closest('[data-desktop-icon]');
-  if (icon) return linkItems(icon, () => icon.dispatchEvent(new CustomEvent('ephemeris:open-icon', { bubbles: true })));
+  if (icon) {
+    return [
+      ...linkItems(icon, () => icon.dispatchEvent(new CustomEvent('ephemeris:open-icon', { bubbles: true }))),
+      '-',
+      { label: '정보 가져오기', run: () => iconInfo(icon) },
+      { label: '이름 변경', run: () => renameIcon(icon) },
+      { label: 'Finder 에서 보기', run: () => revealInFinder(icon) },
+    ];
+  }
   const row = target.closest('.row__link');
   if (row) return linkItems(row, () => row.click());
   const app = target.closest('.dock__app');

@@ -76,7 +76,7 @@ input {
 }
 
 button {
-  cursor: default;
+  cursor: var(--cursor);
 }
 
 kbd {

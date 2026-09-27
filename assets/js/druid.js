@@ -85,6 +85,9 @@ export async function openDruid(from, href = '/druid/') {
     resting = rest;
   }).observe(win, { attributes: true, attributeFilter: ['class'] });
 
+  // 쪽이 다 뜰 때까지 마우스 자리에 무지개 공(오래 걸릴 때만)
+  const { busy } = await import('./macos.js');
+  busy(new Promise((resolve) => frame.addEventListener('load', resolve, { once: true })));
   frame.addEventListener('load', () => frame.focus({ preventScroll: true }), { once: true });
   return win;
 }

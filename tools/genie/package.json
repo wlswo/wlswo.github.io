@@ -1,0 +1,13 @@
+{
+  "name": "ephemeris-genie-vendor",
+  "private": true,
+  "description": "창을 최소화할 때 빨려 들어가는 효과(assets/js/genie.js)가 창을 그림으로 뜨는 데 쓰는 html-to-image 를 한 파일로 묶는 도구",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "html-to-image": "1.11.13"
+  }
+}

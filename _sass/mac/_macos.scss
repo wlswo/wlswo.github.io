@@ -1,0 +1,804 @@
+// ── 맥의 몸짓들 ─────────────────────────────────────────────────
+// macos.js, controlcenter.js 가 만드는 것들: 메뉴 막대의 앱 이름, 앱 전환기,
+// Mission Control, 정보 창, 제어 센터, 알림 센터, 화살표 커서와 무지개 공.
+
+// ── 커서 ────────────────────────────────────────────────────────
+// 맥의 검은 화살표(흰 테두리). 어느 운영체제로 보든 같은 모양.
+:root {
+  --cursor: url("../images/cursor/arrow.svg") 5 3, default;
+}
+
+html,
+button {
+  cursor: var(--cursor);
+}
+
+// ── 메뉴 막대: 앞에 선 앱 ───────────────────────────────────────
+.menubar__appname {
+  font-weight: 700;
+}
+
+.menu[hidden],
+.menu__item[hidden],
+.menu__sep[hidden] {
+  display: none;
+}
+
+.menu__item[aria-disabled="true"] {
+  color: var(--ink-4);
+
+  .menu__meta {
+    color: var(--ink-4);
+  }
+
+  &:hover {
+    background: none;
+  }
+}
+
+// 윈도우 메뉴의 창 목록: 앞의 창에 ✓
+[data-window-list] .menu__item[role="menuitemradio"] {
+  &::before {
+    content: "";
+    flex: none;
+    width: 12px;
+    margin-right: -3px;
+  }
+
+  &[aria-checked="true"]::before {
+    content: "✓";
+  }
+
+  // 오른쪽 끝의 ✓(_extras.scss)는 앞의 ✓ 와 겹치므로 뺀다
+  &[aria-checked="true"]::after {
+    content: none;
+  }
+}
+
+// 좁은 화면에서는 앱 이름만 남기고 앱의 메뉴를 차례로 접는다.
+@media (max-width: 1180px) {
+  .menubar__left .menu:has(> [aria-controls="menu-help"]),
+  .menubar__left .menu:has(> [aria-controls="menu-window"]) {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .menubar__left .menu[data-app-menu]:not(:has(> .menubar__appname)) {
+    display: none;
+  }
+}
+
+// 폰 너비에서는 시계가 잘리지 않게 제어 센터 단추를 뺀다(Wi-Fi, 배터리 메뉴에 같은 것이 있다).
+@media (max-width: 480px) {
+  .menubar__right .menu:has(> [data-cc-button]) {
+    display: none;
+  }
+}
+
+// ── 뒤에 있는 창 ────────────────────────────────────────────────
+// 맥처럼 맨 앞이 아닌 창은 그림자가 옅고 제목이 흐리다(_extras.scss 에 더해).
+.window:not(.is-front) {
+  :is(.games__title, .notes__title, .obsidian__vault-name, .music__app, .druid__title, .info__title, .terminal__title) {
+    opacity: 0.55;
+  }
+}
+
+// ── Dock: 최소화한 창의 그림 ────────────────────────────────────
+.dock__icon--thumb {
+  align-items: end;
+}
+
+.dock__thumb {
+  position: relative;
+  display: block;
+  width: 54px;
+  height: 54px;
+  margin: auto;
+  transform: scale(var(--s, 1));
+  transform-origin: 50% 100%;
+  transition: transform 0.24s cubic-bezier(0.3, 0.7, 0.2, 1);
+
+  .is-magnifying & {
+    transition-duration: 0.06s;
+  }
+
+  > .window {
+    border-radius: 60px;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.18);
+    visibility: visible;
+  }
+}
+
+.dock__thumb-ph {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  background: var(--fill-2);
+}
+
+.dock__badge {
+  position: absolute;
+  right: -4px;
+  bottom: -2px;
+  width: 26px;
+  height: 26px;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+// ── 앱 전환기(⌥⇥) ───────────────────────────────────────────────
+.switcher {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  gap: 4px;
+  width: fit-content;
+  height: fit-content;
+  max-width: calc(100vw - 32px);
+  margin: auto;
+  padding: 14px;
+  border-radius: 26px;
+
+  &__app {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: 96px;
+    padding: 10px 0 30px;
+    border-radius: 16px;
+
+    img {
+      width: 72px;
+      height: 72px;
+      -webkit-user-drag: none;
+    }
+
+    // 이름은 고른 앱 밑에만
+    span {
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      max-width: 140px;
+      overflow: hidden;
+      font-size: 14px;
+      font-weight: 500;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--ink);
+      transform: translateX(-50%);
+      opacity: 0;
+    }
+
+    &[aria-selected="true"] {
+      background: var(--fill-2);
+
+      span {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// ── Mission Control ─────────────────────────────────────────────
+.mission-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(20, 20, 24, 0.38);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  animation: veil-in 0.32s var(--ease-out);
+  transition: opacity 0.36s linear;
+
+  &.is-leaving {
+    opacity: 0;
+  }
+}
+
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.mission-label {
+  position: absolute;
+  z-index: 9000;
+  max-width: 260px;
+  padding: 3px 10px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: rgba(30, 30, 32, 0.72);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: veil-in 0.3s 0.12s var(--ease-out) backwards;
+}
+
+html.is-mission {
+  .window:not(.is-minimized):not(.is-closed) {
+    user-select: none;
+
+    // 안의 것들은 누를 수 없고, 창 전체가 한 장의 그림처럼 골라진다.
+    > * {
+      pointer-events: none;
+    }
+
+    &:hover {
+      box-shadow:
+        0 0 0 5px var(--accent),
+        0 30px 70px -20px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  .window__grip {
+    display: none;
+  }
+}
+
+// ── 정보 창 ─────────────────────────────────────────────────────
+.window.info {
+  top: calc(64px + var(--nudge, 0px));
+  left: calc(50% - 160px + var(--nudge, 0px));
+  width: 320px;
+  max-height: calc(100% - var(--dock-reserve) - 70px);
+  border-radius: 18px;
+  background: var(--glass-window);
+  -webkit-backdrop-filter: blur(34px) saturate(1.8);
+  backdrop-filter: blur(34px) saturate(1.8);
+
+  &.has-frame {
+    top: var(--y);
+    left: var(--x);
+  }
+}
+
+.info {
+  &__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 14px;
+    flex: none;
+  }
+
+  &__title {
+    position: absolute;
+    left: 80px;
+    right: 80px;
+    margin: 0;
+    overflow: hidden;
+    font-size: 14.5px;
+    font-weight: 600;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  &__body {
+    padding: 4px 18px 18px;
+    overflow-y: auto;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: var(--hair) solid var(--sep);
+
+    img {
+      flex: none;
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      -webkit-user-drag: none;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__name {
+    font-size: 16px;
+    font-weight: 700;
+    word-break: keep-all;
+  }
+
+  &__kind {
+    font-size: 13.5px;
+    color: var(--ink-3);
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 12px;
+    margin: 12px 0 0;
+    font-size: 14px;
+
+    dt {
+      font-weight: 600;
+      color: var(--ink-3);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--ink);
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+// ── 제어 센터 ───────────────────────────────────────────────────
+.cc {
+  --cc-tile: rgba(255, 255, 255, 0.5);
+  --cc-off: rgba(0, 0, 0, 0.09);
+  gap: 8px;
+  width: 340px;
+  padding: 10px;
+  border-radius: 20px;
+  // 어두운 배경화면이면 메뉴 막대의 흰 글자를 물려받으므로 판의 먹으로 되돌린다
+  color: var(--ink);
+  text-shadow: none;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  &__tile {
+    display: block;
+    padding: 10px;
+    border-radius: 16px;
+    background: var(--cc-tile);
+    box-shadow: 0 0 0 var(--hair) rgba(0, 0, 0, 0.06);
+
+    &--stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+
+  &__toggle {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    text-align: left;
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
+
+    // 메뉴의 ✓ 는 쓰지 않는다(켜진 것은 파란 동그라미로 보인다)
+    &::after {
+      display: none;
+    }
+  }
+
+  &__dot {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--cc-off);
+    color: var(--ink);
+    transition: background 0.15s linear;
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.7;
+    }
+
+    [aria-checked="true"] > & {
+      background: var(--accent);
+      color: #ffffff;
+    }
+  }
+
+  &__name {
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.25;
+
+    small {
+      display: block;
+      overflow: hidden;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--ink-3);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__label {
+    display: block;
+    margin: 0 2px 7px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__range {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .icon {
+      position: absolute;
+      left: 7px;
+      z-index: 1;
+      width: 14px;
+      height: 14px;
+      color: rgba(0, 0, 0, 0.55);
+      stroke-width: 1.8;
+      pointer-events: none;
+    }
+
+    input {
+      --p: 100%;
+      width: 100%;
+      height: 24px;
+      margin: 0;
+      border-radius: 12px;
+      background: linear-gradient(to right, #ffffff var(--p), var(--cc-off) var(--p));
+      box-shadow: inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.1);
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: var(--cursor);
+
+      &::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 0 0 var(--hair) rgba(0, 0, 0, 0.14), 0 1px 4px rgba(0, 0, 0, 0.25);
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      &::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border: 0;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 0 0 var(--hair) rgba(0, 0, 0, 0.14), 0 1px 4px rgba(0, 0, 0, 0.25);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+    }
+  }
+
+  &__now {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__art {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    -webkit-user-drag: none;
+  }
+
+  &__track {
+    flex: 1;
+    min-width: 0;
+
+    b,
+    small {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    b {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    small {
+      font-size: 12.5px;
+      color: var(--ink-3);
+    }
+  }
+
+  &__ctrls {
+    display: flex;
+    flex: none;
+    gap: 2px;
+
+    button {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: none;
+      color: var(--ink);
+
+      &:hover {
+        background: var(--cc-off);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--accent);
+      }
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+  }
+}
+
+html[data-theme="dark"] .cc {
+  --cc-tile: rgba(255, 255, 255, 0.08);
+  --cc-off: rgba(255, 255, 255, 0.14);
+
+  .cc__range .icon {
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+// 밝기: 화면 전체를 덮는 까만 막 한 장(누르기는 그대로 통과)
+.screen-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #000000;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// ── 알림 센터 ───────────────────────────────────────────────────
+// 날짜를 누르면 뜨는 판의 위쪽. 지나간 알림을 새것부터.
+.nc {
+  margin: -4px 0 16px;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.14);
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 4px 8px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  &__clear {
+    padding: 2px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 12.5px;
+    font-weight: 600;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 250px;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &__icon {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    -webkit-user-drag: none;
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.82);
+
+    p {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+
+    b {
+      overflow: hidden;
+      color: #ffffff;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    time {
+      flex: none;
+      font-size: 12px;
+      color: var(--cal-dim);
+    }
+  }
+
+  &__empty {
+    margin: 0 4px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--cal-dim);
+  }
+}
+
+// 알림 센터를 여는 동안 떠 있는 알림은 잠시 숨긴다(판 위에 겹치지 않게).
+body:has(#calendar:not([hidden])) .toasts {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nc__times {
+  margin-left: 4px;
+  font-weight: 500;
+  color: var(--cal-dim);
+}
+
+// 같은 알림이 거듭 오면 한 장에 묶고 모서리에 몇 번인지
+.toast__count {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: #ff3b30;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 22px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  font-variant-numeric: tabular-nums;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// ── Spotlight: 앱과 계산기 ──────────────────────────────────────
+.spotlight__appicon {
+  width: 22px;
+  height: 22px;
+  margin: 0 -2px;
+  object-fit: contain;
+  -webkit-user-drag: none;
+}
+
+.spotlight__hit--calc .spotlight__title {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── 아이콘 이름 바꾸기 ──────────────────────────────────────────
+.desktop-icon__label.is-editing {
+  display: block;
+  max-width: none;
+  padding: 0 4px;
+  overflow: visible;
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink) !important;
+  text-shadow: none !important;
+  white-space: nowrap;
+  outline: 2px solid var(--accent);
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+
+// ── 무지개 공 ───────────────────────────────────────────────────
+// 앱을 불러오느라 늦어지는 동안 커서 자리에서 돈다(그동안 화살표는 숨긴다).
+html.is-busy,
+html.is-busy * {
+  cursor: none !important;
+}
+
+.beachball {
+  position: fixed;
+  top: -2px;
+  left: -2px;
+  z-index: 10001;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 55%),
+      conic-gradient(#ff3b30, #ff9500, #ffcc00, #34c759, #007aff, #5856d6, #af52de, #ff3b30);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.3);
+    animation: beachball 0.9s linear infinite;
+  }
+}
+
+@keyframes beachball {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ── 지니 효과 ───────────────────────────────────────────────────
+// 최소화하는 동안 창의 그림을 줄마다 휘어 그리는 캔버스(genie.js). Dock 위, 메뉴 막대 아래.
+.genie-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}

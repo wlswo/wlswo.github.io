@@ -408,6 +408,11 @@ function build() {
   return el;
 }
 
+// 메뉴 막대의 셸 > 화면 지우기(⌃L 과 같다)
+addEventListener('ephemeris:term-clear', () => {
+  if (out) out.innerHTML = '';
+});
+
 export async function openTerminal(button) {
   dockButton = button || dockButton;
   if (win?.isConnected) {

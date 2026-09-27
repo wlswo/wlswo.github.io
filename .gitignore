@@ -16,6 +16,8 @@ Thumbs.db
 tools/og/node_modules/
 # Druid 2D 의 React Flow 묶음 도구(tools/druid)의 의존성
 tools/druid/node_modules/
+# 창 최소화 효과가 쓰는 html-to-image 묶음 도구(tools/genie)의 의존성
+tools/genie/node_modules/
 
 # Ruby Sass 캐시
 .sass-cache/

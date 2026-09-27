@@ -13,6 +13,9 @@
  * 끌어내면 붙기 전의 크기로 돌아온다.
  */
 
+import { APPS, appOf } from './apps.js';
+import { snapshot, play } from './genie.js';
+
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
@@ -31,6 +34,8 @@ const store = {
 const workspace = $('#workspace');
 const dockWindows = $('[data-dock-windows]');
 const minimized = new Map(); // 창 → Dock 의 칸
+const minimizing = new Set(); // 그림을 뜨는 중(두 번 눌러도 한 번만)
+const shotOf = new WeakMap(); // 최소화한 창 → 빨려 들어갈 때 쓴 그림(되살릴 때 거꾸로 돌린다)
 const closers = new WeakMap(); // 창 → 닫을 때 할 일 (글 창은 docs.js 가 정한다)
 const snapped = new WeakMap(); // 창 → 붙기 전의 자리
 export const MIN = { finder: [560, 380], doc: [460, 360], obsidian: [620, 400], games: [380, 300], notes: [560, 380], terminal: [460, 280], druid: [640, 420] };
@@ -200,13 +205,64 @@ function windowTitle(win) {
   return (id && document.getElementById(id)?.textContent.trim()) || document.title;
 }
 
+// 최소화한 창의 Dock 칸: 창을 그대로 본뜬 작은 그림과, 모서리에 그 앱의 아이콘.
+// iframe · canvas · video 는 본뜰 수 없어 빈 판으로 둔다.
+function thumbnail(win) {
+  const box = document.createElement('span');
+  box.className = 'dock__thumb';
+  const w = win.offsetWidth || 800;
+  const h = win.offsetHeight || 600;
+  const clone = win.cloneNode(true);
+  // 본뜬 것이 창으로 셈해지지 않게(앱 전환기, 창 목록이 [data-window] 를 본다)
+  clone.removeAttribute('id');
+  clone.removeAttribute('data-window');
+  for (const el of clone.querySelectorAll('[data-window]')) el.removeAttribute('data-window');
+  for (const el of clone.querySelectorAll('[id]')) el.removeAttribute('id');
+  for (const el of clone.querySelectorAll('iframe, canvas, video, audio, script')) {
+    const ph = document.createElement('div');
+    ph.className = 'dock__thumb-ph';
+    el.replaceWith(ph);
+  }
+  for (const el of clone.querySelectorAll('.window__grip')) el.remove();
+  clone.classList.remove('is-front', 'is-dragging', 'is-resizing');
+  clone.setAttribute('inert', '');
+  clone.setAttribute('aria-hidden', 'true');
+  const k = Math.min(54 / w, 54 / h);
+  Object.assign(clone.style, {
+    position: 'absolute',
+    left: `${(54 - w * k) / 2}px`,
+    top: `${(54 - h * k) / 2}px`,
+    width: `${w}px`,
+    height: `${h}px`,
+    margin: '0',
+    transform: `scale(${k})`,
+    transformOrigin: '0 0',
+    animation: 'none',
+    transition: 'none',
+    pointerEvents: 'none',
+  });
+  box.append(clone);
+  const badge = document.createElement('img');
+  badge.className = 'dock__badge';
+  badge.alt = '';
+  badge.src = APPS[appOf(win)].icon;
+  box.append(badge);
+  return box;
+}
+
 export async function minimizeWindow(win) {
-  if (minimized.has(win) || !dockWindows) return;
+  if (minimized.has(win) || minimizing.has(win) || !dockWindows) return;
+  // 지니 효과에 쓸 창의 그림(genie.js). 늦으면 null 이고, 그땐 가벼운 효과로.
+  minimizing.add(win);
+  const shot = await snapshot(win);
+  minimizing.delete(win);
+  if (minimized.has(win) || win.classList.contains('is-closed') || !win.isConnected) return;
   const slot = document.createElement('li');
   const tile = document.createElement('button');
   tile.type = 'button';
   tile.className = 'dock__app dock__window';
-  tile.innerHTML = '<span class="dock__icon dock__icon--window" aria-hidden="true"><svg class="icon" viewBox="0 0 20 20"><use href="#i-doc"/></svg></span><span class="dock__tip"></span>';
+  tile.innerHTML = '<span class="dock__icon dock__icon--thumb" aria-hidden="true"></span><span class="dock__tip"></span>';
+  $('.dock__icon', tile).append(thumbnail(win));
   $('.dock__tip', tile).textContent = windowTitle(win);
   tile.setAttribute('aria-label', `${windowTitle(win)} 창 다시 열기`);
   tile.addEventListener('click', () => restoreWindow(win));
@@ -214,10 +270,22 @@ export async function minimizeWindow(win) {
   dockWindows.append(slot);
   minimized.set(win, slot);
   const hadFocus = win.contains(document.activeElement);
-  win.style.transformOrigin = '0 0';
-  await genie(win, $('.dock__icon', tile) || tile);
-  win.style.transformOrigin = '';
-  win.classList.add('is-minimized');
+  const target = $('.dock__icon', tile) || tile;
+  if (shot) {
+    shotOf.set(win, shot);
+    await play(shot, win.getBoundingClientRect(), target.getBoundingClientRect(), {
+      onStart: () => (win.style.opacity = '0'),
+      onEnd: () => {
+        win.classList.add('is-minimized');
+        win.style.opacity = '';
+      },
+    });
+  } else {
+    win.style.transformOrigin = '0 0';
+    await genie(win, target);
+    win.style.transformOrigin = '';
+    win.classList.add('is-minimized');
+  }
   focusNext();
   if (hadFocus) tile.focus();
 }
@@ -226,12 +294,30 @@ export async function restoreWindow(win) {
   const slot = minimized.get(win);
   if (!slot) return;
   minimized.delete(win);
-  win.classList.remove('is-minimized');
-  focusWindow(win);
-  win.style.transformOrigin = '0 0';
-  await genie(win, $('.dock__icon', slot) || slot.firstElementChild, true);
-  win.style.transformOrigin = '';
-  slot.remove();
+  const icon = $('.dock__icon', slot) || slot.firstElementChild;
+  const shot = shotOf.get(win);
+  shotOf.delete(win);
+  if (shot && !reducedMotion.matches) {
+    // 빨려 들어갈 때의 그림을 거꾸로: 칸에서 나와 제자리로 펴진다
+    const to = icon.getBoundingClientRect();
+    win.style.opacity = '0';
+    win.classList.remove('is-minimized');
+    focusWindow(win);
+    await play(shot, win.getBoundingClientRect(), to, {
+      reverse: true,
+      onEnd: () => {
+        win.style.opacity = '';
+        slot.remove();
+      },
+    });
+  } else {
+    win.classList.remove('is-minimized');
+    focusWindow(win);
+    win.style.transformOrigin = '0 0';
+    await genie(win, icon, true);
+    win.style.transformOrigin = '';
+    slot.remove();
+  }
   win.focus({ preventScroll: true });
 }
 
@@ -682,23 +768,104 @@ for (const btn of $$('[data-history-back]')) {
 }
 
 // ── 알림 ────────────────────────────────────────────────────────
-// 맥의 알림처럼 오른쪽 위에서 유리 판이 내려왔다가 사라진다(링크 복사 따위).
+// 맥의 알림처럼 오른쪽 위에 유리 판이 뜬다(링크 복사 · 휴지통 따위). 그림 · 제목 ·
+// 본문을 담을 수 있고, 마우스를 대면 왼쪽 위에 × 가 떠올라 바로 닫을 수 있다.
+// 마우스가 머무는 동안은 기다려 주고, 시간이 지나면 오른쪽으로 미끄러져 사라진다.
+// 같은 알림이 또 오면 새로 쌓지 않고 그 판에 횟수를 적는다. 한꺼번에 셋까지만.
+// 모든 알림은 알림 센터(시계를 누르면 뜨는 판)에 남고, 방해 금지 중에는 판을 띄우지 않는다.
 let toasts = null;
-export function notify(text) {
+const TOAST_MS = 4000;
+const MAX_TOASTS = 3;
+const HISTORY_KEY = 'ephemeris:notifications';
+
+export function notificationHistory() {
+  try {
+    return JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function clearNotifications() {
+  try {
+    sessionStorage.removeItem(HISTORY_KEY);
+  } catch {}
+  dispatchEvent(new Event('ephemeris:notify'));
+}
+
+function remember(entry) {
+  const list = [entry, ...notificationHistory()].slice(0, 30);
+  try {
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  } catch {}
+  dispatchEvent(new Event('ephemeris:notify'));
+}
+
+export function notify(text, { title = '', icon = '' } = {}) {
+  remember({ text, title, icon, at: Date.now() });
+  if (document.documentElement.dataset.dnd === 'on') return;
   if (!toasts) {
     toasts = document.createElement('div');
     toasts.className = 'toasts';
     toasts.setAttribute('role', 'status');
     document.body.append(toasts);
   }
+
+  // 같은 알림이 떠 있으면 횟수만 올리고 시간을 다시 잰다
+  const key = `${title}\n${text}`;
+  const same = [...toasts.children].find((t) => t.dataset.key === key && !t.classList.contains('is-leaving') && !t.classList.contains('is-dismissed'));
+  if (same) {
+    const n = Number(same.dataset.count || 1) + 1;
+    same.dataset.count = String(n);
+    same.querySelector('.toast__count').textContent = String(n);
+    same.querySelector('.toast__count').hidden = false;
+    same.bump();
+    return;
+  }
+
   const t = document.createElement('div');
-  t.className = 'toast glass';
-  t.textContent = text;
+  t.className = `toast glass${icon ? ' toast--rich' : ''}`;
+  t.dataset.key = key;
+  t.innerHTML = `
+    <button class="toast__close" type="button" aria-label="알림 닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    ${icon ? '<img class="toast__icon" alt="" width="40" height="40" draggable="false">' : ''}
+    <div class="toast__text">${title ? '<p class="toast__title"></p>' : ''}<p class="toast__body"></p></div>
+    <span class="toast__count" hidden></span>`;
+  if (icon) t.querySelector('.toast__icon').src = icon;
+  if (title) t.querySelector('.toast__title').textContent = title;
+  t.querySelector('.toast__body').textContent = text;
   toasts.append(t);
-  setTimeout(() => {
-    t.classList.add('is-leaving');
-    setTimeout(() => t.remove(), reducedMotion.matches ? 0 : 260);
-  }, 2400);
+  // 너무 많이 쌓이면 가장 오래된 것부터 내보낸다
+  const live = [...toasts.children].filter((x) => !x.classList.contains('is-leaving') && !x.classList.contains('is-dismissed'));
+  if (live.length > MAX_TOASTS) live[0].leave?.('is-leaving');
+
+  let left = TOAST_MS;
+  let started = performance.now();
+  let timer = 0;
+  // 시간이 다 되면 오른쪽으로 미끄러져, × 를 누르면 그 자리에서 흐려지며 사라진다.
+  const leave = (how = 'is-leaving') => {
+    clearTimeout(timer);
+    if (t.classList.contains('is-leaving') || t.classList.contains('is-dismissed')) return;
+    t.classList.add(how);
+    setTimeout(() => t.remove(), reducedMotion.matches ? 0 : 420);
+  };
+  const run = () => {
+    started = performance.now();
+    timer = setTimeout(() => leave('is-leaving'), left);
+  };
+  t.leave = leave;
+  t.bump = () => {
+    clearTimeout(timer);
+    left = TOAST_MS;
+    if (!t.matches(':hover')) run();
+  };
+  t.addEventListener('pointerenter', () => {
+    clearTimeout(timer);
+    left = Math.max(1200, left - (performance.now() - started));
+  });
+  t.addEventListener('pointerleave', run);
+  t.querySelector('.toast__close').addEventListener('click', () => leave('is-dismissed'));
+  run();
 }
 
 // 페이지에 처음부터 있는 창들

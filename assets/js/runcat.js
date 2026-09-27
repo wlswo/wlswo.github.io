@@ -5,8 +5,7 @@
  * "활동량"을 잰다 — 스크롤·마우스·키보드 입력이 몰리는 정도와, 프레임이
  * 늦게 도는 정도(메인 스레드가 바쁜 정도) 중 큰 쪽.
  *
- * 그림은 이미지가 아니라 매 프레임 선과 타원으로 그린다. 다리 넷이
- * 갤럽의 순서로 앞뒤로 흔들리고, 몸통이 오르내리며, 꼬리가 따라 흔들린다.
+ * 그림은 달리는 고양이 다섯 장(assets/images/runcat/)을 넘기는 것이다.
  */
 const canvas = document.querySelector('[data-runcat]');
 const loadLabel = document.querySelector('[data-runcat-load]');
@@ -28,103 +27,40 @@ const store = {
 };
 
 // ── 그림 ────────────────────────────────────────────────────────
-function leg(ctx, hx, hy, phase, spread) {
-  const swing = Math.sin(phase) * spread;
-  const bend = Math.max(0, Math.sin(phase + Math.PI / 2)) * 0.9;
-  const kx = hx + Math.sin(swing) * 3.1;
-  const ky = hy + Math.cos(swing) * 3.1;
-  const lower = swing - bend;
-  const fx = kx + Math.sin(lower) * 3;
-  const fy = ky + Math.cos(lower) * 3;
-  ctx.beginPath();
-  ctx.moveTo(hx, hy);
-  ctx.lineTo(kx, ky);
-  ctx.lineTo(fx, Math.min(fy, H - 0.9));
-  ctx.stroke();
-}
+// 달리는 고양이 다섯 장(assets/images/runcat/, 검은 그림에 투명 바탕, 2배 크기)을
+// 번갈아 넘긴다. 어두운 바탕 위에서는 흰색으로 칠해 그린다.
+const FRAMES = [0, 1, 2, 3, 4].map((i) => {
+  const img = new Image();
+  img.src = `${canvas?.dataset.runcatSrc || '/assets/images/runcat/'}classic-cat-frame-${i}.png`;
+  return img;
+});
+const tint = document.createElement('canvas');
 
 // 메뉴 막대 위라 배경화면을 따른다: 다크 모양이거나 배경화면이 어두우면 흰 고양이.
 const onDark = () =>
   document.documentElement.dataset.theme === 'dark' || document.body.dataset.wallpaperTone === 'dark';
 const ink = () => (onDark() ? '#fff' : '#000');
-const paper = () => (onDark() ? '#000' : '#fff');
 
 function drawCat(ctx, t, running) {
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = ink();
-  ctx.strokeStyle = ink();
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  // 쉬는 고양이: 앉아서 꼬리만 느리게.
-  if (!running) {
-    ctx.beginPath();
-    ctx.ellipse(13, 12, 6.2, 4.4, 0, 0, TAU);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(18.6, 7.4, 3.1, 2.8, 0, 0, TAU);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(16.4, 6.3);
-    ctx.lineTo(16.9, 3);
-    ctx.lineTo(18.4, 5.2);
-    ctx.moveTo(18.8, 5);
-    ctx.lineTo(20.6, 3.1);
-    ctx.lineTo(21.2, 6);
-    ctx.fill();
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(7.4, 14);
-    ctx.quadraticCurveTo(3, 15.5, 3.4, 11.8 + Math.sin(t * 1.2) * 0.8);
-    ctx.stroke();
+  // 쉬는 고양이는 첫 장에 멈춰 선다. 달릴 때는 보폭(t)에 맞춰 한 장씩.
+  const img = FRAMES[running ? Math.floor(t / (TAU / FRAMES.length)) % FRAMES.length : 0];
+  if (!img.complete || !img.naturalWidth) {
+    img.addEventListener('load', () => drawCat(ctx, t, running), { once: true });
     return;
   }
-
-  const bob = Math.sin(t * 2) * 0.55;
-  const reach = Math.sin(t) * 0.6;
-
-  // 꼬리
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(8, 8.4 + bob);
-  ctx.quadraticCurveTo(4.6, 6.8 + bob, 2.2, 3.6 + Math.sin(t + 1.2) * 1.5);
-  ctx.stroke();
-
-  // 다리: 뒤쪽 한 쌍, 앞쪽 한 쌍. 짝끼리 조금씩 어긋나 갤럽이 된다.
-  ctx.lineWidth = 1.6;
-  const hip = 10.6 + bob;
-  leg(ctx, 18.4 + reach, hip, t, 0.95);
-  leg(ctx, 17.1 + reach, hip, t + 0.8, 0.95);
-  leg(ctx, 10.2 - reach, hip, t + Math.PI, 0.9);
-  leg(ctx, 8.9 - reach, hip, t + Math.PI + 0.8, 0.9);
-
-  // 몸통
-  ctx.beginPath();
-  ctx.ellipse(13.6, 9 + bob, 6.6 + reach * 0.6, 3.1, -0.04, 0, TAU);
-  ctx.fill();
-
-  // 머리 · 주둥이 · 귀
-  const hy = 6.9 + bob * 0.6;
-  ctx.beginPath();
-  ctx.ellipse(21.4, hy, 3, 2.7, 0, 0, TAU);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(23.9, hy + 0.8, 1.4, 1.05, 0, 0, TAU);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(19.3, hy - 1.2);
-  ctx.lineTo(19.9, hy - 4.1);
-  ctx.lineTo(21.4, hy - 1.9);
-  ctx.moveTo(21.7, hy - 2);
-  ctx.lineTo(23.3, hy - 4);
-  ctx.lineTo(23.5, hy - 0.9);
-  ctx.fill();
-
-  // 눈
-  ctx.fillStyle = paper();
-  ctx.beginPath();
-  ctx.arc(22.4, hy - 0.4, 0.5, 0, TAU);
-  ctx.fill();
+  tint.width = img.naturalWidth;
+  tint.height = img.naturalHeight;
+  const g = tint.getContext('2d');
+  g.drawImage(img, 0, 0);
+  g.globalCompositeOperation = 'source-in';
+  g.fillStyle = ink();
+  g.fillRect(0, 0, tint.width, tint.height);
+  // 그림은 63×36 — 30×18 칸에 비율대로 맞춘다
+  const k = Math.min(W / img.naturalWidth, H / img.naturalHeight);
+  const w = img.naturalWidth * k;
+  const h = img.naturalHeight * k;
+  ctx.drawImage(tint, (W - w) / 2, (H - h) / 2, w, h);
 }
 
 // ── 활동량 ──────────────────────────────────────────────────────
@@ -184,9 +120,9 @@ if (canvas) {
     const target = Math.min(1, Math.max(energy / 28, busy) * 0.92 + 0.04);
     load += (target - load) * Math.min(1, dt * 3);
 
-    // 쉬엄쉬엄 1초에 0.9 보폭, 바쁘면 5 보폭까지. 12fps 에서 한 칸에 반 보폭을
-    // 넘으면 다리가 뒤로 도는 것처럼 보이므로 그 아래에서 멈춘다.
-    phase += Math.min(TAU * 0.45, dt * TAU * (0.9 + load * 4.1));
+    // 쉬엄쉬엄 1초에 0.9 보폭(다섯 장 한 바퀴), 바쁘면 더 빨리. 한 번 그릴 때
+    // 한 장보다 많이 건너뛰면 끊겨 보이므로 한 장에서 멈춘다.
+    phase += Math.min(TAU / 5, dt * TAU * (0.9 + load * 4.1));
     drawCat(ctx, phase, true);
 
     if (loadLabel && now - lastLabel > 500) {

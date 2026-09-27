@@ -453,7 +453,7 @@
   font: inherit;
   text-align: center;
   text-decoration: none;
-  cursor: default;
+  cursor: var(--cursor);
   -webkit-user-drag: none;
 
   img {
@@ -1360,7 +1360,7 @@ html:not(.is-ready) .finder__item[aria-current] {
     border-radius: 5px;
     font-weight: 600;
     color: var(--ink-2);
-    cursor: default;
+    cursor: var(--cursor);
     list-style: none;
 
     &::-webkit-details-marker {
@@ -2095,7 +2095,7 @@ html[data-theme="dark"] .obsidian {
     &--play {
       width: 54px;
       height: 54px;
-      background: var(--green);
+      background: #ffffff;
       color: #000000;
       box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.45);
 
@@ -2105,7 +2105,7 @@ html[data-theme="dark"] .obsidian {
       }
 
       &:hover {
-        background: var(--green);
+        background: #ffffff;
         transform: scale(1.05);
       }
     }

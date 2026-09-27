@@ -24,7 +24,48 @@
       </div>
     </div>
 
-    <div class="menu" data-menu>
+    {%- comment -%}
+      앞에 선 앱의 이름(굵게)과 그 앱의 메뉴. 앞의 창이 바뀌면 macos.js 가 이름을 바꾸고,
+      data-app-menu 에 그 앱이 든 메뉴만 보인다('*' 는 늘). 브라우저가 ⌘W, ⌘Q, ⌘M, ⌘Tab 을
+      먼저 가져가므로 단축키는 ⌥ 로 쓴다.
+    {%- endcomment %}
+    <div class="menu" data-menu data-app-menu="*">
+      <button class="menubar__item menubar__appname" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-appname"><span data-app-name>Finder</span></button>
+      <div class="menu__panel glass" id="menu-appname" role="menu" aria-label="앱" hidden>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="app-about"><span data-app-label="about">Finder에 관하여</span></button>
+        <div class="menu__sep" role="separator"></div>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="app-hide"><span data-app-label="hide">Finder 가리기</span><span class="menu__meta">⌥H</span></button>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="app-quit"><span data-app-label="quit">Finder 종료</span><span class="menu__meta">⌥Q</span></button>
+      </div>
+    </div>
+
+    <div class="menu" data-menu data-app-menu="*">
+      <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-file">파일</button>
+      <div class="menu__panel glass" id="menu-file" role="menu" aria-label="파일" hidden>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="new-tab" data-only="preview druid"><span>새 탭에서 열기</span></button>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="spotlight"><span>찾기</span><span class="menu__meta">⌘K</span></button>
+        <div class="menu__sep" role="separator"></div>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="close"><span>창 닫기</span><span class="menu__meta">⌥W</span></button>
+      </div>
+    </div>
+
+    <div class="menu" data-menu data-app-menu="terminal">
+      <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-shell">셸</button>
+      <div class="menu__panel glass" id="menu-shell" role="menu" aria-label="셸" hidden>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="term-clear"><span>화면 지우기</span><span class="menu__meta">⌃L</span></button>
+      </div>
+    </div>
+
+    <div class="menu" data-menu data-app-menu="music">
+      <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-control">제어</button>
+      <div class="menu__panel glass" id="menu-control" role="menu" aria-label="제어" hidden>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="music-play"><span>재생, 일시 정지</span></button>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="music-next"><span>다음 곡</span></button>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="music-prev"><span>이전 곡</span></button>
+      </div>
+    </div>
+
+    <div class="menu" data-menu data-app-menu="finder preview system">
       <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-cats">카테고리</button>
       <div class="menu__panel glass" id="menu-cats" role="menu" aria-label="카테고리" hidden>
         <a class="menu__item" role="menuitem" href="{{ '/' | relative_url }}?at=obsidian" data-category="">
@@ -39,7 +80,7 @@
       </div>
     </div>
 
-    <div class="menu menu--wide" data-menu>
+    <div class="menu menu--wide" data-menu data-app-menu="finder preview system">
       <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-recent">최근 글</button>
       <div class="menu__panel glass" id="menu-recent" role="menu" aria-label="최근 글" hidden>
         {%- for post in site.posts limit: 6 %}
@@ -49,13 +90,33 @@
         {%- endfor %}
       </div>
     </div>
+
+    <div class="menu" data-menu data-app-menu="*">
+      <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-window">윈도우</button>
+      <div class="menu__panel glass" id="menu-window" role="menu" aria-label="윈도우" hidden>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="minimize"><span>최소화</span><span class="menu__meta">⌥M</span></button>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="zoom"><span>확대, 축소</span></button>
+        <div class="menu__sep" role="separator"></div>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="mission"><span>Mission Control</span><span class="menu__meta">⌥↑</span></button>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="switcher"><span>다음 앱으로</span><span class="menu__meta">⌥⇥</span></button>
+        <div class="menu__sep" role="separator" data-window-list-sep hidden></div>
+        <div data-window-list></div>
+      </div>
+    </div>
+
+    <div class="menu" data-menu data-app-menu="*">
+      <button class="menubar__item" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-help">도움말</button>
+      <div class="menu__panel glass" id="menu-help" role="menu" aria-label="도움말" hidden>
+        <button class="menu__item" role="menuitem" type="button" data-cmd="shortcuts"><span>키보드 단축키</span></button>
+      </div>
+    </div>
   </nav>
 
   <div class="menubar__right">
     {%- comment -%} RunCat. 이 쪽이 바쁠수록 고양이가 빨리 달린다(runcat.js). {%- endcomment %}
     <div class="menu menu--right" data-menu>
       <button class="menubar__item menubar__cat" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-runcat" aria-label="RunCat">
-        <canvas class="runcat" width="30" height="18" data-runcat aria-hidden="true"></canvas>
+        <canvas class="runcat" width="30" height="18" data-runcat data-runcat-src="{{ '/assets/images/runcat/' | relative_url }}" aria-hidden="true"></canvas>
       </button>
       <div class="menu__panel glass" id="menu-runcat" role="menu" aria-label="RunCat" hidden>
         <div class="menu__info" role="menuitem" aria-disabled="true" tabindex="-1">
@@ -104,6 +165,49 @@
         </div>
       </div>
     </div>
+    {%- comment -%} 제어 센터: Wi-Fi, 방해 금지, 다크 모드, 저전력 모드, 밝기, 소리, 지금 재생 중(controlcenter.js) {%- endcomment %}
+    <div class="menu menu--right" data-menu>
+      <button class="menubar__item menubar__icon" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-cc" aria-label="제어 센터" data-cc-button>
+        <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.6" y="4" width="14.8" height="5" rx="2.5"/><circle cx="14.9" cy="6.5" r="1.3" fill="currentColor" stroke="none"/><rect x="2.6" y="11" width="14.8" height="5" rx="2.5"/><circle cx="5.1" cy="13.5" r="1.3" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <div class="menu__panel cc glass" id="menu-cc" role="menu" aria-label="제어 센터" hidden>
+        <div class="cc__grid">
+          <div class="cc__tile cc__tile--stack">
+            <button class="cc__toggle" role="menuitemcheckbox" aria-checked="true" type="button" data-cc="wifi" data-keep-open>
+              <span class="cc__dot"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-wifi"/></svg></span><span class="cc__name">Wi-Fi<small data-cc-wifi-name>Ephemeris-5G</small></span>
+            </button>
+            <button class="cc__toggle" role="menuitemcheckbox" aria-checked="false" type="button" data-cc="dnd" data-keep-open>
+              <span class="cc__dot"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-moon"/></svg></span><span class="cc__name">방해 금지<small>알림을 숨겨요</small></span>
+            </button>
+          </div>
+          <div class="cc__tile cc__tile--stack">
+            <button class="cc__toggle" role="menuitemcheckbox" aria-checked="false" type="button" data-cc="dark" data-keep-open>
+              <span class="cc__dot"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-theme-auto"/></svg></span><span class="cc__name">다크 모드</span>
+            </button>
+            <button class="cc__toggle" role="menuitemcheckbox" aria-checked="false" type="button" data-cc="still" data-keep-open>
+              <span class="cc__dot"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-power"/></svg></span><span class="cc__name">저전력 모드</span>
+            </button>
+          </div>
+        </div>
+        <label class="cc__tile cc__slider">
+          <span class="cc__label">디스플레이</span>
+          <span class="cc__range"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-sun"/></svg><input type="range" min="40" max="100" step="1" value="100" aria-label="밝기" data-cc-bright></span>
+        </label>
+        <label class="cc__tile cc__slider">
+          <span class="cc__label">사운드</span>
+          <span class="cc__range"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.4 8h2.6l4-3.4v10.8L6 12H3.4z"/><path d="M13 7.6a3.4 3.4 0 0 1 0 4.8"/></svg><input type="range" min="0" max="100" step="1" value="80" aria-label="음량" data-cc-volume></span>
+        </label>
+        <div class="cc__tile cc__now">
+          <img class="cc__art" src="{{ '/assets/images/dock/spotify-128.png' | relative_url }}" alt="" width="40" height="40" draggable="false" data-cc-art>
+          <span class="cc__track"><b data-cc-title>재생 중인 항목 없음</b><small data-cc-artist>Spotify</small></span>
+          <span class="cc__ctrls">
+            <button type="button" role="menuitem" data-cc="prev" data-keep-open aria-label="이전 곡"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="5.5" width="2.4" height="13" rx="1"/><path d="M19.5 6.4v11.2a.8.8 0 0 1-1.2.7L9.4 12.7a.8.8 0 0 1 0-1.4l8.9-5.6a.8.8 0 0 1 1.2.7z"/></svg></button>
+            <button type="button" role="menuitem" data-cc="play" data-keep-open aria-label="재생"><svg viewBox="0 0 24 24" aria-hidden="true" data-cc-play><path d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l11-6.8a.8.8 0 0 0 0-1.4l-11-6.8A.8.8 0 0 0 8 5.2z"/></svg></button>
+            <button type="button" role="menuitem" data-cc="next" data-keep-open aria-label="다음 곡"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="17.1" y="5.5" width="2.4" height="13" rx="1"/><path d="M4.5 6.4v11.2a.8.8 0 0 0 1.2.7l8.9-5.6a.8.8 0 0 0 0-1.4L5.7 5.7a.8.8 0 0 0-1.2.7z"/></svg></button>
+          </span>
+        </div>
+      </div>
+    </div>
     <button class="menubar__item menubar__icon" type="button" data-open-spotlight aria-label="Spotlight 검색 (⌘K)">
       {% include icon.html name="search" %}
     </button>
@@ -113,6 +217,12 @@
         <time data-clock></time>
       </button>
       <div class="calendar" id="calendar" role="dialog" aria-labelledby="calendar-title" hidden>
+        {%- comment -%} 알림 센터: 지나간 알림(macos.js). 아래는 캘린더 위젯. {%- endcomment %}
+        <section class="nc" aria-label="알림" data-nc>
+          <div class="nc__head"><h2 class="nc__title">알림</h2><button class="nc__clear" type="button" data-nc-clear hidden>모두 지우기</button></div>
+          <ol class="nc__list" data-nc-list></ol>
+          <p class="nc__empty" data-nc-empty>새 알림이 없어요</p>
+        </section>
         <div class="calendar__head">
           <h2 class="calendar__title" id="calendar-title" data-cal-title></h2>
           <div class="calendar__nav" role="group" aria-label="달 넘기기">

@@ -92,21 +92,103 @@
 }
 
 .toast {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   min-width: 220px;
+  max-width: min(360px, calc(100vw - 16px));
   padding: 12px 16px;
   border-radius: 18px;
   font-size: 16px;
   font-weight: 600;
   color: var(--ink);
-  animation: toast-in 0.4s var(--spring-fallback) both;
+  pointer-events: auto;
+  // 들어오는 애니메이션은 끝난 뒤 모습을 붙잡지 않게(backwards) — 붙잡으면
+  // 나갈 때의 transform 이 먹지 않아 옆으로 미끄러지지 않는다.
+  animation: toast-in 0.4s var(--spring-fallback) backwards;
   animation-timing-function: var(--spring);
   transition:
-    opacity 0.24s linear,
-    transform 0.24s var(--ease-out);
+    opacity 0.32s linear,
+    transform 0.4s cubic-bezier(0.4, 0, 0.9, 0.6);
 
+  // 시간이 다 되면 오른쪽 밖으로 미끄러져 나간다
   &.is-leaving {
     opacity: 0;
-    transform: translateX(14px);
+    transform: translateX(calc(100% + 24px));
+  }
+
+  // × 를 누르면 그 자리에서 흐려지며 사라진다
+  &.is-dismissed {
+    opacity: 0;
+    transform: none;
+    transition: opacity 0.26s ease-out;
+  }
+
+  &--rich {
+    min-width: 300px;
+    padding: 12px 18px 12px 12px;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.toast__icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  -webkit-user-drag: none;
+}
+
+.toast__text {
+  min-width: 0;
+}
+
+.toast__title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.toast--rich .toast__body {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+// 마우스를 대면 왼쪽 위 모서리에 떠오르는 ×
+.toast__close {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0.5px solid var(--sep);
+  border-radius: 50%;
+  background: var(--menu-bg, var(--paper));
+  color: var(--ink-2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity 0.15s linear,
+    transform 0.15s var(--ease-out);
+  cursor: pointer;
+
+  .icon {
+    width: 10px;
+    height: 10px;
+    stroke-width: 2.2;
+  }
+
+  .toast:hover &,
+  &:focus-visible {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -245,7 +327,7 @@
     overflow-y: auto;
   }
 
-  // 아이콘 자리: 마우스를 쳐다보는 까만 동그라미 캐릭터(bot.html)
+  // 아이콘 자리: 마우스를 쳐다보는 앰버색 동그라미 캐릭터(bot.html)
   &__icon {
     width: 108px;
     height: 108px;
@@ -428,7 +510,7 @@
     gap: 8px;
   }
 
-  // 사용자 사진 자리: 마우스를 쳐다보는 까만 동그라미 캐릭터
+  // 사용자 사진 자리: 마우스를 쳐다보는 앰버색 동그라미 캐릭터
   &__open {
     display: grid;
     place-items: center;
@@ -564,13 +646,14 @@
 }
 
 // ── 캐릭터(bot.html · bot.js) ───────────────────────────────────
-// 까만 동그라미와 흰 알약 눈. 눈은 마우스를 좇고, 깜빡이고, 가끔 윙크한다.
+// 앰버색 동그라미와 짙은 알약 눈. 눈은 마우스를 좇고, 깜빡이고, 가끔 윙크한다.
 .bot {
   display: block;
   overflow: visible;
 
+  // 색은 --bot-body, --bot-eye 로 바꿀 수 있다
   &__body {
-    fill: #0b0b0d;
+    fill: var(--bot-body, #f5a524);
     transition: transform 0.35s var(--ease-out);
   }
 
@@ -581,7 +664,7 @@
   }
 
   &__eye {
-    fill: #ffffff;
+    fill: var(--bot-eye, #1d1d1f);
     transform-box: fill-box;
     transform-origin: center;
     animation: bot-blink 4.6s infinite;

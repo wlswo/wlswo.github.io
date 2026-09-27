@@ -373,6 +373,28 @@ ui.play.addEventListener('click', () => setPaused(!dia.clock.paused));
 ui.speed.addEventListener('click', cycleSpeed);
 ui.auto.addEventListener('click', () => setAuto(!cur.auto));
 
+// 블로그의 창 안(iframe)에 떠 있을 때: 창과 앱의 ⌥ 단축키(⌥W, ⌥M, ⌥⇥ 따위)는
+// 이 문서가 먼저 받으므로 바깥 문서(macos.js)로 넘긴다.
+const host = (() => {
+  try {
+    return window.parent !== window && window.parent.document ? window.parent.document : null;
+  } catch {
+    return null;
+  }
+})();
+if (host) {
+  const WINDOW_KEYS = ['KeyW', 'KeyM', 'KeyH', 'KeyQ', 'Tab', 'ArrowUp', 'Escape'];
+  const pass = (e) => {
+    const keep = e.type === 'keyup' ? e.key === 'Alt' : e.altKey && !e.metaKey && !e.ctrlKey && WINDOW_KEYS.includes(e.code);
+    if (!keep) return;
+    e.preventDefault();
+    const { key, code, altKey, shiftKey } = e;
+    host.dispatchEvent(new KeyboardEvent(e.type, { key, code, altKey, shiftKey, bubbles: true, cancelable: true }));
+  };
+  document.addEventListener('keydown', pass, true);
+  document.addEventListener('keyup', pass, true);
+}
+
 document.addEventListener('keydown', (e) => {
   if (e.target.closest?.('input, textarea, select, [contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === 'ArrowRight') {
