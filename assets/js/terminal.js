@@ -5,6 +5,7 @@
  *
  *   ~/Applications   Dock 의 앱들            open 으로 연다
  *   ~/Desktop        about.txt               cat 으로 읽는다
+ *                    ApacheDruid.app         open 으로 Druid 창을 연다
  *   ~/Obsidian/<태그>/<글>.md                cat 은 요약, open 은 글 창
  *   ~/Projects       개인 프로젝트            open 은 새 탭
  *
@@ -80,6 +81,7 @@ async function buildFs() {
   dir(HOME);
   for (const [name, sel] of Object.entries(APPS)) file(`${HOME}/Applications/${name}.app`, { app: sel });
   file(`${HOME}/Desktop/about.txt`, { about: true });
+  file(`${HOME}/Desktop/ApacheDruid.app`, { druid: true });
   for (const p of projects()) file(`${HOME}/Projects/${p.name}`, { url: p.url, desc: p.desc });
 
   let posts = [];
@@ -205,7 +207,7 @@ const COMMANDS = {
         return;
       }
       if (node.url) return printText(`${node.desc || ''}\n${node.url}`);
-      if (node.app) return printText(`cat: ${args[0]}: 앱은 open 으로 엽니다`, 'term__err');
+      if (node.app || node.druid) return printText(`cat: ${args[0]}: 앱은 open 으로 엽니다`, 'term__err');
     },
   },
   open: {
@@ -215,6 +217,7 @@ const COMMANDS = {
       if (a >= 0) {
         const name = args.slice(a + 1).join(' ');
         const key = Object.keys(APPS).find((k) => k.toLowerCase() === name.toLowerCase());
+        if (!key && /druid/i.test(name)) return dispatchEvent(new CustomEvent('ephemeris:druid'));
         if (!key) return printText(`Unable to find application named '${name}'`, 'term__err');
         $(APPS[key])?.click();
         return;
@@ -232,6 +235,7 @@ const COMMANDS = {
         return;
       }
       if (node.app) return $(node.app)?.click();
+      if (node.druid) return dispatchEvent(new CustomEvent('ephemeris:druid'));
       if (node.url) return window.open(node.url, '_blank', 'noopener');
       if (node.about) return $(APPS.메모)?.click();
       if (node.post) {

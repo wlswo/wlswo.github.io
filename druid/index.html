@@ -1,0 +1,73 @@
+---
+layout: druid
+title: Apache Druid 동작 원리
+description: Apache Druid 의 아키텍처, 세그먼트, 수집, 파티셔닝, 쿼리, 데이터 관리를 공식 문서를 바탕으로 아스키 다이어그램으로 한 단계씩 보여 줘요.
+permalink: /druid/
+image: /assets/og/druid.jpg
+---
+<div class="app" data-app>
+  <header class="top">
+    <a class="top__brand" href="{{ '/druid/' | relative_url }}">
+      <img src="{{ '/assets/images/apps/apache-druid.svg' | relative_url }}" width="26" height="26" alt="">
+      <span><b>Apache Druid</b> 동작 원리</span>
+    </a>
+    <nav class="top__links" aria-label="바깥 링크">
+      <a href="https://druid.apache.org/docs/latest/design/" target="_blank" rel="noopener">공식 문서</a>
+      <a href="{{ '/' | relative_url }}">블로그로</a>
+    </nav>
+  </header>
+
+  <div class="scrim" data-toc-scrim hidden></div>
+  <nav class="toc" id="toc" data-toc aria-label="장 목록">
+    <ol class="toc__list" data-toc-list></ol>
+    <p class="toc__foot">
+      모든 그림은 <a href="https://druid.apache.org/docs/latest/design/" target="_blank" rel="noopener">Apache Druid 공식 문서</a>(37.0.0)를
+      바탕으로 해요. 설정 이름과 기본값은 문서를 따르고, 그림 속 데이터는 이해를 돕기 위한 예시예요.
+    </p>
+  </nav>
+
+  <main class="stage" data-stage>
+    <div class="stage__bar">
+      <button class="tool" type="button" data-toc-toggle aria-controls="toc" aria-expanded="true" title="목차">[≡] 목차</button>
+      <p class="stage__crumb"><span class="stage__no" data-ch-no>01</span><span data-ch-title></span></p>
+      <div class="stage__tools" role="group" aria-label="그림 크기">
+        <button class="tool" type="button" data-zoom="-1" aria-label="작게" title="작게">[−]</button>
+        <button class="tool" type="button" data-zoom="1" aria-label="크게" title="크게">[+]</button>
+        <button class="tool" type="button" data-fit aria-label="화면에 맞추기" title="화면에 맞추기">[fit]</button>
+      </div>
+    </div>
+    <div class="stage__flow" data-diagram aria-hidden="true"></div>
+    <ul class="legend" data-legend aria-label="선 색의 뜻" hidden></ul>
+    <div class="stage__loading" data-loading><span class="spin" aria-hidden="true">|</span> loading…</div>
+    <p class="stage__error" data-error role="alert" hidden></p>
+  </main>
+
+  <aside class="panel" data-card aria-labelledby="step-title">
+    <div class="panel__scroll" data-panel-scroll>
+      <p class="panel__eyebrow"><span data-step-count></span></p>
+      <h2 class="panel__title" id="step-title" data-step-title></h2>
+      <div class="panel__body" data-step-body></div>
+      <div class="controls" data-controls hidden></div>
+      <p class="panel__docs"><span class="panel__docs-label">공식 문서</span><span class="panel__docs-links" data-docs></span></p>
+    </div>
+    <footer class="panel__foot">
+      <div class="panel__nav">
+        <button class="btn" type="button" data-prev aria-label="이전 단계" title="이전 (←)">◀ 이전</button>
+        <button class="btn btn--play" type="button" data-play aria-pressed="false" aria-label="움직임 멈춤" title="멈춤, 재생 (스페이스)"><span class="i-pause">❚❚</span><span class="i-play">▶</span></button>
+        <button class="btn btn--next" type="button" data-next aria-label="다음 단계" title="다음 (→)"><span>다음</span> ▶</button>
+      </div>
+      <div class="panel__row">
+        <div class="panel__dots" data-dots></div>
+        <div class="panel__opts">
+          <button class="btn btn--chip" type="button" data-speed aria-label="빠르기 1배">1×</button>
+          <button class="btn btn--chip" type="button" data-auto aria-pressed="false" title="단계를 저절로 넘겨요">자동 재생</button>
+        </div>
+      </div>
+    </footer>
+  </aside>
+  <p class="sr-only" aria-live="polite" data-live></p>
+</div>
+
+<noscript>
+  <p class="noscript">이 페이지는 JavaScript 로 Apache Druid 의 동작을 그림으로 보여 줘요. 스크립트를 켜 주세요.</p>
+</noscript>

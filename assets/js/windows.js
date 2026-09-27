@@ -33,7 +33,7 @@ const dockWindows = $('[data-dock-windows]');
 const minimized = new Map(); // 창 → Dock 의 칸
 const closers = new WeakMap(); // 창 → 닫을 때 할 일 (글 창은 docs.js 가 정한다)
 const snapped = new WeakMap(); // 창 → 붙기 전의 자리
-export const MIN = { finder: [560, 380], doc: [460, 360], obsidian: [620, 400], games: [380, 300], notes: [560, 380], terminal: [460, 280] };
+export const MIN = { finder: [560, 380], doc: [460, 360], obsidian: [620, 400], games: [380, 300], notes: [560, 380], terminal: [460, 280], druid: [640, 420] };
 const EDGES = ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'];
 let order = []; // 뒤 → 앞
 

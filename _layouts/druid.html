@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  {%- comment -%}
+    Apache Druid 동작 원리 (/druid/). 블로그의 데스크톱과는 따로 선 한 장짜리 앱이다.
+    데스크톱의 'Apache Druid' 아이콘은 이 쪽을 창(iframe) 안에 띄우고(assets/js/druid.js),
+    새 탭으로 열면 화면 가득 뜬다. 그림은 React Flow 위의 아스키 아트다 — 코드는
+    assets/druid/, React, React Flow 묶음은 assets/druid/vendor/(tools/druid 로 만든다).
+
+    모양(라이트, 다크)은 블로그와 같은 설정(ephemeris:appearance)을 따른다. 첫 그림
+    전에 정해 깜빡이지 않게 한다.
+  {%- endcomment %}
+  <script>
+    (function () {
+      function apply() {
+        var v = 'auto';
+        try { v = localStorage.getItem('ephemeris:appearance') || 'auto'; } catch (e) {}
+        var dark = v === 'dark' || (v === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      }
+      apply();
+      window.druidTheme = apply;
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>{{ page.title }}, {{ site.title }}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/apps/apache-druid.svg' | relative_url }}">
+  <link rel="preload" href="{{ '/assets/fonts/JetBrainsMono-Regular.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="{{ '/assets/druid/vendor/flow.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/druid/druid.css' | relative_url }}">
+  <link rel="modulepreload" href="{{ '/assets/druid/vendor/flow.js' | relative_url }}">
+  {% seo title=false %}
+</head>
+<body>
+  {{ content }}
+  <script type="module" src="{{ '/assets/druid/app.js' | relative_url }}"></script>
+</body>
+</html>

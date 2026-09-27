@@ -173,6 +173,10 @@ function launch(icon) {
     dispatchEvent(new Event('ephemeris:about-note'));
     return;
   }
+  if (icon.hasAttribute('data-druid')) {
+    dispatchEvent(new CustomEvent('ephemeris:druid', { detail: { from: icon, href: icon.getAttribute('href') } }));
+    return;
+  }
   const ev = new CustomEvent('ephemeris:open', { detail: { href: icon.href }, cancelable: true });
   if (dispatchEvent(ev)) location.href = icon.href;
 }
@@ -212,6 +216,11 @@ function openIcon(icon) {
   // About.txt: 메모 앱의 about me 메모로 연다.
   if (icon.hasAttribute('data-about-note')) {
     dispatchEvent(new Event('ephemeris:about-note'));
+    return;
+  }
+  // Apache Druid: Druid 의 동작을 그림으로 보여 주는 창(druid.js)으로 연다.
+  if (icon.hasAttribute('data-druid')) {
+    dispatchEvent(new CustomEvent('ephemeris:druid', { detail: { from: icon, href: icon.getAttribute('href') } }));
     return;
   }
   // 그 밖의 문서 따위: 첫 화면이면 docs.js 가 창으로 연다. 아니면 그 쪽으로.

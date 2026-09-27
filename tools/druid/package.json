@@ -1,0 +1,16 @@
+{
+  "name": "ephemeris-druid-vendor",
+  "private": true,
+  "description": "Apache Druid 2D(/druid/)가 쓰는 React · React Flow 를 한 파일(assets/druid/vendor/)로 묶는 도구",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "@xyflow/react": "12.12.0",
+    "esbuild": "0.28.2",
+    "htm": "3.1.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
+}

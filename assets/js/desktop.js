@@ -165,6 +165,7 @@ document.addEventListener('keydown', (e) => {
 // 읽는 창(obsidian.js)을, 메모(notes.js) · 터미널(terminal.js) · 게임(games.js) ·
 // Spotify(music.js)는 제 창을 연다. 앱 모듈은 누를 때 불러온다.
 // 바탕의 About.txt 는 메모 앱을 about me 메모로 연다(ephemeris:about-note).
+// 바탕의 Apache Druid 는 Druid 창을 연다(ephemeris:druid).
 const dock = $('[data-dock]');
 
 if (dock) {
@@ -221,6 +222,12 @@ if (dock) {
 addEventListener('ephemeris:about-note', async () => {
   const { openNotes } = await import('./notes.js');
   openNotes($('[data-dock-notes]'), { note: 'about-me' });
+});
+
+// 바탕의 Apache Druid 는 Druid 의 동작을 그림으로 보여 주는 창을 연다(druid.js).
+addEventListener('ephemeris:druid', async (e) => {
+  const { openDruid } = await import('./druid.js');
+  openDruid(e.detail?.from, e.detail?.href);
 });
 
 // ── Spotlight ───────────────────────────────────────────────────

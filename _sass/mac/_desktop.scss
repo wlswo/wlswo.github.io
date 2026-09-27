@@ -497,10 +497,11 @@ html.is-still .battery__level {
     outline-offset: 0;
   }
 
+  // 이름은 한 줄로(칸보다 길면 양옆으로 조금 넘친다).
   &__label {
-    max-width: 90px;
     padding: 1px 6px;
     border-radius: 5px;
+    white-space: nowrap;
     font-size: 14.5px;
     font-weight: 500;
     line-height: 1.3;

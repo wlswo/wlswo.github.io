@@ -10,6 +10,7 @@ Spotify · 휴지통이 섭니다(아이콘 그림은 `assets/images/dock/`).
 - 터미널은 블로그를 작은 파일 시스템으로 보여 줍니다(`help` 로 명령 목록).
 - 게임 창의 앱은 `_data/projects.yml`, Spotify 는 유튜브 임베드로 SZA 앨범을 틉니다
   (유튜브가 `127.0.0.1` 에서는 재생을 막으니 로컬에서는 `localhost` 로 여세요).
+- 바탕의 Apache Druid 는 Druid 의 동작을 그림으로 보여 주는 창을 엽니다(아래 'Apache Druid 동작 원리').
 - 메뉴 막대의 Wi-Fi · 배터리 메뉴는 모형 자료입니다.
 
 ## 블로그 포스트 작성 방법
@@ -95,3 +96,28 @@ node generate.mjs
 *   그림 이름은 글 날짜의 유닉스 초(`search.json` 의 `og`)입니다. 그림이 없는 글과 홈·About 은
     `assets/og/default.jpg` 를 씁니다.
 *   카드 모양은 `tools/og/_card.html` 에서 고칩니다. 고치면 다음 실행 때 전부 새로 구워집니다.
+
+## Apache Druid 동작 원리
+
+`/druid/` 는 Apache Druid 가 어떻게 돌아가는지 장(chapter)마다 한 단계씩 보여 주는 한 장짜리
+앱입니다. 그림은 [React Flow](https://reactflow.dev) 위에 고정폭 글자로 그린 아스키 다이어그램이고,
+모양(라이트 · 다크)은 블로그 설정을 따릅니다. 데스크톱의 Apache Druid 아이콘은 이 쪽을
+창(iframe)으로 띄우고(`assets/js/druid.js`), 창의 ↗ 로 새 탭에서 화면 가득 볼 수도 있습니다.
+내용은 Apache Druid 공식 문서(druid.apache.org/docs/latest, 37.0.0 기준)를 바탕으로 합니다.
+
+*   쪽: `druid/index.html`(틀) · `_layouts/druid.html`(머리말)
+*   코드: `assets/druid/`
+    *   `diagram.js` — 그림판(React Flow · 아스키 상자 · 점선 · 움직이는 점 · 시계)
+    *   `ascii.js` — 아스키 도구(상자 · 표 · 비트맵 · 막대)
+    *   `app.js` — 목차 · 설명 칸 · 단계 넘기기 · 주소(`#장/단계`)
+    *   `chapters.js` — 장 목록, `chapters/*.js` — 장 하나에 파일 하나
+*   장을 더하려면 `chapters/` 에 모듈을 만들고 `chapters.js` 에 한 줄 넣습니다. 모듈의 모양은
+    `diagram.js` 맨 위 설명에 있습니다. 상자의 자리는 글자 칸(열 · 줄) 단위입니다.
+*   React · React Flow 는 빌드 없이 쓰도록 `assets/druid/vendor/flow.js` 한 파일로 묶어 두었습니다.
+    판을 올릴 때만 다시 묶습니다:
+
+```bash
+cd tools/druid
+npm install        # 처음 한 번
+npm run build      # assets/druid/vendor/flow.js · flow.css 를 새로 만든다
+```
