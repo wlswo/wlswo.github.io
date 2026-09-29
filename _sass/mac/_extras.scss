@@ -223,6 +223,33 @@
   padding-left: 14px;
 }
 
+// 위젯 메뉴: ✓ 자리를 왼쪽에 두고, 머리글('Size')과 모든 항목을 그만큼 들인다
+// (맥의 위젯 메뉴처럼).
+.menu__heading {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px 0 30px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.menu__item--lead {
+  position: relative;
+  padding-left: 30px;
+
+  &[role="menuitemradio"][aria-checked="true"]::after {
+    content: none;
+  }
+
+  &[aria-checked="true"]::before {
+    content: "✓";
+    position: absolute;
+    left: 11px;
+  }
+}
+
 // ── 글 창: 공유 · 절 링크 · 그림 크게 보기 ──────────────────────
 .doc__share {
   margin-left: auto;

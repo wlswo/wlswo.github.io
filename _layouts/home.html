@@ -12,6 +12,12 @@ layout: desktop
   '태그'로, 누르면 Obsidian 폴더의 그 글만 보인다. 주소는 ?at=위치, ?c=태그.
   보이고 숨기는 일은 finder.js 가 맡고, 스크립트가 없으면 글 목록이 보인다.
 {%- endcomment %}
+{%- comment -%}
+  바탕 왼쪽 위의 날씨 위젯. 내용은 weather.js 가 받아 채우고, 그 전에는 숨긴다.
+  끌어 옮기고, 우클릭 메뉴로 크기(작게·중간·크게)를 바꾼다.
+{%- endcomment %}
+<div class="weather" role="img" tabindex="0" data-weather hidden></div>
+
 <ul class="desktop-icons" aria-label="데스크톱" data-desktop-icons>
   <li>
     <a class="desktop-icon" href="{{ '/about/' | relative_url }}" data-desktop-icon data-about-note>

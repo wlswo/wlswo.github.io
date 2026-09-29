@@ -534,6 +534,250 @@ html.is-still .battery__level {
   }
 }
 
+// ── 날씨 위젯 ───────────────────────────────────────────────────
+// 맥의 날씨 위젯: 바탕 왼쪽 위의 둥근 판. 크기(작게·중간·크게)와 자리는
+// weather.js 가 매긴다(폭·높이·left·top 을 직접 적는다). 판의 색은
+// data-sky(맑음·구름·비…)와 data-time(낮·밤)을 따른다.
+// 크기를 바꾸면 판은 폭·높이가 스프링처럼 늘거나 줄고, 안의 내용(.weather__body)은
+// weather.js 가 옛것과 새것을 겹쳐 흐리게 바꾼다.
+.weather {
+  --sky-top: #2f7fd6;
+  --sky-bottom: #6aaee8;
+  --spring: cubic-bezier(0.32, 0.72, 0, 1);
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 1; // 폴더와 같은 층, 창보다는 아래
+  width: 164px;
+  height: 164px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.18);
+  color: #ffffff;
+  line-height: 1.2;
+  user-select: none;
+  touch-action: none;
+  cursor: var(--cursor);
+  transition:
+    width 0.42s var(--spring),
+    height 0.42s var(--spring),
+    left 0.42s var(--spring),
+    top 0.42s var(--spring),
+    box-shadow 0.2s linear;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(10, 100, 216, 0.7);
+    outline-offset: 2px;
+  }
+
+  // 끄는 동안에는 손끝을 바로 따라오고, 조금 들린 듯 그림자가 짙다.
+  &.is-dragging {
+    transition:
+      width 0.42s var(--spring),
+      height 0.42s var(--spring),
+      box-shadow 0.2s linear;
+    box-shadow:
+      0 0 0 0.5px rgba(0, 0, 0, 0.12),
+      0 14px 36px rgba(0, 0, 0, 0.28);
+  }
+
+  &[data-time="night"] {
+    --sky-top: #0c1631;
+    --sky-bottom: #2b3c6b;
+  }
+
+  &[data-sky="partly"][data-time="day"] {
+    --sky-top: #3f7fbf;
+    --sky-bottom: #86add3;
+  }
+
+  &[data-sky="cloudy"],
+  &[data-sky="fog"] {
+    --sky-top: #5d758d;
+    --sky-bottom: #93a5b7;
+  }
+
+  &[data-sky="rain"],
+  &[data-sky="storm"] {
+    --sky-top: #3b4757;
+    --sky-bottom: #637183;
+  }
+
+  &[data-sky="snow"] {
+    --sky-top: #6b7f96;
+    --sky-bottom: #a7b5c5;
+  }
+
+  // 흐린 밤은 모양을 가리지 않고 짙은 먹색 하나로.
+  &[data-time="night"]:not([data-sky="clear"]):not([data-sky="partly"]) {
+    --sky-top: #1c232e;
+    --sky-bottom: #3a4452;
+  }
+
+  // 한 크기의 내용 한 벌. 바꾸는 동안에는 옛것(.is-leaving)과 새것이 겹친다.
+  &__body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 14px 15px 13px;
+    transform-origin: 0 0;
+
+    &--small {
+      justify-content: space-between;
+    }
+  }
+
+  &__now,
+  &__sky {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__city {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__temp {
+    font-size: 42px;
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  &__sky {
+    gap: 1px;
+
+    .weather__icon {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 3px;
+    }
+  }
+
+  &__name,
+  &__range {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__range {
+    font-weight: 500;
+  }
+
+  // 중간 · 크게: 위에 지금(왼쪽)과 오늘(오른쪽), 아래에 시간별.
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    .weather__sky {
+      align-items: flex-end;
+      padding-top: 2px;
+      text-align: right;
+    }
+  }
+
+  &__hours {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    margin: auto 0 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .weather__icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__hour {
+    font-size: 11px;
+    opacity: 0.85;
+    white-space: nowrap;
+  }
+
+  &__body--large &__hours {
+    margin: 12px 0 0;
+    padding: 10px 0;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.3);
+  }
+
+  // 크게: 닷새. 이름 · 그림 · 최저 · 막대 · 최고
+  &__days {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: grid;
+      grid-template-columns: 52px 22px 36px 1fr 36px;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+
+      > :last-child {
+        text-align: right;
+      }
+    }
+
+    .weather__icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__lo {
+    text-align: right;
+    opacity: 0.7;
+  }
+
+  &__bar {
+    position: relative;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.22);
+
+    i {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #8ee0a1, #ffd60a, #ff9f0a);
+    }
+  }
+}
+
 // ── Dock ────────────────────────────────────────────────────────
 // 맥의 Dock: 화면 아래 둥근 모서리의 서리 판(흐림만 있고 굴절은 없다)에
 // 앱 아이콘이 줄지어 선다. 마우스를 대면 위에 이름표, 떠 있는 앱 밑에는
@@ -1158,7 +1402,8 @@ html.is-still .battery__level {
     }
   }
 
-  .desktop-icons {
+  .desktop-icons,
+  .weather {
     display: none;
   }
 

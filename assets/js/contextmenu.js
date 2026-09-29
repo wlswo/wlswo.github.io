@@ -6,6 +6,8 @@
  *   데스크톱 아이콘 열기 · 새 탭에서 열기 · 링크 복사 · 정보 가져오기 · 이름 변경 · Finder 에서 보기
  *   글 목록의 한 줄 열기 · 새 탭에서 열기 · 링크 복사
  *   Dock 의 앱     열기(링크인 Finder 는 새 탭에서 열기 · 링크 복사도)
+ *   날씨 위젯      Size(Small · Medium · Large) · Remove Widget
+ *   (바탕에서 위젯을 지웠으면 바탕 메뉴에 '위젯 추가')
  * 그 밖의 자리(본문의 글자, 링크, 입력 칸)는 브라우저의 메뉴를 그대로 둔다.
  * 키보드로는 초점이 간 항목에서 ContextMenu 키나 ⇧F10 으로 연다.
  */
@@ -38,7 +40,24 @@ function linkItems(el, open) {
   ];
 }
 
+const WIDGET_SIZES = { small: 'Small', medium: 'Medium', large: 'Large' };
+
 function itemsFor(target) {
+  const widget = target.closest('[data-weather]');
+  if (widget) {
+    // 맥의 위젯 메뉴(영어 그대로): 흐린 'Size' 머리 아래 셋, 지금 크기는 왼쪽에 ✓.
+    return [
+      { heading: 'Size' },
+      ...Object.entries(WIDGET_SIZES).map(([size, label]) => ({
+        label,
+        radio: widget.dataset.size === size,
+        lead: true,
+        run: () => dispatchEvent(new CustomEvent('ephemeris:widget-size', { detail: size })),
+      })),
+      '-',
+      { label: 'Remove Widget', lead: true, run: () => dispatchEvent(new Event('ephemeris:widget-remove')) },
+    ];
+  }
   const icon = target.closest('[data-desktop-icon]');
   if (icon) {
     return [
@@ -62,6 +81,9 @@ function itemsFor(target) {
         run: () => (finder ? openWindow(finder) : (location.href = '/')),
       },
       ...(finder ? [{ label: '아이콘 정리', run: () => dispatchEvent(new Event('ephemeris:icons-cleanup')) }] : []),
+      ...($('[data-weather][data-removed]')
+        ? [{ label: '위젯 추가', run: () => dispatchEvent(new Event('ephemeris:widget-add')) }]
+        : []),
       { label: 'Spotlight 검색', run: () => $('[data-open-spotlight]')?.click() },
       '-',
       { label: '모양: 자동', radio: a === 'auto', run: () => setAppearance('auto') },
@@ -100,9 +122,17 @@ function open(list, x, y, { keyboard = false, from = null } = {}) {
       menu.append(sep);
       continue;
     }
+    if (it.heading) {
+      const h = document.createElement('div');
+      h.className = 'menu__heading';
+      h.setAttribute('role', 'presentation');
+      h.textContent = it.heading;
+      menu.append(h);
+      continue;
+    }
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'menu__item';
+    b.className = it.lead ? 'menu__item menu__item--lead' : 'menu__item';
     b.textContent = it.label;
     if ('radio' in it) {
       b.setAttribute('role', 'menuitemradio');

@@ -7,6 +7,7 @@
 import { loadPosts as fetchPosts } from './posts.js';
 import { DESKTOP, openWindow, frontWindow, notify } from './windows.js';
 import './calendar.js';
+import './weather.js';
 import './status.js';
 import './power.js';
 import './bot.js';
