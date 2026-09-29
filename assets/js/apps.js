@@ -8,6 +8,17 @@
  */
 const base = '/assets/images/';
 
+/** 캘린더 앱 아이콘: 흰 둥근 판 위에 빨간 요일, 큰 날짜(SVG 를 data: 주소로). */
+export function calendarIcon(d) {
+  const dow = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][d.getDay()];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+    <rect x="8" y="8" width="112" height="112" rx="26" fill="#fff"/>
+    <rect x="8.5" y="8.5" width="111" height="111" rx="25.5" fill="none" stroke="#000" stroke-opacity=".12"/>
+    <text x="64" y="41" text-anchor="middle" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="19" font-weight="600" fill="#ff3b30">${dow}</text>
+    <text x="64" y="100" text-anchor="middle" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="62" font-weight="300" fill="#1d1d1f">${d.getDate()}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
 export const APPS = {
   finder: {
     name: 'Finder',
@@ -70,6 +81,16 @@ export const APPS = {
     windows: ['music'],
     about: 'SZA 의 앨범 SOS 를 틀어요.',
     keywords: 'spotify 스포티파이 음악 music 노래',
+  },
+  calendar: {
+    name: '캘린더',
+    // 맥의 캘린더 아이콘처럼 오늘의 요일과 날짜가 찍힌다.
+    get icon() {
+      return calendarIcon(new Date());
+    },
+    windows: ['calendar'],
+    about: '쓴 글을 날짜별 일정처럼 보여 줘요.',
+    keywords: 'calendar 캘린더 달력 일정',
   },
   druid: {
     name: 'Apache Druid',

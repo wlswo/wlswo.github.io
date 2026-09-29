@@ -1,0 +1,830 @@
+// ── 알림 센터 ───────────────────────────────────────────────────
+// 메뉴 막대의 날짜를 누르면 오른쪽에서 밀려 들어오는 판(ncenter.js).
+// 옅은 유리 판 위에 까만 유리 위젯이 뜬다. 맥의 알림 센터는
+// 라이트 모양에서도 위젯이 짙다(영상처럼).
+.ncenter-root {
+  position: relative;
+}
+
+.ncenter {
+  --cal-dim: rgba(255, 255, 255, 0.45);
+  --nc-up: #ff453a; // 오르면 빨강(한국의 시세 색)
+  --nc-down: #0a84ff;
+  position: fixed;
+  top: calc(var(--menubar-h) + 10px);
+  right: 10px;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+  width: 378px;
+  max-height: calc(100vh - var(--menubar-h) - 20px);
+  padding: 18px;
+  overflow-y: auto;
+  border-radius: 26px;
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: none;
+
+  &[hidden] {
+    display: none;
+  }
+
+  // 판의 유리: 아주 옅게 어둡고 뒤를 흐린다. 가장자리 선은 두지 않는다. 판 자체에 흐림을 걸면 그 안의
+  // 위젯 흐림이 판만 비추게 되므로(흐림의 뿌리가 바뀐다), 위젯과 나란한 층에 깐다.
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: rgba(30, 30, 34, 0.26);
+    -webkit-backdrop-filter: blur(22px) saturate(1.4);
+    backdrop-filter: blur(22px) saturate(1.4);
+  }
+
+  // 위젯이 놓이는 칸: 작은 위젯 둘이 나란히
+  &__widgets {
+    display: grid;
+    grid-template-columns: 164px 164px;
+    gap: 14px;
+  }
+}
+
+// 알림 센터의 위젯 한 장: 까만 유리, 가장자리에 옅은 빛.
+.nwidget {
+  width: 164px;
+  height: 164px;
+  padding: 14px;
+  border: 0;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(56, 56, 58, 0.86), rgba(36, 36, 38, 0.9));
+  -webkit-backdrop-filter: blur(30px) saturate(1.6);
+  backdrop-filter: blur(30px) saturate(1.6);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.2),
+    0 12px 30px -10px rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  font: inherit;
+  text-align: left;
+
+  &:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+  }
+
+  // 캘린더 위젯: 누르면 캘린더 앱
+  &--calendar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: var(--cursor);
+    transition: transform 0.15s var(--ease-out);
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
+  &__month {
+    padding-left: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  &--coins {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px 14px;
+  }
+}
+
+// 이달: 그 달이 아닌 날은 비워 둔다. 주말은 회색, 오늘은 흰 동그라미.
+.minical {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 1px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+
+  b {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--cal-dim);
+  }
+
+  span {
+    display: grid;
+    place-items: center;
+    height: 17px;
+  }
+
+  .is-weekend {
+    color: var(--cal-dim);
+  }
+
+  .is-today {
+    justify-self: center;
+    width: 17px;
+    border-radius: 50%;
+    background: #f2f2f7;
+    color: #1c1c1e;
+  }
+}
+
+// 코인 한 줄: ▲ BTC-USD +1.29% / 83,983 +1,068 / 지난 하루의 선
+.coin {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  & + & {
+    padding-top: 6px;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.14);
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0;
+    font-size: 12.5px;
+    white-space: nowrap;
+
+    b {
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    i {
+      margin-right: 2px;
+      font-size: 9px;
+      font-style: normal;
+    }
+  }
+
+  &__sub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  &.is-up i,
+  &.is-up &__chg {
+    color: var(--nc-up);
+  }
+
+  &.is-down i,
+  &.is-down &__chg {
+    color: var(--nc-down);
+  }
+
+  &__spark {
+    display: block;
+    width: 100%;
+    height: 20px;
+    margin-top: 3px;
+    overflow: visible;
+  }
+
+  &__base {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.28);
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+    vector-effect: non-scaling-stroke;
+  }
+
+  &__line {
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+
+    &.is-up {
+      stroke: var(--nc-up);
+    }
+
+    &.is-down {
+      stroke: var(--nc-down);
+    }
+  }
+}
+
+// 지나간 알림: 알림 센터 맨 위, 위젯과 같은 까만 유리 카드로.
+.ncenter .nc {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  &[hidden] {
+    display: none;
+  }
+
+  .nc__title {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  }
+
+  .nc__clear {
+    background: rgba(44, 44, 46, 0.82);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
+
+  .nc__item {
+    background: linear-gradient(180deg, rgba(56, 56, 58, 0.86), rgba(36, 36, 38, 0.9));
+    -webkit-backdrop-filter: blur(30px) saturate(1.6);
+    backdrop-filter: blur(30px) saturate(1.6);
+    box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.2);
+  }
+}
+
+@media (max-width: 899px) {
+  .ncenter {
+    right: var(--safe-r, 8px);
+    width: clamp(0px, calc(100vw - 16px), 378px); // min() 은 옛 Sass 가 제 함수로 알아 clamp 로
+  }
+}
+
+// ── 캘린더 앱 ───────────────────────────────────────────────────
+// 맥의 캘린더(calendar.js). 왼쪽 유리 사이드바에 캘린더 목록(글의 카테고리)과
+// 작은 달력, 오른쪽에 Day · Week · Month · Year 보기. 쓴 글은 그날의 일정처럼
+// 카테고리 색 라벨로 붙는다. 색은 --c 로 받는다(_data/categories.yml).
+.calapp {
+  --cal-red: #ff3b30;
+  top: 56px;
+  left: clamp(16px, calc(50% - 490px), 50%);
+  width: clamp(680px, 72vw, 980px);
+  height: clamp(440px, calc(100% - var(--dock-reserve) - 76px), 680px);
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  background: var(--paper);
+
+  &__side {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-right: var(--hair) solid var(--sep);
+    background: var(--glass-window);
+    -webkit-backdrop-filter: blur(34px) saturate(1.8);
+    backdrop-filter: blur(34px) saturate(1.8);
+  }
+
+  &__chrome {
+    display: flex;
+    flex: none;
+    align-items: center;
+    height: 52px;
+    padding: 0 16px;
+  }
+
+  &__lists {
+    flex: 1;
+    min-height: 0;
+    padding: 4px 12px;
+    overflow-y: auto;
+  }
+
+  &__group {
+    margin: 6px 6px 4px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink-3);
+  }
+
+  &__cals {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__cal {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: var(--cursor);
+
+    input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &:hover {
+      background: var(--fill);
+    }
+
+    &:focus-within {
+      box-shadow: 0 0 0 2px rgba(10, 100, 216, 0.6);
+    }
+  }
+
+  // 체크 상자: 켜면 캘린더 색으로 칠하고 흰 ✓, 끄면 그 색 테두리만.
+  &__check {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--c);
+    border-radius: 4px;
+
+    input:checked + & {
+      background: var(--c);
+
+      &::after {
+        content: "";
+        width: 8px;
+        height: 4.5px;
+        margin-top: -2px;
+        border-left: 2px solid #ffffff;
+        border-bottom: 2px solid #ffffff;
+        transform: rotate(-45deg);
+      }
+    }
+  }
+
+  // 작은 달력: 사이드바 아래
+  &__mini {
+    flex: none;
+    margin: 0 12px;
+    padding: 12px 2px 16px;
+    border-top: var(--hair) solid var(--sep);
+  }
+
+  &__minihead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink-2);
+    cursor: var(--cursor);
+
+    &:hover {
+      background: var(--fill-2);
+    }
+  }
+
+  &__mgrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+
+    b {
+      padding-bottom: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-3);
+    }
+  }
+
+  &__mday {
+    justify-self: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: var(--cursor);
+
+    &.is-out {
+      color: var(--ink-4);
+    }
+
+    &.has-events {
+      font-weight: 800;
+    }
+
+    &:hover {
+      background: var(--fill-2);
+    }
+
+    &.is-picked {
+      background: var(--fill-2);
+    }
+
+    &.is-today {
+      background: var(--cal-red);
+      color: #ffffff;
+    }
+  }
+
+  // ── 오른쪽 ──
+  &__main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  &__bar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+  }
+
+  // Day · Week · Month · Year: 알약 모양의 전환 단추
+  &__modes {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--fill-2);
+
+    button {
+      padding: 4px 16px;
+      border: 0;
+      border-radius: 999px;
+      background: none;
+      color: var(--ink);
+      font: inherit;
+      font-size: 14.5px;
+      font-weight: 500;
+      cursor: var(--cursor);
+
+      &[aria-checked="true"] {
+        background: var(--paper);
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+      }
+    }
+  }
+
+  &__head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 20px 12px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+
+    b {
+      font-weight: 800;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    gap: 6px;
+  }
+
+  &__pill {
+    height: 30px;
+    background: var(--fill-2);
+  }
+
+  &__today {
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    color: var(--ink);
+    font: inherit;
+    font-size: 14.5px;
+    font-weight: 500;
+    cursor: var(--cursor);
+
+    &:hover {
+      background: var(--pick);
+    }
+  }
+
+  &__icon.calapp__pill {
+    width: 30px;
+  }
+
+  &__view {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  // 일정 라벨: 캘린더 색을 옅게 깐 알약, 앞에 그 색 점
+  &__event,
+  &__card {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: rgba(128, 128, 128, 0.16);
+    background: color-mix(in srgb, var(--c) 20%, transparent);
+    color: var(--ink);
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.5;
+    text-decoration: none;
+
+    i {
+      flex: none;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--c);
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: color-mix(in srgb, var(--c) 34%, transparent);
+      outline: none;
+    }
+  }
+
+  &__more {
+    align-self: flex-start;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    font: inherit;
+    font-size: 12px;
+    cursor: var(--cursor);
+  }
+
+  // 달: 6주. 날짜는 칸의 오른쪽 위, 그 달이 아닌 날과 주말은 옅게 깐다.
+  &__month {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 420px;
+  }
+
+  &__dows {
+    display: grid;
+    flex: none;
+    grid-template-columns: repeat(7, 1fr);
+    padding-bottom: 6px;
+    font-size: 15px;
+    color: var(--ink-2);
+    text-align: right;
+
+    span {
+      padding-right: 12px;
+    }
+  }
+
+  &__cells {
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+    border-top: var(--hair) solid var(--sep);
+  }
+
+  &__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 0;
+    padding: 4px 5px;
+    overflow: hidden;
+    border-right: var(--hair) solid var(--sep);
+    border-bottom: var(--hair) solid var(--sep);
+
+    &:nth-child(7n) {
+      border-right: 0;
+    }
+
+    &.is-weekend,
+    &.is-out {
+      background: var(--fill);
+    }
+  }
+
+  &__num {
+    flex: none;
+    align-self: flex-end;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 7px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: 17px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    cursor: var(--cursor);
+
+    .is-out > & {
+      color: var(--ink-4);
+    }
+
+    &.is-today {
+      background: var(--cal-red);
+      color: #ffffff;
+      font-weight: 600;
+    }
+  }
+
+  // 주: 일곱 칸, 머리에 요일과 날짜, 아래에 하루 종일 일정
+  &__week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    height: 100%;
+    border-top: var(--hair) solid var(--sep);
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: var(--hair) solid var(--sep);
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  &__colhead {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 4px;
+    border: 0;
+    border-bottom: var(--hair) solid var(--sep);
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: 14px;
+    cursor: var(--cursor);
+
+    b {
+      display: grid;
+      place-items: center;
+      min-width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .is-today & b {
+      background: var(--cal-red);
+      color: #ffffff;
+    }
+  }
+
+  &__allday {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 4px;
+  }
+
+  // 하루: 요일 아래 그날의 글을 카드로
+  &__day {
+    padding: 0 24px 24px;
+    border-top: var(--hair) solid var(--sep);
+  }
+
+  &__dow {
+    margin: 12px 0;
+    font-size: 15px;
+    color: var(--ink-3);
+  }
+
+  &__agenda {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 15px;
+
+    i {
+      width: 9px;
+      height: 9px;
+    }
+  }
+
+  &__meta {
+    margin: 4px 4px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+
+  &__empty {
+    margin: 60px 0;
+    font-size: 16px;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  // 해: 열두 달을 네 줄 세 칸으로. 달 이름은 빨갛게.
+  &__year {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px 26px;
+    padding: 12px 24px 24px;
+    border-top: var(--hair) solid var(--sep);
+
+    .calapp__mday {
+      width: 22px;
+      height: 22px;
+      font-size: 11.5px;
+    }
+  }
+
+  &__yname {
+    margin: 0 0 4px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--cal-red);
+    font: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: var(--cursor);
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// 폰: 창이 화면을 채운다. 사이드바는 신호등 줄만 남기고 접는다.
+@media (max-width: 899px) {
+  .calapp {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+
+    &__side {
+      border-right: 0;
+    }
+
+    &__lists,
+    &__mini {
+      display: none;
+    }
+
+    &__head {
+      padding: 2px 12px 10px;
+    }
+
+    &__title {
+      font-size: 22px;
+    }
+
+    &__year {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: 12px;
+    }
+  }
+}

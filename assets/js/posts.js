@@ -1,5 +1,5 @@
 /*
- * 글 목록(search.json)을 한 번만 받아 나눠 쓴다. Spotlight 와 달력이 쓴다.
+ * 글 목록(search.json)을 한 번만 받아 나눠 쓴다. Spotlight 와 캘린더 앱이 쓴다.
  * 받다가 실패하면 다음에 다시 시도한다.
  */
 let pending = null;

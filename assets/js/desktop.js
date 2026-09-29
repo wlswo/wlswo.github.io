@@ -6,7 +6,7 @@
  */
 import { loadPosts as fetchPosts } from './posts.js';
 import { DESKTOP, openWindow, frontWindow, notify } from './windows.js';
-import './calendar.js';
+import './ncenter.js';
 import './weather.js';
 import './status.js';
 import './power.js';
@@ -148,7 +148,7 @@ document.addEventListener('pointerdown', (e) => {
   if (openMenu && !openMenu.root.contains(e.target)) hideMenu(openMenu);
 });
 
-// 달력이 열리면 메뉴는 접는다.
+// 알림 센터가 열리면 메뉴는 접는다.
 addEventListener('ephemeris:popup', (e) => {
   if (e.detail !== 'menu' && openMenu) hideMenu(openMenu);
 });
@@ -224,6 +224,12 @@ if (dock) {
     notify('휴지통이 비어 있어요', { title: '휴지통', icon: '/assets/images/dock/trash-128.png' }),
   );
 }
+
+// 알림 센터의 캘린더 위젯(ncenter.js)이나 Spotlight 에서 캘린더 앱을 연다.
+addEventListener('ephemeris:calendar', async (e) => {
+  const { openCalendar } = await busy(import('./calendar.js'));
+  openCalendar(e.detail?.from);
+});
 
 addEventListener('ephemeris:about-note', async () => {
   const { openNotes } = await busy(import('./notes.js'));

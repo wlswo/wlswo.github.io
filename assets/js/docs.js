@@ -184,7 +184,7 @@ addEventListener('popstate', () => {
 });
 
 // ── 링크를 창으로 ──────────────────────────────────────────────
-// 목록의 글, 최근 글 메뉴, 달력의 글, 글 창 안의 '이전·다음 글', About.
+// 목록의 글, 최근 글 메뉴, 캘린더 앱의 글, 글 창 안의 '이전·다음 글', About.
 document.addEventListener('click', (e) => {
   if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   const a = e.target.closest('a[href]');

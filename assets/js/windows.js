@@ -38,7 +38,7 @@ const minimizing = new Set(); // 그림을 뜨는 중(두 번 눌러도 한 번�
 const shotOf = new WeakMap(); // 최소화한 창 → 빨려 들어갈 때 쓴 그림(되살릴 때 거꾸로 돌린다)
 const closers = new WeakMap(); // 창 → 닫을 때 할 일 (글 창은 docs.js 가 정한다)
 const snapped = new WeakMap(); // 창 → 붙기 전의 자리
-export const MIN = { finder: [560, 380], doc: [460, 360], obsidian: [620, 400], games: [380, 300], notes: [560, 380], terminal: [460, 280], druid: [640, 420] };
+export const MIN = { finder: [560, 380], doc: [460, 360], obsidian: [620, 400], games: [380, 300], notes: [560, 380], terminal: [460, 280], druid: [640, 420], calendar: [680, 440] };
 const EDGES = ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'];
 let order = []; // 뒤 → 앞
 
@@ -637,7 +637,7 @@ export function setupWindow(win, { cascade = 0, keepFrame = false } = {}) {
 }
 
 // ── 바탕 ────────────────────────────────────────────────────────
-const popupOpen = () => !!document.querySelector('[data-menu].is-open, .calendar:not([hidden]), .context-menu');
+const popupOpen = () => !!document.querySelector('[data-menu].is-open, .ncenter:not([hidden]), .context-menu');
 
 if (workspace) {
   // 화면이 줄면 떠 있는 창을 화면 안으로 들인다. 기억한 자리는 그대로 두어,
@@ -659,7 +659,7 @@ if (workspace) {
   }).observe(workspace);
 
   // 바탕을 누르면 맨 앞의 창을 닫는다. 바탕에서 눌렀다가 바탕에서 뗀 경우만 —
-  // 창 안에서 글자를 끌다가 바탕에서 뗀 것, 메뉴나 달력을 접으려고 누른 것은 아니다.
+  // 창 안에서 글자를 끌다가 바탕에서 뗀 것, 메뉴나 알림 센터를 접으려고 누른 것은 아니다.
   let press = null;
   workspace.addEventListener('pointerdown', (e) => {
     press = e.target === workspace && e.button === 0 && !popupOpen() ? { x: e.clientX, y: e.clientY } : null;

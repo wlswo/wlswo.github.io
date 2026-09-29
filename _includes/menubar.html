@@ -211,35 +211,25 @@
     <button class="menubar__item menubar__icon" type="button" data-open-spotlight aria-label="Spotlight 검색 (⌘K)">
       {% include icon.html name="search" %}
     </button>
-    {%- comment -%} 날짜를 누르면 맥의 캘린더 위젯이 내려온다. 글을 쓴 날에는 점(calendar.js). {%- endcomment %}
-    <div class="calendar-root" data-calendar-root>
-      <button class="menubar__item menubar__clock" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="calendar" data-calendar-button>
+    {%- comment -%}
+      날짜를 누르면 맥의 알림 센터가 오른쪽에서 밀려 들어온다(ncenter.js).
+      옅은 유리 판 위에 지나간 알림(macos.js)과 캘린더 · 코인 위젯.
+      캘린더 위젯을 누르면 캘린더 앱(calendar.js)이 뜬다.
+    {%- endcomment %}
+    <div class="ncenter-root" data-nc-root>
+      <button class="menubar__item menubar__clock" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="notification-center" data-nc-button>
         <time data-clock></time>
       </button>
-      <div class="calendar" id="calendar" role="dialog" aria-labelledby="calendar-title" hidden>
-        {%- comment -%} 알림 센터: 지나간 알림(macos.js). 아래는 캘린더 위젯. {%- endcomment %}
+      <div class="ncenter" id="notification-center" role="dialog" aria-label="알림 센터" hidden>
         <section class="nc" aria-label="알림" data-nc>
           <div class="nc__head"><h2 class="nc__title">알림</h2><button class="nc__clear" type="button" data-nc-clear hidden>모두 지우기</button></div>
           <ol class="nc__list" data-nc-list></ol>
           <p class="nc__empty" data-nc-empty>새 알림이 없어요</p>
         </section>
-        <div class="calendar__head">
-          <h2 class="calendar__title" id="calendar-title" data-cal-title></h2>
-          <div class="calendar__nav" role="group" aria-label="달 넘기기">
-            <button class="calendar__btn" type="button" data-cal-step="-1" aria-label="이전 달">{% include icon.html name="chevron-left" %}</button>
-            <button class="calendar__btn calendar__btn--today" type="button" data-cal-today aria-label="오늘로"><span class="calendar__today" aria-hidden="true"></span></button>
-            <button class="calendar__btn" type="button" data-cal-step="1" aria-label="다음 달">{% include icon.html name="chevron-right" %}</button>
-          </div>
+        <div class="ncenter__widgets">
+          <button class="nwidget nwidget--calendar" type="button" data-nc-calendar></button>
+          <div class="nwidget nwidget--coins" role="group" aria-label="코인 시세" data-nc-coins></div>
         </div>
-        <table class="calendar__grid" role="grid" aria-labelledby="calendar-title">
-          <thead>
-            <tr>
-              <th scope="col" abbr="일요일" class="is-weekend">일</th><th scope="col" abbr="월요일">월</th><th scope="col" abbr="화요일">화</th><th scope="col" abbr="수요일">수</th><th scope="col" abbr="목요일">목</th><th scope="col" abbr="금요일">금</th><th scope="col" abbr="토요일" class="is-weekend">토</th>
-            </tr>
-          </thead>
-          <tbody data-cal-body></tbody>
-        </table>
-        <div class="calendar__agenda" data-cal-agenda aria-live="polite" hidden></div>
       </div>
     </div>
   </div>

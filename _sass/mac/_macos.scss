@@ -693,7 +693,7 @@ html[data-theme="dark"] .cc {
 }
 
 // 알림 센터를 여는 동안 떠 있는 알림은 잠시 숨긴다(판 위에 겹치지 않게).
-body:has(#calendar:not([hidden])) .toasts {
+body:has(#notification-center:not([hidden])) .toasts {
   opacity: 0;
   pointer-events: none;
 }

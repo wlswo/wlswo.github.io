@@ -62,6 +62,10 @@ export function launchApp(key) {
     dispatchEvent(new CustomEvent('ephemeris:druid', { detail: { href: '/druid/' } }));
     return;
   }
+  if (key === 'calendar') {
+    dispatchEvent(new CustomEvent('ephemeris:calendar'));
+    return;
+  }
   if (key === 'system') {
     location.href = '/about/';
     return;
@@ -598,12 +602,14 @@ function renderNotifications() {
       </li>`,
     )
     .join('');
+  // 알림이 없으면 알림 칸을 통째로 접는다(알림 센터에는 위젯만 남는다).
+  $('[data-nc]').hidden = !items.length;
   $('[data-nc-empty]').hidden = items.length > 0;
   $('[data-nc-clear]').hidden = !items.length;
 }
 addEventListener('ephemeris:notify', renderNotifications);
 addEventListener('ephemeris:popup', (e) => {
-  if (e.detail === 'calendar') renderNotifications();
+  if (e.detail === 'ncenter') renderNotifications();
 });
 $('[data-nc-clear]')?.addEventListener('click', (e) => {
   e.stopPropagation();
