@@ -113,6 +113,13 @@
   </nav>
 
   <div class="menubar__right">
+    {%- if site.wallpaper_grid %}
+    {%- comment -%} 배경화면의 명령어 격자에서 칸을 골라 명령어를 쳐 보이는 재생 · 정지 단추(wallgrid.js) {%- endcomment %}
+    <button class="menubar__item menubar__icon menubar__play" type="button" aria-pressed="false" aria-label="배경화면 명령어 재생" data-wallgrid-play>
+      <svg class="icon menubar__play-on" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.3 6.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/></svg>
+      <svg class="icon menubar__play-off" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="7.2" y="7.2" width="5.6" height="5.6" rx="0.9" fill="currentColor" stroke="none"/></svg>
+    </button>
+    {%- endif %}
     {%- comment -%} RunCat. 이 쪽이 바쁠수록 고양이가 빨리 달린다(runcat.js). {%- endcomment %}
     <div class="menu menu--right" data-menu>
       <button class="menubar__item menubar__cat" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-runcat" aria-label="RunCat">

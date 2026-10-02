@@ -61,4 +61,9 @@ wallpaper: /assets/images/wallpaper-monterey.webp
 wallpaper_2x: /assets/images/wallpaper-monterey@2x.webp
 wallpaper_dark: /assets/images/wallpaper-monterey.webp
 wallpaper_dark_2x: /assets/images/wallpaper-monterey@2x.webp
-wallpaper_tone: dark
+wallpaper_tone: light
+# 그림 대신 단색으로 칠하려면 색을 적는다(지우면 위의 그림으로 돌아간다).
+# 색이 어두우면 wallpaper_tone 을 dark, 밝으면 light 로 맞춘다.
+wallpaper_color: "#d3d9b3"
+# 배경화면을 크기 제각각의 칸으로 나누고 칸마다 리눅스 명령어를 적는다(assets/js/wallgrid.js).
+wallpaper_grid: true

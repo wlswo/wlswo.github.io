@@ -17,6 +17,146 @@
   pointer-events: none;
 }
 
+// 단색 배경화면(_config.yml 의 wallpaper_color). 색은 desktop.html 이 style 로 넘기므로
+// 다크 모양의 밤 그림보다도 앞선다.
+
+// ── 명령어 격자 ─────────────────────────────────────────────────
+// 배경화면을 덮는 크기 제각각의 칸들. 칸마다 리눅스 명령어 하나(wallgrid.js 가 채운다).
+// 메뉴 막대 아래에서 시작하고, 바탕을 해치지 않도록 선과 글자는 아주 옅게 쓴다.
+.wallgrid {
+  --wg-line: rgba(255, 255, 255, 0.07);
+  --wg-ink: rgba(255, 255, 255, 0.3);
+  --wg-dim: rgba(255, 255, 255, 0.16);
+  --wg-prompt: rgba(80, 250, 123, 0.38);
+  --wg-tag-bg: rgba(255, 255, 255, 0.06);
+  --wg-tag-ink: var(--wg-dim);
+  --wg-typing-bg: rgba(255, 255, 255, 0.05);
+  --wg-border: 1px;
+
+  position: absolute;
+  inset: var(--menubar-h) 0 0;
+  display: grid; // 열 · 줄 수와 칸의 자리는 wallgrid.js 가 화면 크기로 정한다
+  gap: 8px;
+  padding: 8px;
+  overflow: hidden;
+  font: 400 12px/1.5 var(--mono);
+  color: var(--wg-ink);
+}
+
+// 밝은 바탕(#d3d9b3 등) 위에서는 Grid Information 그대로: 검은 2px 선, 검은 글자, 꼬리표는 어두운 올리브 바탕에 크림 숫자
+body[data-wallpaper-tone="light"] .wallgrid {
+  --wg-line: #000000;
+  --wg-ink: #000000;
+  --wg-dim: #000000;
+  --wg-prompt: #000000;
+  --wg-tag-bg: #4a5236; // 어두운 올리브
+  --wg-tag-ink: #eef0d8; // 크림
+  --wg-typing-bg: #eef0d8; // 치고 있는 칸은 크림으로 밝힌다
+  --wg-border: 2px;
+}
+
+.wallgrid__cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: var(--wg-border) solid var(--wg-line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.wallgrid__i {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 2px 5px;
+  border-bottom-left-radius: 5px;
+  background: var(--wg-tag-bg);
+  color: var(--wg-tag-ink);
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.wallgrid__cmd {
+  padding-right: 34px; // 꼬리표 자리
+  font: inherit;
+  color: var(--wg-ink);
+  overflow-wrap: anywhere; // 좁은 칸에서는 잘리지 않고 다음 줄로
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+
+  b {
+    font-weight: 400;
+    color: var(--wg-prompt);
+  }
+}
+
+.wallgrid__note {
+  color: var(--wg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// 작은 칸의 출력은 평소엔 숨겨 두고 재생할 때만 보인다
+.wallgrid__out--run {
+  display: none;
+}
+
+// 재생 중 지금 명령어를 치고 있는 칸. 터미널처럼 설명은 걷고, 출력은 다 친 뒤에 찍힌다
+.wallgrid__cell.is-typing {
+  background: var(--wg-typing-bg);
+
+  .wallgrid__note {
+    display: none;
+  }
+
+  .wallgrid__out {
+    display: block;
+    visibility: hidden;
+  }
+
+  &.is-ran .wallgrid__out {
+    visibility: visible;
+  }
+}
+
+.wallgrid__caret {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: -0.2em;
+  background: currentColor;
+  animation: wallgrid-caret 1s steps(1) infinite;
+}
+
+@keyframes wallgrid-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.wallgrid__out {
+  margin: 6px 0 0;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--wg-dim);
+  white-space: pre;
+  overflow: hidden;
+}
+
+.wallgrid__out b {
+  font-weight: 400;
+  color: var(--wg-prompt);
+}
+
 // ── 어두운 배경화면 ─────────────────────────────────────────────
 // 배경화면이 어두우면(_config.yml 의 wallpaper_tone: dark) 라이트 모양에서도
 // 배경화면 위에 바로 놓인 것 — 메뉴 막대의 글자와 단추, 데스크톱 폴더 이름,
@@ -63,6 +203,20 @@ body[data-wallpaper-tone="dark"] {
   .marquee {
     border-color: rgba(255, 255, 255, 0.55);
     background: rgba(255, 255, 255, 0.14);
+  }
+}
+
+// 밝은 배경화면이면 다크 모양에서도 배경화면 위에 바로 놓인 글자(메뉴 막대 · 폴더 이름)는 검게 쓴다
+html[data-theme="dark"] body[data-wallpaper-tone="light"] {
+  .menubar,
+  .menubar__item {
+    color: #1d1d1f;
+    text-shadow: none;
+  }
+
+  .desktop-icon__label {
+    color: #1d1d1f;
+    text-shadow: none;
   }
 }
 
@@ -277,6 +431,17 @@ body[data-wallpaper-tone="dark"] {
 .menubar__wifi .icon {
   width: 17px;
   height: 17px;
+}
+
+// 명령어 격자 재생 · 정지(wallgrid.js). 테두리만 있는 원 안의 ▶ 가 누르면 ■ 로 바뀐다
+.menubar__play .icon {
+  width: 17px;
+  height: 17px;
+}
+
+.menubar__play[aria-pressed="false"] .menubar__play-off,
+.menubar__play[aria-pressed="true"] .menubar__play-on {
+  display: none;
 }
 
 .menubar__battery {

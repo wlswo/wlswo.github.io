@@ -10,7 +10,7 @@
 {%- endcomment -%}
 {%- assign lockWall = site.wallpaper | default: '/assets/images/wallpaper.webp' %}
 {%- assign lockWall2x = site.wallpaper_2x | default: lockWall %}
-<div class="lock" data-lock hidden tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="lock-name" aria-describedby="lock-hint" style="--lock-wall: url('{{ lockWall | relative_url }}'); --lock-wall-2x: url('{{ lockWall2x | relative_url }}')">
+<div class="lock" data-lock hidden tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="lock-name" aria-describedby="lock-hint" style="{% if site.wallpaper_color %}background: {{ site.wallpaper_color }}{% else %}--lock-wall: url('{{ lockWall | relative_url }}'); --lock-wall-2x: url('{{ lockWall2x | relative_url }}'){% endif %}">
   <div class="lock__top">
     <p class="lock__date" data-lock-date></p>
     <p class="lock__time" data-lock-time></p>
