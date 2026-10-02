@@ -28,7 +28,7 @@ const store = {
 
 // ── 그림 ────────────────────────────────────────────────────────
 // 달리는 고양이 다섯 장(assets/images/runcat/, 검은 그림에 투명 바탕, 2배 크기)을
-// 번갈아 넘긴다. 어두운 바탕 위에서는 흰색으로 칠해 그린다.
+// 번갈아 넘긴다. 바탕이 밝든 어둡든 주황으로 칠해 그린다.
 const FRAMES = [0, 1, 2, 3, 4].map((i) => {
   const img = new Image();
   img.src = `${canvas?.dataset.runcatSrc || '/assets/images/runcat/'}classic-cat-frame-${i}.png`;
@@ -36,10 +36,7 @@ const FRAMES = [0, 1, 2, 3, 4].map((i) => {
 });
 const tint = document.createElement('canvas');
 
-// 메뉴 막대 위라 배경화면을 따른다: 다크 모양이거나 배경화면이 어두우면 흰 고양이.
-const onDark = () =>
-  document.documentElement.dataset.theme === 'dark' || document.body.dataset.wallpaperTone === 'dark';
-const ink = () => (onDark() ? '#fff' : '#000');
+const INK = '#ff9500'; // 주황 고양이
 
 function drawCat(ctx, t, running) {
   ctx.clearRect(0, 0, W, H);
@@ -54,7 +51,7 @@ function drawCat(ctx, t, running) {
   const g = tint.getContext('2d');
   g.drawImage(img, 0, 0);
   g.globalCompositeOperation = 'source-in';
-  g.fillStyle = ink();
+  g.fillStyle = INK;
   g.fillRect(0, 0, tint.width, tint.height);
   // 그림은 63×36 — 30×18 칸에 비율대로 맞춘다
   const k = Math.min(W / img.naturalWidth, H / img.naturalHeight);
