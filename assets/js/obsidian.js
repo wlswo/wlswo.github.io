@@ -218,7 +218,9 @@ export async function openObsidian(button) {
 
   win.addEventListener('click', (e) => {
     if (self !== win) return; // 닫히는 중인 창
-    const note = e.target.closest('[data-note]');
+    // 창 자신도 data-note(지금 노트)를 달고 있으니 탐색기의 노트 단추만 본다.
+    // 아니면 본문을 끌어 고르고 놓을 때도 노트를 다시 그려 맨 위로 튄다.
+    const note = e.target.closest('.obsidian__note');
     if (note) {
       const post = posts.find((p) => p.url === note.dataset.note);
       if (post) showNote(post, { focus: NARROW.matches });
