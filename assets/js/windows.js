@@ -738,12 +738,8 @@ if (workspace) {
   workspace.addEventListener('pointercancel', endDrag);
 }
 
-// 좁은 화면에는 Dock 의 창 단추도 신호등도 없다. 숨겨 둔 창을 모두 되돌린다.
-DESKTOP.addEventListener('change', (e) => {
-  if (e.matches) return;
-  for (const win of [...minimized.keys()]) restoreWindow(win);
-  for (const win of $$('[data-window].is-closed')) openWindow(win);
-});
+// 화면이 좁아져도 닫거나 최소화한 창을 저절로 다시 열지 않는다.
+// 좁은 화면에도 Dock 은 있으니, 앱 아이콘을 누르면 openWindow 가 열거나 되돌린다.
 
 // Finder 의 ◀ ▶: 브라우저의 뒤로·앞으로. 갈 곳이 없으면(알 수 있는 브라우저에서) 흐리게.
 const historyButtons = $$('[data-history]');
