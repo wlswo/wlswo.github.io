@@ -3,7 +3,8 @@
 # ---------------------------------------------------------------
 title: Ephemeris
 subtitle: 
-description: JaeJin의 기술 블로그 - 개발, 컴퓨터 과학, 소프트웨어 엔지니어링에 대한 글을 씁니다.
+# 링크를 공유할 때 나오는 설명(글은 각 글의 description 이 앞선다)
+description: Blog
 author: JaeJin
 language: ko
 email: 

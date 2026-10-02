@@ -10,7 +10,9 @@
  * 배경화면과 <thinking-orb> 를 사이트 그대로 불러 1200×630 JPEG 로 찍는다.
  *
  *   assets/og/<og>.jpg   글마다 한 장. <og> 는 search.json 의 og(글 날짜의 유닉스 초)
- *   assets/og/default.jpg 글이 아닌 페이지(홈, About)에 쓰는 사이트 카드
+ *   assets/og/default.jpg 글이 아닌 페이지(홈, About)에 쓰는 사이트 카드. 카드 틀이 아니라
+ *                         지금 데스크톱(배경화면 · 메뉴 막대 · Dock)을 그대로 찍는다. 배경을
+ *                         바꾸면 따라가야 하므로 돌릴 때마다 다시 찍는다.
  *
  * 바뀐 것만 다시 굽는다. 각 JPEG 안(주석 구간)에 그림을 만든 재료의 지문을 적어 두고,
  * 제목·설명·날짜·카테고리나 _card.html·배경화면이 바뀌어 지문이 달라진 것만 새로 찍는다.
@@ -161,20 +163,6 @@ async function main() {
   const lookHash = look.digest('hex');
 
   const jobs = [
-    {
-      file: 'default.jpg',
-      data: {
-        kind: 'site',
-        title: config.title || 'Ephemeris',
-        description: config.description || '',
-        orb: 'listening',
-        label: '',
-        labelEn: '',
-        footLead: config.author || '',
-        footTail: '',
-        host,
-      },
-    },
     ...posts.map((p) => {
       const cat = categories.get(p.slug) || {};
       return {
@@ -215,17 +203,12 @@ async function main() {
     if (force || (await existingStamp(job.path)) !== job.stamp) todo.push(job);
   }
 
-  // 지워진 글의 썸네일 치우기(이 스크립트가 짓는 숫자 이름만)
+  // 지워진 글의 썸네일 치우기(이 스크립트가 짓는 숫자 이름만. default.jpg 는 건드리지 않는다)
   const keep = new Set(jobs.map((j) => j.file));
   const stale = (await readdir(OUT)).filter((f) => /^\d+\.jpg$/.test(f) && !keep.has(f));
   for (const f of stale) {
     await unlink(path.join(OUT, f));
     console.log(`치움   assets/og/${f}`);
-  }
-
-  if (!todo.length) {
-    console.log(`썸네일 ${jobs.length}장 모두 최신입니다. (다시 찍으려면 --force)`);
-    return;
   }
 
   const failed = [];
@@ -249,6 +232,12 @@ async function main() {
     page.on('console', (msg) => {
       if (msg.type() === 'error') console.warn(`  (콘솔) ${msg.text()}`);
     });
+
+    await captureDesktop(browser);
+    if (!todo.length) {
+      console.log(`글 썸네일 ${jobs.length}장 모두 최신입니다. (다시 찍으려면 --force)`);
+      return;
+    }
 
     const cardUrl = `${base}/__og__/card.html`;
     await page.route(cardUrl, (route) =>
@@ -315,6 +304,31 @@ async function main() {
   const made = todo.length - failed.length;
   console.log(`${made}장 구움${skipped ? `, ${skipped}장은 그대로` : ''}${failed.length ? `, ${failed.length}장 실패` : ''}.`);
   if (failed.length) process.exitCode = 1;
+}
+
+// ── 사이트 카드: 지금 데스크톱을 그대로 ───────────────────────────
+// 첫 화면(Finder 는 닫혀 있다)을 1200×630 으로 찍는다. 잠금 화면은 검색 로봇에게
+// 뜨지 않으므로 이름에 bot 이 든 브라우저로 연다.
+async function captureDesktop(browser) {
+  const context = await browser.newContext({
+    viewport: { width: WIDTH, height: HEIGHT },
+    deviceScaleFactor: SCALE,
+    colorScheme: 'light',
+    locale: 'ko-KR',
+    userAgent: 'Mozilla/5.0 (compatible; ephemeris-og-bot)',
+  });
+  try {
+    const page = await context.newPage();
+    await page.goto(`${base}/`, { waitUntil: 'load' });
+    await page.waitForSelector('.wallgrid .wallgrid__cell', { timeout: 15000 });
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(800); // 날씨 · Dock 아이콘이 자리 잡을 틈
+    const shot = await page.screenshot({ type: 'jpeg', quality: QUALITY, scale: 'css' });
+    await writeFile(path.join(OUT, 'default.jpg'), shot);
+    console.log(`찍음   assets/og/default.jpg     ${String(Math.round(shot.length / 1024)).padStart(3)}KB  지금 데스크톱`);
+  } finally {
+    await context.close();
+  }
 }
 
 main().catch((err) => {
