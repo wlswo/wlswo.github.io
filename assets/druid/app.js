@@ -359,12 +359,17 @@ function setPaused(on) {
   ui.app.classList.toggle('is-paused', on);
 }
 
+// 단추에 적힌 배수(0.5× · 1× · 2×)는 BASE 에 곱한다. 1× 가 예전의 2배 빠르기이고,
+// 2× 를 누르면 그 2배가 된다. 자동 재생도 그림판 시계를 따르므로 함께 빨라진다.
+const BASE = 2;
 const SPEEDS = [0.5, 1, 2];
+let speedAt = SPEEDS.indexOf(1);
+dia.speed(BASE * SPEEDS[speedAt]);
 function cycleSpeed() {
-  const i = (SPEEDS.indexOf(dia.clock.speed) + 1) % SPEEDS.length;
-  dia.speed(SPEEDS[i]);
-  ui.speed.textContent = `${SPEEDS[i]}×`;
-  ui.speed.setAttribute('aria-label', `빠르기 ${SPEEDS[i]}배`);
+  speedAt = (speedAt + 1) % SPEEDS.length;
+  dia.speed(BASE * SPEEDS[speedAt]);
+  ui.speed.textContent = `${SPEEDS[speedAt]}×`;
+  ui.speed.setAttribute('aria-label', `빠르기 ${SPEEDS[speedAt]}배`);
 }
 
 ui.prev.addEventListener('click', prev);

@@ -253,8 +253,8 @@ button {
 .toc__heading {
   margin: 0 0 2px;
   padding: 4px 10px;
-  color: var(--ink-3);
-  font: 600 11.5px/1.4 var(--mono);
+  color: var(--accent); // 묶음 제목은 강조색으로, 훑어볼 때 눈에 걸리게
+  font: 600 12px/1.4 var(--mono);
   letter-spacing: 0.02em;
 
   &::before {
@@ -272,9 +272,9 @@ button {
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);
   gap: 4px;
-  padding: 6px 10px;
+  padding: 7px 10px;
   border-radius: 6px;
-  color: var(--ink-2);
+  color: var(--ink);
   text-decoration: none;
 
   &:hover {
@@ -296,6 +296,11 @@ button {
   color: var(--ink-3);
   cursor: default;
 
+  .toc__no,
+  .toc__sub {
+    color: var(--ink-3);
+  }
+
   &:hover {
     background: none;
     color: var(--ink-3);
@@ -315,9 +320,9 @@ button {
 }
 
 .toc__no {
-  padding-top: 1px;
-  color: var(--ink-3);
-  font: 500 12px/1.5 var(--mono);
+  padding-top: 2px;
+  color: var(--ink-2);
+  font: 500 12.5px/1.5 var(--mono);
 }
 
 .toc__text {
@@ -326,16 +331,16 @@ button {
 }
 
 .toc__title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 650;
   line-height: 1.4;
 }
 
 .toc__sub {
   overflow: hidden;
-  color: var(--ink-3);
-  font-size: 12px;
-  line-height: 1.4;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1040,7 +1045,7 @@ button {
 
 .panel__nav {
   display: grid;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: auto auto 1fr auto; // 이전 · 멈춤 · 다음 · 자동 재생
   gap: 6px;
 }
 
@@ -1102,6 +1107,27 @@ button {
   &:hover:not(:disabled) {
     border-color: var(--accent);
     filter: brightness(1.06);
+  }
+}
+
+// 자동 재생: 다음 옆의 큰 단추. 켜면 강조색 테두리와 글자, 앞에 ▸
+// (▸ 자리는 꺼져 있을 때도 비워 두어 켜고 끌 때 단추 폭이 바뀌지 않게)
+.btn--auto {
+  color: var(--ink-2);
+
+  &::before {
+    content: "▸ ";
+    opacity: 0;
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+    color: var(--accent);
+
+    &::before {
+      opacity: 1;
+    }
   }
 }
 
