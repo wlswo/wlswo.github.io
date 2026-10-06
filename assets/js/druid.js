@@ -16,10 +16,10 @@ let win = null;
 let frame = null;
 
 const traffic = `
-  <div class="traffic" role="group" aria-label="창 조작">
-    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
-    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="확대" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
+  <div class="traffic" role="group" aria-label="Window controls">
+    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="Close"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="Minimize"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
+    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="Zoom" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
   </div>`;
 
 function build(src) {
@@ -34,15 +34,15 @@ function build(src) {
       ${traffic}
       <h2 class="druid__title" id="druid-title">Apache Druid</h2>
       <div class="druid__tools">
-        <a class="druid__pop" href="${src}" target="_blank" rel="noopener" aria-label="새 탭에서 열기" title="새 탭에서 열기">
+        <a class="druid__pop" href="${src}" target="_blank" rel="noopener" aria-label="Open in New Tab" title="Open in New Tab">
           <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4.5H5.5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V12M11 4.5h4.5V9M15.5 4.5 9 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
-        <button class="druid__close" type="button" data-window-action="close" aria-label="Apache Druid 창 닫기">
+        <button class="druid__close" type="button" data-window-action="close" aria-label="Close Apache Druid">
           <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg>
         </button>
       </div>
     </header>
-    <iframe class="druid__frame" src="${src}?embed" title="Apache Druid 동작 원리" allow="fullscreen"></iframe>`;
+    <iframe class="druid__frame" src="${src}?embed" title="How Apache Druid Works" allow="fullscreen"></iframe>`;
   return el;
 }
 

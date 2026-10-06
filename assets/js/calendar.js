@@ -61,7 +61,7 @@ function ingest(posts) {
     if (!byDay.has(key)) byDay.set(key, []);
     byDay.get(key).push(p);
     const slug = p.slug || '';
-    if (!seen.has(slug)) seen.set(slug, { slug, name: p.category || '기타', color: p.color || '#8e8e93' });
+    if (!seen.has(slug)) seen.set(slug, { slug, name: p.category || 'Other', color: p.color || '#8e8e93' });
   }
   cals = [...seen.values()];
 }
@@ -221,10 +221,10 @@ function openPost(href) {
 
 // ── 창 ──────────────────────────────────────────────────────────
 const traffic = `
-  <div class="traffic" role="group" aria-label="창 조작">
-    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
-    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="확대" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
+  <div class="traffic" role="group" aria-label="Window controls">
+    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="Close"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="Minimize"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
+    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="Zoom" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
   </div>`;
 
 const chev = (d) => `<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -239,7 +239,7 @@ function build() {
   el.tabIndex = -1;
   el.setAttribute('aria-labelledby', 'calapp-title');
   el.innerHTML = `
-    <aside class="calapp__side" aria-label="캘린더 목록">
+    <aside class="calapp__side" aria-label="Calendars">
       <div class="calapp__chrome" data-window-drag>${traffic}</div>
       <div class="calapp__lists">
         <p class="calapp__group">Ephemeris</p>
@@ -256,7 +256,7 @@ function build() {
     </aside>
     <div class="calapp__main">
       <header class="calapp__bar" data-window-drag>
-        <div class="calapp__modes" role="radiogroup" aria-label="보기">
+        <div class="calapp__modes" role="radiogroup" aria-label="View">
           ${VIEWS.map((v) => `<button type="button" role="radio" data-cal-mode="${v}">${v[0].toUpperCase()}${v.slice(1)}</button>`).join('')}
         </div>
       </header>

@@ -36,7 +36,7 @@ function renderCalendar() {
     const cls = [dow === 0 || dow === 6 ? 'is-weekend' : '', d === today.getDate() ? 'is-today' : ''].filter(Boolean).join(' ');
     cells += `<span${cls ? ` class="${cls}"` : ''}>${d}</span>`;
   }
-  el.setAttribute('aria-label', `캘린더 열기 — 오늘은 ${m + 1}월 ${today.getDate()}일`);
+  el.setAttribute('aria-label', `Open Calendar — today is ${today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`);
   el.innerHTML = `
     <span class="nwidget__month">${MONTHS[m]}</span>
     <span class="minical" aria-hidden="true">
@@ -93,13 +93,13 @@ function renderCoins() {
     const q = quotes?.list.find((c) => c.id === id);
     if (!q) {
       const v = failed ? '—' : '';
-      return `<div class="coin" aria-label="${name} 시세를 ${failed ? '불러오지 못했어요' : '불러오는 중'}"><p class="coin__row"><b>${id}</b><span>${v}</span></p><p class="coin__row coin__sub"><span>${name}</span><span>${v}</span></p></div>`;
+      return `<div class="coin" aria-label="${name}: ${failed ? 'couldn’t load price' : 'loading price'}"><p class="coin__row"><b>${id}</b><span>${v}</span></p><p class="coin__row coin__sub"><span>${name}</span><span>${v}</span></p></div>`;
     }
     const diff = q.last - q.open;
     const pct = (diff / q.open) * 100;
     const up = diff >= 0;
     const sign = up ? '+' : '−';
-    return `<div class="coin ${up ? 'is-up' : 'is-down'}" aria-label="${name} ${money(q.last)}달러, 하루 ${sign}${Math.abs(pct).toFixed(2)}%">
+    return `<div class="coin ${up ? 'is-up' : 'is-down'}" aria-label="${name} $${money(q.last)}, ${sign}${Math.abs(pct).toFixed(2)}% today">
       <p class="coin__row" aria-hidden="true"><b><i>${up ? '▲' : '▼'}</i>${id}</b><span class="coin__chg">${sign}${Math.abs(pct).toFixed(2)}%</span></p>
       <p class="coin__row coin__sub" aria-hidden="true"><span>${money(q.last)}</span><span class="coin__chg">${sign}${money(Math.abs(diff))}</span></p>
       ${spark(q.points, q.open, up)}

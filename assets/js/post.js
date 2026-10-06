@@ -47,7 +47,7 @@ async function copy(text, done) {
     say(done);
     return true;
   } catch {
-    notify('복사하지 못했습니다');
+    notify("Couldn't copy");
     return false;
   }
 }
@@ -187,10 +187,10 @@ function initAnchors(win, content) {
     a.className = 'anchor';
     a.href = `#${h.id}`;
     a.textContent = '#';
-    a.setAttribute('aria-label', `‘${h.textContent.trim()}’ 절의 링크 복사`);
+    a.setAttribute('aria-label', `Copy link to “${h.textContent.trim()}”`);
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      copy(urlOf(win, `#${h.id}`), '이 절의 링크를 복사했습니다');
+      copy(urlOf(win, `#${h.id}`), 'Section link copied');
     });
     h.append(a);
   }
@@ -212,7 +212,7 @@ function initShare(win) {
         if (e?.name === 'AbortError') return;
       }
     }
-    copy(url, '링크를 복사했습니다');
+    copy(url, 'Link copied');
   });
 }
 
@@ -225,13 +225,13 @@ function initZoom(content) {
     img.classList.add('is-zoomable');
     img.tabIndex = 0;
     img.setAttribute('role', 'button');
-    img.setAttribute('aria-label', `${img.alt || '그림'} 크게 보기`);
+    img.setAttribute('aria-label', img.alt ? `Enlarge “${img.alt}”` : 'Enlarge image');
     const open = () => {
       const view = document.createElement('div');
       view.className = 'lightbox';
       view.setAttribute('role', 'dialog');
       view.setAttribute('aria-modal', 'true');
-      view.setAttribute('aria-label', img.alt || '그림');
+      view.setAttribute('aria-label', img.alt || 'Image');
       view.tabIndex = -1;
       const big = img.cloneNode();
       for (const a of ['tabindex', 'role', 'aria-label']) big.removeAttribute(a);
@@ -292,17 +292,17 @@ function initCode(content) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'code-bar__copy';
-    btn.setAttribute('aria-label', '코드 복사');
+    btn.setAttribute('aria-label', 'Copy Code');
     btn.innerHTML = COPY_ICON;
     let timer = 0;
     btn.addEventListener('click', async () => {
-      if (!(await copy(code.innerText.replace(/\n$/, ''), '코드를 복사했습니다'))) return;
+      if (!(await copy(code.innerText.replace(/\n$/, ''), 'Code copied'))) return;
       btn.innerHTML = DONE_ICON;
-      btn.setAttribute('aria-label', '복사됨');
+      btn.setAttribute('aria-label', 'Copied');
       clearTimeout(timer);
       timer = setTimeout(() => {
         btn.innerHTML = COPY_ICON;
-        btn.setAttribute('aria-label', '코드 복사');
+        btn.setAttribute('aria-label', 'Copy Code');
       }, 1600);
     });
     bar.append(label, btn);

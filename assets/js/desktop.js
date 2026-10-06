@@ -45,14 +45,15 @@ const store = {
 };
 
 // ── 시계 ────────────────────────────────────────────────────────
-// 맥의 메뉴 막대처럼 "9월 23일 (화) 오후 6:12". 좁은 화면에서는 시각만.
+// 맥의 메뉴 막대처럼 "Tue Oct 6 1:55 PM". 좁은 화면에서는 시각만.
 const clock = $('[data-clock]');
-const DAYS = '일월화수목금토';
-const timeFmt = new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' });
+const dayFmt = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
+const monthFmt = new Intl.DateTimeFormat('en-US', { month: 'short' });
+const timeFmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
 
 function tick() {
   const now = new Date();
-  const date = `${now.getMonth() + 1}월 ${now.getDate()}일 (${DAYS[now.getDay()]})`;
+  const date = `${dayFmt.format(now)} ${monthFmt.format(now)} ${now.getDate()}`;
   clock.innerHTML = `<span class="menubar__date">${date}</span> <span>${timeFmt.format(now)}</span>`;
   clock.dateTime = now.toISOString();
   setTimeout(tick, 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 20);
@@ -273,7 +274,7 @@ async function loadPosts() {
   if (posts) return posts;
   posts = (await fetchPosts()).map((p) => ({
     ...p,
-    hay: norm(`${p.title} ${p.description} ${p.category} ${p.short || ''}`),
+    hay: norm(`${p.title} ${p.description} ${p.category} ${p.short || ''} ${p.ko || ''}`),
     cho: choseong(norm(p.title)).replace(/\s+/g, ''),
   }));
   return posts;
@@ -352,17 +353,17 @@ function search(qRaw) {
   const q = norm(qRaw.trim());
   const groups = [];
   const value = q ? calc(qRaw.trim()) : null;
-  if (value !== null) groups.push({ label: '계산기', items: [{ kind: 'calc', value, expr: qRaw.trim() }] });
+  if (value !== null) groups.push({ label: 'Calculator', items: [{ kind: 'calc', value, expr: qRaw.trim() }] });
   if (q) {
     const apps = Object.entries(APPS)
       .filter(([key, a]) => key !== 'preview' && key !== 'system' && (norm(a.name).includes(q) || norm(a.keywords).includes(q)))
       .map(([key, a]) => ({ kind: 'app', key, app: a, starts: norm(a.name).startsWith(q) }))
       .sort((a, b) => b.starts - a.starts)
       .slice(0, 4);
-    if (apps.length) groups.push({ label: '응용 프로그램', items: apps });
+    if (apps.length) groups.push({ label: 'Applications', items: apps });
   }
   if (posts) {
-    if (!q) groups.push({ label: '최근 글', items: posts.slice(0, 6).map((p) => ({ kind: 'post', p })) });
+    if (!q) groups.push({ label: 'Recent', items: posts.slice(0, 6).map((p) => ({ kind: 'post', p })) });
     else {
       const onlyCho = /^[ㄱ-ㅎ\s]+$/.test(q);
       const qc = q.replace(/\s+/g, '');
@@ -377,14 +378,14 @@ function search(qRaw) {
         if (score) scored.push({ p, score });
       }
       scored.sort((a, b) => b.score - a.score);
-      if (scored.length) groups.push({ label: '글', items: scored.slice(0, 8).map((x) => ({ kind: 'post', p: x.p })) });
+      if (scored.length) groups.push({ label: 'Posts', items: scored.slice(0, 8).map((x) => ({ kind: 'post', p: x.p })) });
     }
   }
   return { groups, q };
 }
 
 const optionId = (i) => `spot-${gen}-${i}`;
-const fmtNum = (v) => v.toLocaleString('ko-KR', { maximumFractionDigits: 10 });
+const fmtNum = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 10 });
 
 function hitHTML(h, i, q) {
   const sel = `aria-selected="${i === active}"`;
@@ -393,7 +394,7 @@ function hitHTML(h, i, q) {
       <span class="spotlight__row">
         <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="2.8" width="12" height="14.4" rx="2"/><path d="M7 6.4h6M7.2 10.2h.1M10 10.2h.1M12.8 10.2h.1M7.2 13.4h.1M10 13.4h.1M12.8 13.4h.1"/></svg>
         <span class="spotlight__title">= ${escapeHTML(fmtNum(h.value))}</span>
-        <span class="spotlight__meta">↩ 결과 복사</span>
+        <span class="spotlight__meta">↩ Copy Result</span>
       </span></li>`;
   }
   if (h.kind === 'app') {
@@ -401,7 +402,7 @@ function hitHTML(h, i, q) {
       <span class="spotlight__row">
         <img class="spotlight__appicon" src="${escapeHTML(h.app.icon)}" alt="" width="22" height="22" draggable="false">
         <span class="spotlight__title">${mark(h.app.name, q)}</span>
-        <span class="spotlight__meta">응용 프로그램</span>
+        <span class="spotlight__meta">Application</span>
       </span></li>`;
   }
   const p = h.p;
@@ -421,9 +422,9 @@ function renderSpot() {
 
   let message = '';
   if (!hits.length) {
-    if (!posts && !q) message = loadError ? '글 목록을 불러오지 못했습니다' : '불러오는 중…';
-    else if (!posts) message = loadError ? '글 목록을 불러오지 못했습니다' : '불러오는 중…';
-    else message = `“${spotInput.value.trim()}”에 대한 결과 없음`;
+    if (!posts && !q) message = loadError ? 'Couldn’t load posts.' : 'Loading…';
+    else if (!posts) message = loadError ? 'Couldn’t load posts.' : 'Loading…';
+    else message = `No results for “${spotInput.value.trim()}”`;
   }
 
   if (message) {
@@ -447,7 +448,7 @@ function renderSpot() {
 
   // 결과 수를 알린다(처음 열 때의 '최근 글'은 조용히).
   if (spotStatus) {
-    spotStatus.textContent = message && loadError ? message : q ? (hits.length ? `${hits.length}개 결과` : '결과 없음') : '';
+    spotStatus.textContent = message && loadError ? message : q ? (hits.length ? `${hits.length} ${hits.length === 1 ? 'result' : 'results'}` : 'No results') : '';
   }
 }
 
@@ -466,7 +467,7 @@ function openHit(h, newTab) {
   if (h.kind === 'calc') {
     navigator.clipboard
       ?.writeText(String(h.value))
-      .then(() => notify(`${h.expr} = ${fmtNum(h.value)}`, { title: '계산 결과를 복사했어요' }))
+      .then(() => notify(`${h.expr} = ${fmtNum(h.value)}`, { title: 'Result Copied' }))
       .catch(() => {});
     spot.close();
     return;
@@ -547,7 +548,7 @@ document.addEventListener('keydown', (e) => {
 });
 if (!isMac) {
   for (const kbd of $$('.menu__kbd')) kbd.textContent = 'Ctrl K';
-  $('[data-open-spotlight][aria-label]')?.setAttribute('aria-label', 'Spotlight 검색 (Ctrl+K)');
+  $('[data-open-spotlight][aria-label]')?.setAttribute('aria-label', 'Spotlight Search (Ctrl+K)');
 }
 
 // ── 움직임 멈추기 ───────────────────────────────────────────────

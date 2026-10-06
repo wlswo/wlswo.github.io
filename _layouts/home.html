@@ -18,7 +18,7 @@ layout: desktop
 {%- endcomment %}
 <div class="weather" role="img" tabindex="0" data-weather hidden></div>
 
-<ul class="desktop-icons" aria-label="데스크톱" data-desktop-icons>
+<ul class="desktop-icons" aria-label="Desktop" data-desktop-icons>
   <li>
     <a class="desktop-icon" href="{{ '/about/' | relative_url }}" data-desktop-icon data-about-note>
       <img class="desktop-icon__img" src="{{ '/assets/images/dock/notes-128.png' | relative_url }}" srcset="{{ '/assets/images/dock/notes-128.png' | relative_url }} 1x, {{ '/assets/images/dock/notes-256.png' | relative_url }} 2x" width="64" height="64" alt="" draggable="false">
@@ -35,16 +35,16 @@ layout: desktop
 
 <noscript><style>.finder [data-place-view="obsidian"] { display: block !important; } .finder [data-place-view="apps"] { display: none; }</style></noscript>
 <section class="window finder" id="main-window" tabindex="-1" data-window="finder" aria-labelledby="finder-title">
-  <aside class="finder__sidebar" aria-label="Finder 사이드바">
+  <aside class="finder__sidebar" aria-label="Sidebar">
     <div class="finder__chrome" data-window-drag>
       {% include traffic-lights.html %}
     </div>
 
     <nav class="finder__section" aria-labelledby="finder-fav">
-      <p class="finder__heading" id="finder-fav">즐겨찾기</p>
+      <p class="finder__heading" id="finder-fav">Favorites</p>
       <ul class="finder__items">
-        <li><a class="finder__item" href="{{ '/' | relative_url }}" data-place="apps" aria-current="true">{% include icon.html name="apps" %}<span class="finder__label">응용 프로그램</span></a></li>
-        <li><a class="finder__item" href="{{ '/' | relative_url }}?at=desktop" data-place="desktop">{% include icon.html name="desktop" %}<span class="finder__label">데스크탑</span></a></li>
+        <li><a class="finder__item" href="{{ '/' | relative_url }}" data-place="apps" aria-current="true">{% include icon.html name="apps" %}<span class="finder__label">Applications</span></a></li>
+        <li><a class="finder__item" href="{{ '/' | relative_url }}?at=desktop" data-place="desktop">{% include icon.html name="desktop" %}<span class="finder__label">Desktop</span></a></li>
         <li>
           <a class="finder__item" href="{{ '/' | relative_url }}?at=obsidian" data-place="obsidian">
             {% include icon.html name="folder" %}<span class="finder__label">Obsidian</span><span class="finder__count">{{ site.posts | size }}</span>
@@ -55,7 +55,7 @@ layout: desktop
 
     {%- comment -%} 카테고리는 맥 Finder 의 '태그'처럼 색 점으로. 누르면 Obsidian 폴더의 그 글만. {%- endcomment %}
     <nav class="finder__section" aria-labelledby="finder-tags">
-      <p class="finder__heading" id="finder-tags">태그</p>
+      <p class="finder__heading" id="finder-tags">Tags</p>
       <ul class="finder__items">
         {%- for cat in site.data.categories %}
         <li>
@@ -69,7 +69,7 @@ layout: desktop
       </ul>
     </nav>
 
-    <nav class="finder__section finder__section--end" aria-label="링크">
+    <nav class="finder__section finder__section--end" aria-label="Links">
       <ul class="finder__items">
         <li><a class="finder__item" href="{{ '/about/' | relative_url }}">{% include icon.html name="person" %}<span class="finder__label">About</span></a></li>
         <li><a class="finder__item" href="{{ '/feed.xml' | relative_url }}">{% include icon.html name="rss" %}<span class="finder__label">RSS</span></a></li>
@@ -81,26 +81,26 @@ layout: desktop
     {%- comment -%} 맥의 보통 Finder 도구 막대: 뒤로·앞으로, 폴더 이름, 검색 칸. {%- endcomment %}
     <header class="finder__toolbar" data-window-drag>
       <div class="finder__nav" data-no-drag>
-        <button class="finder__navbtn" type="button" data-history="back" aria-label="뒤로">{% include icon.html name="chevron-left" %}</button>
-        <button class="finder__navbtn" type="button" data-history="forward" aria-label="앞으로">{% include icon.html name="chevron-right" %}</button>
+        <button class="finder__navbtn" type="button" data-history="back" aria-label="Back">{% include icon.html name="chevron-left" %}</button>
+        <button class="finder__navbtn" type="button" data-history="forward" aria-label="Forward">{% include icon.html name="chevron-right" %}</button>
       </div>
       <div class="finder__titles">
-        <h1 class="finder__title" id="finder-title" data-list-title>응용 프로그램</h1>
+        <h1 class="finder__title" id="finder-title" data-list-title>Applications</h1>
       </div>
       <div class="search" data-no-drag>
         <label class="search__field">
           {% include icon.html name="search" class="search__icon" %}
-          <span class="sr-only">글 검색</span>
-          <input class="search__input" type="search" placeholder="검색" autocomplete="off" spellcheck="false" enterkeyhint="search" data-search>
+          <span class="sr-only">Search posts</span>
+          <input class="search__input" type="search" placeholder="Search" autocomplete="off" spellcheck="false" enterkeyhint="search" data-search>
         </label>
-        <button class="search__clear" type="button" aria-label="검색어 지우기" hidden data-search-clear>
+        <button class="search__clear" type="button" aria-label="Clear search" hidden data-search-clear>
           {% include icon.html name="clear" %}
         </button>
       </div>
       {%- comment -%} 폰에는 사이드바가 없다. 그 자리를 이 세 칸이 맡는다. {%- endcomment %}
-      <nav class="finder__places" aria-label="위치" data-no-drag>
-        <a href="{{ '/' | relative_url }}" data-place="apps" aria-current="true">응용 프로그램</a>
-        <a href="{{ '/' | relative_url }}?at=desktop" data-place="desktop">데스크탑</a>
+      <nav class="finder__places" aria-label="Locations" data-no-drag>
+        <a href="{{ '/' | relative_url }}" data-place="apps" aria-current="true">Applications</a>
+        <a href="{{ '/' | relative_url }}?at=desktop" data-place="desktop">Desktop</a>
         <a href="{{ '/' | relative_url }}?at=obsidian" data-place="obsidian">Obsidian</a>
       </nav>
     </header>
@@ -109,18 +109,18 @@ layout: desktop
       응용 프로그램: Dock 의 앱들. 한 번 누르면 고르고, 두 번 누르면(또는 ↩) 연다.
       여는 일은 Dock 의 그 앱 단추를 누른 것과 같다(finder.js).
     {%- endcomment %}
-    <div class="finder__place finder__grid" data-place-view="apps" role="region" aria-label="응용 프로그램" tabindex="0">
+    <div class="finder__place finder__grid" data-place-view="apps" role="region" aria-label="Applications" tabindex="0">
       <ul class="ficons">
         <li><button class="ficon" type="button" data-open-app="finder"><img src="{{ '/assets/images/dock/' | relative_url }}finder-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Finder</span></button></li>
         <li><button class="ficon" type="button" data-open-app="obsidian"><img src="{{ '/assets/images/dock/' | relative_url }}obsidian-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Obsidian</span></button></li>
-        <li><button class="ficon" type="button" data-open-app="notes"><img src="{{ '/assets/images/dock/' | relative_url }}notes-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">메모</span></button></li>
-        <li><button class="ficon" type="button" data-open-app="terminal"><img src="{{ '/assets/images/dock/' | relative_url }}terminal-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">터미널</span></button></li>
-        <li><button class="ficon" type="button" data-open-app="games"><img src="{{ '/assets/images/dock/' | relative_url }}games-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">게임</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="notes"><img src="{{ '/assets/images/dock/' | relative_url }}notes-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Notes</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="terminal"><img src="{{ '/assets/images/dock/' | relative_url }}terminal-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Terminal</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="games"><img src="{{ '/assets/images/dock/' | relative_url }}games-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Games</span></button></li>
         <li><button class="ficon" type="button" data-open-app="music"><img src="{{ '/assets/images/dock/' | relative_url }}spotify-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Spotify</span></button></li>
       </ul>
     </div>
 
-    <div class="finder__place finder__grid" data-place-view="desktop" role="region" aria-label="데스크탑" tabindex="0" hidden>
+    <div class="finder__place finder__grid" data-place-view="desktop" role="region" aria-label="Desktop" tabindex="0" hidden>
       <ul class="ficons">
         <li><a class="ficon" href="{{ '/about/' | relative_url }}" data-about-note><img src="{{ '/assets/images/dock/' | relative_url }}notes-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">About.txt</span></a></li>
         <li><a class="ficon" href="{{ '/druid/' | relative_url }}" data-druid><img src="{{ '/assets/images/apps/' | relative_url }}apache-druid.svg" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Apache Druid</span></a></li>
@@ -144,7 +144,7 @@ layout: desktop
           {%- assign slug = post.categories | first %}
           {%- assign cat = nil %}{%- if slug %}{%- assign cat = site.data.categories | where: "slug", slug | first %}{%- endif %}
           <li class="row" data-category="{{ slug }}"
-              data-search="{{ post.title | append: ' ' | append: post.description | append: ' ' | append: cat.name | append: ' ' | append: cat.en | append: ' ' | append: cat.short | strip_html | downcase | escape }}">
+              data-search="{{ post.title | append: ' ' | append: post.description | append: ' ' | append: cat.name | append: ' ' | append: cat.en | append: ' ' | append: cat.short | append: ' ' | append: cat.ko | strip_html | downcase | escape }}">
             {%- comment -%} Finder 의 목록 보기처럼 한 줄. 설명은 마우스를 올리면 뜬다. {%- endcomment %}
             <a class="row__link" href="{{ post.url | relative_url }}"{% if post.description %} title="{{ post.description | strip_html | escape }}"{% endif %}>
               <img class="row__icon" src="{{ '/assets/images/dock/' | relative_url }}file-txt-32.png" srcset="{{ '/assets/images/dock/' | relative_url }}file-txt-32.png 1x, {{ '/assets/images/dock/' | relative_url }}file-txt-64.png 2x" alt="" width="18" height="18" draggable="false">
@@ -152,7 +152,7 @@ layout: desktop
                 <span class="row__title">{{ post.title }}</span>
               </span>
               <span class="row__cat">{% include icon.html name=cat.icon %}<span>{{ cat.name }}</span></span>
-              <time class="row__date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y. %-m. %-d." }}</time>
+              <time class="row__date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%b %-d, %Y" }}</time>
             </a>
           </li>
           {%- endfor %}
@@ -162,13 +162,13 @@ layout: desktop
 
       <div class="empty" hidden data-empty>
         {% include icon.html name="search" class="empty__icon" %}
-        <p class="empty__title">결과 없음</p>
-        <p class="empty__hint">“<span data-empty-query></span>”와 일치하는 글이 없습니다.</p>
+        <p class="empty__title">No Results</p>
+        <p class="empty__hint">No posts match “<span data-empty-query></span>”.</p>
       </div>
     </div>
 
     <footer class="finder__status">
-      <span data-status role="status">6개 항목</span>
+      <span data-status role="status">6 items</span>
     </footer>
   </div>
 </section>

@@ -25,10 +25,10 @@ let dockButton = null;
 const pages = new Map(); // 주소 → 받아 온 본문(Promise<Element>)
 
 const traffic = `
-  <div class="traffic" role="group" aria-label="창 조작">
-    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
-    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="확대" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
+  <div class="traffic" role="group" aria-label="Window controls">
+    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="Close"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="Minimize"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
+    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="Zoom" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
   </div>`;
 
 const chevron = '<svg class="icon obsidian__chev" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-chevron-right"/></svg>';
@@ -41,7 +41,7 @@ function build() {
   el.tabIndex = -1;
   el.setAttribute('aria-labelledby', 'obsidian-title');
   el.innerHTML = `
-    <aside class="obsidian__side" aria-label="파일 탐색기">
+    <aside class="obsidian__side" aria-label="File explorer">
       <div class="obsidian__chrome" data-window-drag>${traffic}</div>
       <div class="obsidian__vault">
         <h2 class="obsidian__vault-name" id="obsidian-title">Ephemeris</h2>
@@ -49,21 +49,21 @@ function build() {
       </div>
       <label class="obsidian__search">
         <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-search"/></svg>
-        <input type="search" placeholder="노트 검색" aria-label="노트 검색" autocomplete="off" spellcheck="false" data-obs-search>
+        <input type="search" placeholder="Search notes" aria-label="Search notes" autocomplete="off" spellcheck="false" data-obs-search>
       </label>
-      <nav class="obsidian__tree" aria-label="노트" data-obs-tree><p class="obsidian__hint">불러오는 중…</p></nav>
+      <nav class="obsidian__tree" aria-label="Notes" data-obs-tree><p class="obsidian__hint">Loading…</p></nav>
     </aside>
     <div class="obsidian__main">
       <header class="obsidian__bar" data-window-drag>
         <button class="obsidian__back" type="button" data-obs-back>
-          <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-chevron-left"/></svg>노트
+          <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-chevron-left"/></svg>Notes
         </button>
-        <p class="obsidian__tab" data-obs-tab>노트를 고르세요</p>
-        <button class="obsidian__close" type="button" data-window-action="close" aria-label="Obsidian 닫기">
+        <p class="obsidian__tab" data-obs-tab>No file is open</p>
+        <button class="obsidian__close" type="button" data-window-action="close" aria-label="Close Obsidian">
           <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg>
         </button>
       </header>
-      <div class="obsidian__view" role="region" aria-label="노트 읽기" tabindex="0" data-scroll data-obs-view></div>
+      <div class="obsidian__view" role="region" aria-label="Reading view" tabindex="0" data-scroll data-obs-view></div>
       <footer class="obsidian__status" data-obs-status></footer>
     </div>`;
   return el;
@@ -76,7 +76,7 @@ function folders(posts, order) {
     const key = p.slug || '_';
     if (!map.has(key)) map.set(key, { slug: key, name: '', notes: [] });
     const f = map.get(key);
-    f.name ||= p.category || '분류 없음';
+    f.name ||= p.category || 'Uncategorized';
     f.notes.push(p);
   }
   return [...map.values()].filter((f) => f.notes.length);
@@ -86,10 +86,10 @@ function renderTree(all, query = '') {
   const tree = $('[data-obs-tree]', win);
   const q = query.trim().toLowerCase();
   const posts = q
-    ? all.filter((p) => `${p.title} ${p.description || ''} ${p.category || ''}`.toLowerCase().includes(q))
+    ? all.filter((p) => `${p.title} ${p.description || ''} ${p.category || ''} ${p.ko || ''}`.toLowerCase().includes(q))
     : all;
   if (!posts.length) {
-    tree.innerHTML = `<p class="obsidian__hint">‘${esc(query.trim())}’와 맞는 노트가 없습니다</p>`;
+    tree.innerHTML = `<p class="obsidian__hint">No notes match “${esc(query.trim())}”</p>`;
     return;
   }
   const order = (dockButton?.dataset.folders || '').split(' ').filter(Boolean);
@@ -121,7 +121,7 @@ function fetchBody(url) {
       .then((html) => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const body = doc.querySelector('#main-window .post-content');
-        if (!body) throw new Error('본문 없음');
+        if (!body) throw new Error('No post body');
         // 이미 열린 글 창과 id 가 겹치지 않게 본문 제목의 id 는 뗀다.
         for (const el of body.querySelectorAll('[id]')) el.removeAttribute('id');
         return body;
@@ -156,18 +156,18 @@ async function showNote(post, { focus = false } = {}) {
   const tag = post.category ? post.category.replace(/\s+/g, '-') : '';
   view.innerHTML = `
     <article class="obsidian__note-view">
-      <h1 class="obsidian__title">${esc(post.title)}</h1>
+      <h1 class="obsidian__title" lang="ko">${esc(post.title)}</h1>
       <dl class="obsidian__props">
-        <div><dt>날짜</dt><dd>${esc(String(post.date).replace(/\./g, '-'))}</dd></div>
+        <div><dt>date</dt><dd>${esc(String(post.date).replace(/\./g, '-'))}</dd></div>
         ${
           post.slug
-            ? `<div><dt>태그</dt><dd><a class="obsidian__tag" href="/?c=${esc(post.slug)}" data-category="${esc(post.slug)}" data-no-current>#${esc(tag)}</a></dd></div>`
+            ? `<div><dt>tags</dt><dd><a class="obsidian__tag" href="/?c=${esc(post.slug)}" data-category="${esc(post.slug)}" data-no-current>#${esc(tag)}</a></dd></div>`
             : ''
         }
-        ${post.description ? `<div><dt>설명</dt><dd>${esc(post.description)}</dd></div>` : ''}
+        ${post.description ? `<div><dt>description</dt><dd lang="ko">${esc(post.description)}</dd></div>` : ''}
       </dl>
-      <div class="obsidian__body" data-obs-body><p class="obsidian__hint">불러오는 중…</p></div>
-      <p class="obsidian__open"><a href="${esc(post.url)}">문서 창으로 열기</a></p>
+      <div class="obsidian__body" lang="ko" data-obs-body><p class="obsidian__hint" lang="en">Loading…</p></div>
+      <p class="obsidian__open"><a href="${esc(post.url)}">Open in Preview</a></p>
     </article>`;
   view.scrollTop = 0;
   win.classList.add('is-reading');
@@ -183,11 +183,12 @@ async function showNote(post, { focus = false } = {}) {
     slot.replaceChildren(document.importNode(body, true));
     const text = slot.textContent.trim();
     const words = text ? text.split(/\s+/).length : 0;
-    status.textContent = `단어 ${words.toLocaleString('ko-KR')}개 · 글자 ${text.length.toLocaleString('ko-KR')}자`;
+    const count = (n, one, many) => `${n.toLocaleString('en-US')} ${n === 1 ? one : many}`;
+    status.textContent = `${count(words, 'word', 'words')} · ${count(text.length, 'character', 'characters')}`;
   } catch {
     if (win?.dataset.note !== post.url) return;
     $('[data-obs-body]', win).innerHTML =
-      `<p class="obsidian__hint">본문을 불러오지 못했습니다. <a href="${esc(post.url)}">글 쪽으로 가기</a></p>`;
+      `<p class="obsidian__hint" lang="en">Couldn't load this note. <a href="${esc(post.url)}">Open the post page</a></p>`;
   }
 }
 
@@ -236,11 +237,11 @@ export async function openObsidian(button) {
   try {
     posts = await loadPosts();
   } catch {
-    if (self === win) $('[data-obs-tree]', win).innerHTML = '<p class="obsidian__hint">노트를 불러오지 못했습니다</p>';
+    if (self === win) $('[data-obs-tree]', win).innerHTML = `<p class="obsidian__hint">Couldn't load notes</p>`;
     return win;
   }
   if (self !== win) return self; // 불러오는 사이에 닫혔다
-  $('[data-obs-count]', win).textContent = `노트 ${posts.length}개`;
+  $('[data-obs-count]', win).textContent = `${posts.length} ${posts.length === 1 ? 'note' : 'notes'}`;
   renderTree(posts);
   // 처음에는 가장 최근 글을 펼쳐 둔다. 폰에서는 탐색기부터 보인다.
   if (posts[0]) {

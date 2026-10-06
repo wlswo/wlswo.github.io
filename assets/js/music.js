@@ -100,10 +100,10 @@ function loadApi() {
 
 // ── 창 ──────────────────────────────────────────────────────────
 const traffic = `
-  <div class="traffic" role="group" aria-label="창 조작">
-    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
-    <button class="traffic__btn traffic__btn--zoom" type="button" aria-label="확대" disabled><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
+  <div class="traffic" role="group" aria-label="Window controls">
+    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="Close"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="Minimize"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
+    <button class="traffic__btn traffic__btn--zoom" type="button" aria-label="Zoom" disabled><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
   </div>`;
 
 function build() {
@@ -117,12 +117,12 @@ function build() {
     <header class="music__bar" data-window-drag>
       ${traffic}
       <h2 class="music__app" id="music-title">Spotify</h2>
-      <button class="music__close" type="button" data-window-action="close" aria-label="음악 창 닫기">${ICON.close}</button>
+      <button class="music__close" type="button" data-window-action="close" aria-label="Close Spotify">${ICON.close}</button>
     </header>
     <div class="music__main">
       <div class="music__art">
         <div class="music__video" aria-hidden="true"><div data-music-player></div></div>
-        <img class="music__cover" src="${ALBUM.art}" alt="${ALBUM.artist} — ${ALBUM.title} 앨범 표지" width="600" height="600" draggable="false">
+        <img class="music__cover" src="${ALBUM.art}" alt="${ALBUM.title} album artwork by ${ALBUM.artist}" width="600" height="600" draggable="false">
       </div>
       <div class="music__now">
         <div class="music__meta">
@@ -131,17 +131,17 @@ function build() {
           <p class="music__count" data-music-count></p>
         </div>
         <div class="music__progress">
-          <input class="music__seek" type="range" min="0" max="1" step="0.5" value="0" aria-label="재생 위치" data-music-seek>
+          <input class="music__seek" type="range" min="0" max="1" step="0.5" value="0" aria-label="Playback position" data-music-seek>
           <div class="music__times"><span data-music-now>0:00</span><span data-music-dur>0:00</span></div>
         </div>
         <div class="music__controls">
-          <button class="music__btn" type="button" data-music-prev aria-label="이전 곡">${ICON.prev}</button>
-          <button class="music__btn music__btn--play" type="button" data-music-play aria-label="재생">${ICON.play}</button>
-          <button class="music__btn" type="button" data-music-next aria-label="다음 곡">${ICON.next}</button>
+          <button class="music__btn" type="button" data-music-prev aria-label="Previous">${ICON.prev}</button>
+          <button class="music__btn music__btn--play" type="button" data-music-play aria-label="Play">${ICON.play}</button>
+          <button class="music__btn" type="button" data-music-next aria-label="Next">${ICON.next}</button>
         </div>
         <label class="music__volume">
           ${ICON.volume}
-          <input class="music__seek" type="range" min="0" max="100" step="1" value="80" aria-label="음량" data-music-volume>
+          <input class="music__seek" type="range" min="0" max="100" step="1" value="80" aria-label="Volume" data-music-volume>
         </label>
         <p class="music__status" data-music-status role="status"></p>
       </div>
@@ -155,14 +155,14 @@ function paintTrack() {
   const t = TRACKS[index];
   $('[data-music-title]', win).textContent = t.title;
   $('[data-music-artist]', win).textContent = `${ALBUM.artist}${t.feat ? `, ${t.feat}` : ''} — ${ALBUM.title}`;
-  $('[data-music-count]', win).textContent = `${index + 1} / ${TRACKS.length}`;
+  $('[data-music-count]', win).textContent = `${index + 1} of ${TRACKS.length}`;
 }
 
 function paintState() {
   if (!win) return;
   const btn = $('[data-music-play]', win);
   btn.innerHTML = playing ? ICON.pause : ICON.play;
-  btn.setAttribute('aria-label', playing ? '일시 정지' : '재생');
+  btn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
   win.classList.toggle('is-playing', playing);
 }
 
@@ -217,7 +217,7 @@ function onError() {
   if (++skipped >= 3) {
     skipped = 0;
     const note = win && $('[data-music-status]', win);
-    if (note) note.textContent = '이 주소에서는 재생이 막혔습니다. wlswo.me 나 localhost 에서 열어 주세요.';
+    if (note) note.textContent = 'Playback isn’t available on this address. Open the site on wlswo.me or localhost.';
     return;
   }
   play(index + 1);
@@ -227,7 +227,7 @@ async function startPlayer() {
   try {
     await loadApi();
   } catch {
-    $('[data-music-status]', win).textContent = '플레이어를 불러오지 못했습니다';
+    $('[data-music-status]', win).textContent = 'Couldn’t load the player.';
     return;
   }
   if (!win) return;

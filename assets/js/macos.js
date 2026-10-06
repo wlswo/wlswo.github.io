@@ -87,9 +87,10 @@ function syncMenubar() {
     const el = $(`[data-app-label="${k}"]`);
     if (el) el.textContent = text;
   };
-  label('about', `${app.name}에 관하여`);
-  label('hide', `${app.name} 가리기`);
-  label('quit', `${app.name} 종료`);
+  // '이 Mac에 관하여'는 이름이 이미 About 으로 시작하므로 겹쳐 쓰지 않는다
+  label('about', front === 'system' ? app.name : `About ${app.name}`);
+  label('hide', `Hide ${app.name}`);
+  label('quit', `Quit ${app.name}`);
   // Finder 는 맥처럼 끌 수 없다
   const quit = $('[data-cmd="app-quit"]');
   if (quit) quit.setAttribute('aria-disabled', String(front === 'finder'));
@@ -112,7 +113,7 @@ function renderWindowList() {
   box.innerHTML = wins
     .map(
       (w, i) => `<button class="menu__item" role="menuitemradio" aria-checked="${w === top}" type="button" data-cmd="focus-win" data-i="${i}">
-        <span class="menu__text">${esc(titleOf(w))}</span><span class="menu__meta">${esc(APPS[appOf(w)].name)}${isMinimized(w) ? ' (최소화)' : ''}</span>
+        <span class="menu__text">${esc(titleOf(w))}</span><span class="menu__meta">${esc(APPS[appOf(w)].name)}${isMinimized(w) ? ' (Minimized)' : ''}</span>
       </button>`,
     )
     .join('');
@@ -138,14 +139,14 @@ const COMMANDS = {
   },
   'app-quit': () => {
     if (front === 'finder') {
-      notify('Finder 는 종료할 수 없어요', { title: 'Finder', icon: APPS.finder.icon });
+      notify("Finder can't be quit.", { title: 'Finder', icon: APPS.finder.icon });
       return;
     }
     for (const w of windowsOf(front)) requestClose(w);
   },
   'app-about': () => {
     const app = APPS[front];
-    showInfo({ name: app.name, icon: app.icon, kind: '응용 프로그램', rows: [['설명', app.about]] });
+    showInfo({ name: app.name, icon: app.icon, kind: 'Application', rows: [['Description', app.about]] });
   },
   'new-tab': () => {
     const w = frontWindow();
@@ -165,18 +166,18 @@ const COMMANDS = {
   },
   shortcuts: () =>
     showInfo({
-      name: '키보드 단축키',
+      name: 'Keyboard Shortcuts',
       icon: APPS.finder.icon,
-      kind: '도움말',
+      kind: 'Help',
       rows: [
-        ['⌘K', 'Spotlight 검색'],
-        ['⌥⇥', '앱 전환(⌥ 를 누른 채 ⇥ 로 고르기)'],
+        ['⌘K', 'Spotlight Search'],
+        ['⌥⇥', 'Switch apps (hold ⌥ and press ⇥ to choose)'],
         ['⌥↑', 'Mission Control'],
-        ['⌥W', '창 닫기'],
-        ['⌥M', '창 최소화'],
-        ['⌥H', '앱 가리기'],
-        ['⌥Q', '앱 종료'],
-        ['⌘ 대신 ⌥', '⌘W, ⌘Q, ⌘Tab 은 브라우저가 먼저 가져가서 ⌥ 로 바꿨어요'],
+        ['⌥W', 'Close Window'],
+        ['⌥M', 'Minimize Window'],
+        ['⌥H', 'Hide App'],
+        ['⌥Q', 'Quit App'],
+        ['⌥ instead of ⌘', 'The browser takes ⌘W, ⌘Q and ⌘Tab first, so these use ⌥.'],
       ],
     }),
 };
@@ -241,7 +242,7 @@ function switcherStep(dir) {
     const el = document.createElement('div');
     el.className = 'switcher glass';
     el.setAttribute('role', 'listbox');
-    el.setAttribute('aria-label', '앱 전환');
+    el.setAttribute('aria-label', 'App Switcher');
     el.innerHTML = keys
       .map((k) => `<div class="switcher__app" role="option" data-app="${k}"><img src="${APPS[k].icon}" alt="" width="72" height="72" draggable="false"><span>${esc(APPS[k].name)}</span></div>`)
       .join('');
@@ -279,7 +280,7 @@ function missionControl() {
   if (!DESKTOP.matches) return;
   const wins = byRecent(openWindows().filter((w) => !isMinimized(w)));
   if (!wins.length) {
-    notify('열린 창이 없어요', { title: 'Mission Control', icon: APPS.finder.icon });
+    notify('No open windows.', { title: 'Mission Control', icon: APPS.finder.icon });
     return;
   }
   const ws = workspace.getBoundingClientRect();
@@ -481,12 +482,12 @@ export function showInfo({ name, icon, kind = '', rows = [] }) {
   el.setAttribute('aria-labelledby', id);
   el.innerHTML = `
     <header class="info__bar" data-window-drag>
-      <div class="traffic" role="group" aria-label="창 조작">
-        <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
-        <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
-        <button class="traffic__btn traffic__btn--zoom" type="button" aria-label="확대" disabled><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
+      <div class="traffic" role="group" aria-label="Window controls">
+        <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="Close"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+        <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="Minimize"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
+        <button class="traffic__btn traffic__btn--zoom" type="button" aria-label="Zoom" disabled><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
       </div>
-      <h2 class="info__title" id="${id}">${esc(name)} 정보</h2>
+      <h2 class="info__title" id="${id}">${esc(name)} Info</h2>
     </header>
     <div class="info__body">
       <div class="info__head"><img src="${esc(icon)}" alt="" width="56" height="56" draggable="false"><div><p class="info__name">${esc(name)}</p><p class="info__kind">${esc(kind)}</p></div></div>
@@ -508,22 +509,22 @@ export function iconInfo(icon) {
     showInfo({
       name: label,
       icon: img,
-      kind: '응용 프로그램',
+      kind: 'Application',
       rows: [
-        ['위치', '데스크탑'],
-        ['열면', new URL(icon.getAttribute('href'), location.href).pathname],
-        ['설명', APPS.druid.about],
+        ['Where', 'Desktop'],
+        ['Opens', new URL(icon.getAttribute('href'), location.href).pathname],
+        ['Description', APPS.druid.about],
       ],
     });
   } else {
     showInfo({
       name: label,
       icon: img,
-      kind: '텍스트 문서',
+      kind: 'Plain Text Document',
       rows: [
-        ['위치', '데스크탑'],
-        ['열면', '메모 앱의 about me 메모'],
-        ['설명', '이 블로그를 쓴 사람에 대한 소개예요.'],
+        ['Where', 'Desktop'],
+        ['Opens', 'The “about me” note in Notes'],
+        ['Description', 'An introduction to the person who writes this blog.'],
       ],
     });
   }
@@ -622,9 +623,9 @@ export function revealInFinder(icon) {
 // ── 알림 센터 ───────────────────────────────────────────────────
 function ago(t) {
   const s = Math.round((Date.now() - t) / 1000);
-  if (s < 60) return '방금';
-  if (s < 3600) return `${Math.floor(s / 60)}분 전`;
-  return `${Math.floor(s / 3600)}시간 전`;
+  if (s < 60) return 'now';
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  return `${Math.floor(s / 3600)}h ago`;
 }
 
 function renderNotifications() {
@@ -642,7 +643,7 @@ function renderNotifications() {
     .map(
       (n) => `<li class="nc__item">
         <img class="nc__icon" src="${esc(n.icon || APPS.finder.icon)}" alt="" width="32" height="32" draggable="false">
-        <div class="nc__text"><p class="nc__row"><b>${esc(n.title || '알림')}${n.times > 1 ? `<span class="nc__times">${n.times}개</span>` : ''}</b><time>${ago(n.at)}</time></p><p>${esc(n.text)}</p></div>
+        <div class="nc__text"><p class="nc__row"><b>${esc(n.title || 'Notification')}${n.times > 1 ? `<span class="nc__times">×${n.times}</span>` : ''}</b><time>${ago(n.at)}</time></p><p>${esc(n.text)}</p></div>
       </li>`,
     )
     .join('');

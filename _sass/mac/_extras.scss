@@ -380,9 +380,10 @@
     margin: 0 0 16px;
     font-size: 15px;
 
+    // 맥의 '이 Mac에 관하여'처럼 이름은 가운데 왼쪽에서 오른쪽 맞춤, 값은 가운데 오른쪽에서 왼쪽 맞춤.
     div {
       display: grid;
-      grid-template-columns: 76px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
       gap: 10px;
       text-align: left;
     }
@@ -390,6 +391,7 @@
     dt {
       font-weight: 600;
       text-align: right;
+      white-space: nowrap;
       color: var(--ink);
     }
 

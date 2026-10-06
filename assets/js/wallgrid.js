@@ -298,7 +298,7 @@ if (wall) {
   button?.addEventListener('click', () => {
     const on = button.getAttribute('aria-pressed') !== 'true';
     button.setAttribute('aria-pressed', String(on));
-    button.setAttribute('aria-label', on ? '배경화면 명령어 정지' : '배경화면 명령어 재생');
+    button.setAttribute('aria-label', on ? 'Stop Wallpaper Commands' : 'Play Wallpaper Commands');
     run++;
     wake?.();
     if (on) play(run);

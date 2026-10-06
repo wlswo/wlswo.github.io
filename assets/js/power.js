@@ -38,7 +38,7 @@ function holdDesktop(hold) {
 let clockTimer = 0;
 function paintClock() {
   const d = new Date();
-  $('[data-lock-date]', lock).textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일`;
+  $('[data-lock-date]', lock).textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   $('[data-lock-time]', lock).textContent = `${d.getHours() % 12 || 12}:${String(d.getMinutes()).padStart(2, '0')}`;
   clockTimer = setTimeout(paintClock, 60000 - (d.getSeconds() * 1000 + d.getMilliseconds()) + 20);
 }
@@ -115,11 +115,11 @@ const wait = (ms) => new Promise((r) => setTimeout(r, reducedMotion.matches ? Ma
 
 // 사과와 진행 막대. 다 차면 쪽을 새로 불러 잠금 화면부터 다시.
 async function boot(el) {
-  el.setAttribute('aria-label', '시동 중');
+  el.setAttribute('aria-label', 'Starting up');
   el.innerHTML = `
     <div class="power__boot">
       <svg class="power__apple" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-apple"/></svg>
-      <div class="power__bar" role="progressbar" aria-label="시동 중"><span></span></div>
+      <div class="power__bar" role="progressbar" aria-label="Starting up"><span></span></div>
     </div>`;
   el.focus();
   await wait(2600);
@@ -129,7 +129,7 @@ async function boot(el) {
 
 async function sleep() {
   const el = curtain();
-  el.setAttribute('aria-label', '잠자는 중. 아무 키나 누르면 깨어납니다');
+  el.setAttribute('aria-label', 'Sleeping. Press any key to wake.');
   el.focus();
   await wait(500);
   const wake = (e) => {
@@ -155,12 +155,12 @@ async function restart() {
 
 async function shutdown() {
   const el = curtain();
-  el.setAttribute('aria-label', '시스템 꺼짐');
+  el.setAttribute('aria-label', 'Shut down');
   await wait(1400);
   el.innerHTML = `
     <button class="power__button" type="button">
       <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-power"/></svg>
-      <span>켜기</span>
+      <span>Turn On</span>
     </button>`;
   const btn = $('.power__button', el);
   btn.focus();

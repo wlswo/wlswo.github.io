@@ -6,7 +6,7 @@ subtitle:
 # 링크를 공유할 때 나오는 설명(글은 각 글의 description 이 앞선다)
 description: Blog
 author: JaeJin
-language: ko
+language: en
 email: 
 url: "https://wlswo.me"
 baseurl: ""

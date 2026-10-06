@@ -172,7 +172,7 @@ async function main() {
           title: p.title,
           description: p.description || '',
           orb: ORBS[p.slug] || 'listening',
-          label: cat.name || p.category || '',
+          label: cat.ko || cat.name || p.category || '',
           labelEn: cat.en || '',
           footLead: config.title || 'Ephemeris',
           footTail: koDate(p.date),

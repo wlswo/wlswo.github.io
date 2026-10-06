@@ -137,12 +137,12 @@ if (canvas) {
       raf = requestAnimationFrame(frame);
     } else {
       drawCat(ctx, performance.now() / 1000, running() && !idle);
-      if (loadLabel) loadLabel.textContent = resting || idle || still() ? '쉬는 중' : '—';
+      if (loadLabel) loadLabel.textContent = resting || idle || still() ? 'Resting' : '—';
     }
     if (toggle) {
       toggle.setAttribute('aria-checked', String(resting));
     }
-    button?.setAttribute('aria-label', resting ? 'RunCat (쉬는 중)' : 'RunCat');
+    button?.setAttribute('aria-label', resting ? 'RunCat (resting)' : 'RunCat');
   }
 
   toggle?.addEventListener('click', () => {

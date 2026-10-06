@@ -62,30 +62,30 @@ function aboutNote() {
 }
 
 // ── 글자 다루기 ─────────────────────────────────────────────────
-const titleOf = (n) => (n.locked ? n.title : n.text.split('\n').find((l) => l.trim())?.trim() || '새로운 메모');
+const titleOf = (n) => (n.locked ? n.title : n.text.split('\n').find((l) => l.trim())?.trim() || 'New Note');
 function previewOf(n) {
   if (n.locked) return n.bullets[0] || '';
   const lines = n.text.split('\n').filter((l) => l.trim());
-  return lines[1]?.trim() || '추가 텍스트 없음';
+  return lines[1]?.trim() || 'No additional text';
 }
-const dateFmt = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-const shortFmt = new Intl.DateTimeFormat('ko-KR', { year: '2-digit', month: 'numeric', day: 'numeric' });
+const dateFmt = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const shortFmt = new Intl.DateTimeFormat('en-US', { year: '2-digit', month: 'numeric', day: 'numeric' });
 function when(ts, long = false) {
   if (!ts) return '';
   const d = new Date(ts);
   if (long) return dateFmt.format(d);
   const today = new Date();
   return d.toDateString() === today.toDateString()
-    ? new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' }).format(d)
+    ? new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(d)
     : shortFmt.format(d);
 }
 
 // ── 창 ──────────────────────────────────────────────────────────
 const traffic = `
-  <div class="traffic" role="group" aria-label="창 조작">
-    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
-    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="확대" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
+  <div class="traffic" role="group" aria-label="Window controls">
+    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="Close"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="Minimize"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
+    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="Zoom" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
   </div>`;
 
 const ICON = {
@@ -107,28 +107,28 @@ function build() {
   el.tabIndex = -1;
   el.setAttribute('aria-labelledby', 'notes-title');
   el.innerHTML = `
-    <aside class="notes__side" aria-label="메모 목록">
+    <aside class="notes__side" aria-label="Notes list">
       <div class="notes__chrome" data-window-drag>
         ${traffic}
-        <button class="notes__tool notes__compose" type="button" data-notes-new aria-label="새로운 메모">${ICON.compose}</button>
-        <button class="notes__close" type="button" data-window-action="close" aria-label="메모 닫기">${ICON.close}</button>
+        <button class="notes__tool notes__compose" type="button" data-notes-new aria-label="New Note">${ICON.compose}</button>
+        <button class="notes__close" type="button" data-window-action="close" aria-label="Close Notes">${ICON.close}</button>
       </div>
       <div class="notes__head">
-        <h2 class="notes__title" id="notes-title">메모</h2>
+        <h2 class="notes__title" id="notes-title">Notes</h2>
         <span class="notes__count" data-notes-count></span>
       </div>
       <label class="notes__search">
         <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-search"/></svg>
-        <input type="search" placeholder="검색" aria-label="메모 검색" autocomplete="off" spellcheck="false" data-notes-search>
+        <input type="search" placeholder="Search" aria-label="Search notes" autocomplete="off" spellcheck="false" data-notes-search>
       </label>
-      <div class="notes__list" data-notes-list role="listbox" aria-label="메모"></div>
+      <div class="notes__list" data-notes-list role="listbox" aria-label="Notes"></div>
     </aside>
     <div class="notes__main">
       <header class="notes__bar" data-window-drag>
-        <button class="notes__tool notes__back" type="button" data-notes-back aria-label="메모 목록으로">${ICON.back}<span>메모</span></button>
+        <button class="notes__tool notes__back" type="button" data-notes-back aria-label="Back to Notes">${ICON.back}<span>Notes</span></button>
         <span class="notes__spacer"></span>
-        <button class="notes__tool" type="button" data-notes-delete aria-label="메모 삭제">${ICON.trash}</button>
-        <button class="notes__tool" type="button" data-notes-new aria-label="새로운 메모">${ICON.compose}</button>
+        <button class="notes__tool" type="button" data-notes-delete aria-label="Delete">${ICON.trash}</button>
+        <button class="notes__tool" type="button" data-notes-new aria-label="New Note">${ICON.compose}</button>
       </header>
       <div class="notes__page" data-notes-page></div>
     </div>`;
@@ -151,7 +151,7 @@ function item(n) {
   const on = n.id === current;
   return `<button class="notes__item${on ? ' is-current' : ''}" type="button" role="option" aria-selected="${on}" data-note="${esc(n.id)}">
     <span class="notes__item-title">${n.locked ? ICON.lock : ''}${esc(titleOf(n))}</span>
-    <span class="notes__item-meta"><span class="notes__item-date">${n.locked ? '고정됨' : esc(when(n.updated))}</span> ${esc(previewOf(n))}</span>
+    <span class="notes__item-meta"><span class="notes__item-date">${n.locked ? 'Pinned' : esc(when(n.updated))}</span> ${esc(previewOf(n))}</span>
   </button>`;
 }
 
@@ -160,11 +160,12 @@ function renderList() {
   const p = pinned.filter(matches);
   const m = mine.filter(matches);
   let html = '';
-  if (p.length) html += `<p class="notes__group">${ICON.pin}고정됨</p>${p.map(item).join('')}`;
-  if (m.length) html += `<p class="notes__group">메모</p>${m.map(item).join('')}`;
-  if (!html) html = `<p class="notes__empty">‘${esc(query)}’와 맞는 메모가 없습니다</p>`;
+  if (p.length) html += `<p class="notes__group">${ICON.pin}Pinned</p>${p.map(item).join('')}`;
+  if (m.length) html += `<p class="notes__group">Notes</p>${m.map(item).join('')}`;
+  if (!html) html = `<p class="notes__empty">No notes match “${esc(query)}”</p>`;
   $('[data-notes-list]', win).innerHTML = html;
-  $('[data-notes-count]', win).textContent = `${notes.length + 1}개`;
+  const total = notes.length + 1;
+  $('[data-notes-count]', win).textContent = `${total} ${total === 1 ? 'note' : 'notes'}`;
 }
 
 function renderPage({ focus = false } = {}) {
@@ -173,10 +174,10 @@ function renderPage({ focus = false } = {}) {
   if (current === ABOUT) {
     const a = aboutNote();
     del.disabled = true;
-    del.title = '고정된 메모는 지울 수 없습니다';
+    del.title = "Locked notes can't be deleted";
     page.innerHTML = `
-      <p class="notes__date">${ICON.lock} 잠긴 메모 · 사이트 주인이 쓴 글</p>
-      <article class="notes__doc">
+      <p class="notes__date">${ICON.lock} Locked note · written by the site owner</p>
+      <article class="notes__doc" lang="ko">
         <h1 class="notes__doc-title">${esc(a.title)}</h1>
         <ul class="notes__bullets">${a.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
       </article>`;
@@ -191,7 +192,7 @@ function renderPage({ focus = false } = {}) {
   del.title = '';
   page.innerHTML = `
     <p class="notes__date" data-notes-date>${esc(when(n.updated, true))}</p>
-    <textarea class="notes__editor" aria-label="메모 내용(첫 줄이 제목)" placeholder="제목을 쓰고 Enter…" spellcheck="false" data-notes-editor></textarea>`;
+    <textarea class="notes__editor" aria-label="Note text (the first line is the title)" placeholder="Type a title, then press Return…" spellcheck="false" data-notes-editor></textarea>`;
   const ta = $('[data-notes-editor]', page);
   ta.value = n.text;
   if (focus) {

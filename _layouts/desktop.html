@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ site.language | default: "ko" }}" data-theme="light">
+<html lang="{{ site.language | default: "en" }}" data-theme="light">
 <head>
   {%- if page.layout == "minimal_post" or page.layout == "minimal_page" or page.layout == "home" %}
   {% include head.html syntax=true %}
@@ -25,7 +25,7 @@
   {%- else %}
   <div class="wallpaper" aria-hidden="true" style="--wallpaper: url('{{ wall | relative_url }}'); --wallpaper-2x: url('{{ wall2x | relative_url }}'); --wallpaper-dark: url('{{ wallDark | relative_url }}'); --wallpaper-dark-2x: url('{{ wallDark2x | relative_url }}')"></div>
   {%- endif %}
-  <a class="skip-link" href="#main-window">본문으로 건너뛰기</a>
+  <a class="skip-link" href="#main-window">Skip to content</a>
 
   {% include menubar.html %}
 
@@ -44,7 +44,7 @@
   <script>
   (function () {
     var q = new URLSearchParams(location.search), c = q.get('c'), at = q.get('at'), tag = null, n = 0;
-    var names = { desktop: '데스크탑', obsidian: 'Obsidian' };
+    var names = { desktop: 'Desktop', obsidian: 'Obsidian' };
     if (c) {
       document.querySelectorAll('.finder__item[data-category]').forEach(function (a) {
         if (a.getAttribute('data-category') === c) tag = a;
@@ -75,7 +75,7 @@
     }
     if (tag) tag.setAttribute('aria-current', 'true');
     document.querySelector('[data-list-title]').textContent = tag ? tag.querySelector('.finder__label').textContent.trim() : names[at];
-    document.querySelector('[data-status]').textContent = n + '개 항목';
+    document.querySelector('[data-status]').textContent = n + (n === 1 ? ' item' : ' items');
   })();
   </script>
   {%- endif %}

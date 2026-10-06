@@ -26,17 +26,17 @@ function copyLink(href) {
   const url = new URL(href, location.href).href;
   navigator.clipboard
     ?.writeText(url)
-    .then(() => notify('링크를 복사했습니다'))
-    .catch(() => notify('링크를 복사하지 못했습니다'));
+    .then(() => notify('Link copied.'))
+    .catch(() => notify('Couldn’t copy the link.'));
 }
 
 function linkItems(el, open) {
   const href = el.getAttribute('href');
   return [
-    { label: '열기', run: open },
-    { label: '새 탭에서 열기', run: () => window.open(href, '_blank', 'noopener') },
+    { label: 'Open', run: open },
+    { label: 'Open in New Tab', run: () => window.open(href, '_blank', 'noopener') },
     '-',
-    { label: '링크 복사', run: () => copyLink(href) },
+    { label: 'Copy Link', run: () => copyLink(href) },
   ];
 }
 
@@ -63,32 +63,32 @@ function itemsFor(target) {
     return [
       ...linkItems(icon, () => icon.dispatchEvent(new CustomEvent('ephemeris:open-icon', { bubbles: true }))),
       '-',
-      { label: '정보 가져오기', run: () => iconInfo(icon) },
-      { label: '이름 변경', run: () => renameIcon(icon) },
-      { label: 'Finder 에서 보기', run: () => revealInFinder(icon) },
+      { label: 'Get Info', run: () => iconInfo(icon) },
+      { label: 'Rename', run: () => renameIcon(icon) },
+      { label: 'Show in Finder', run: () => revealInFinder(icon) },
     ];
   }
   const row = target.closest('.row__link');
   if (row) return linkItems(row, () => row.click());
   const app = target.closest('.dock__app');
-  if (app) return app.href ? linkItems(app, () => app.click()) : [{ label: '열기', run: () => app.click() }];
+  if (app) return app.href ? linkItems(app, () => app.click()) : [{ label: 'Open', run: () => app.click() }];
   if (target === workspace) {
     const finder = $('[data-window="finder"]');
     const a = getAppearance();
     return [
       {
-        label: 'Finder 열기',
+        label: 'Open Finder',
         run: () => (finder ? openWindow(finder) : (location.href = '/')),
       },
-      ...(finder ? [{ label: '아이콘 정리', run: () => dispatchEvent(new Event('ephemeris:icons-cleanup')) }] : []),
+      ...(finder ? [{ label: 'Clean Up', run: () => dispatchEvent(new Event('ephemeris:icons-cleanup')) }] : []),
       ...($('[data-weather][data-removed]')
-        ? [{ label: '위젯 추가', run: () => dispatchEvent(new Event('ephemeris:widget-add')) }]
+        ? [{ label: 'Add Widget', run: () => dispatchEvent(new Event('ephemeris:widget-add')) }]
         : []),
-      { label: 'Spotlight 검색', run: () => $('[data-open-spotlight]')?.click() },
+      { label: 'Spotlight Search', run: () => $('[data-open-spotlight]')?.click() },
       '-',
-      { label: '모양: 자동', radio: a === 'auto', run: () => setAppearance('auto') },
-      { label: '모양: 라이트', radio: a === 'light', run: () => setAppearance('light') },
-      { label: '모양: 다크', radio: a === 'dark', run: () => setAppearance('dark') },
+      { label: 'Appearance: Auto', radio: a === 'auto', run: () => setAppearance('auto') },
+      { label: 'Appearance: Light', radio: a === 'light', run: () => setAppearance('light') },
+      { label: 'Appearance: Dark', radio: a === 'dark', run: () => setAppearance('dark') },
     ];
   }
   return null;
@@ -112,7 +112,7 @@ function open(list, x, y, { keyboard = false, from = null } = {}) {
   menu = document.createElement('div');
   menu.className = 'context-menu glass';
   menu.setAttribute('role', 'menu');
-  menu.setAttribute('aria-label', '바로 가기 메뉴');
+  menu.setAttribute('aria-label', 'Context menu');
   menu.tabIndex = -1;
   for (const it of list) {
     if (it === '-') {

@@ -17,12 +17,12 @@ layout: desktop
     <h1 class="about__title" id="about-title">{{ site.title }}</h1>
 
     <dl class="about__specs">
-      <div><dt>쓴 사람</dt><dd>{{ site.author }}</dd></div>
-      <div><dt>글</dt><dd>{{ site.posts | size }}편</dd></div>
-      <div><dt>카테고리</dt><dd>Computer Science</dd></div>
+      <div><dt>Author</dt><dd>{{ site.author }}</dd></div>
+      <div><dt>Posts</dt><dd>{{ site.posts | size }}</dd></div>
+      <div><dt>Category</dt><dd>Computer Science</dd></div>
       {%- if oldest %}
-      <div><dt>첫 글</dt><dd><time datetime="{{ oldest.date | date: '%Y-%m-%d' }}">{{ oldest.date | date: "%Y년 %-m월 %-d일" }}</time></dd></div>
-      <div><dt>최근 글</dt><dd><a href="{{ newest.url | relative_url }}">{{ newest.title }}</a></dd></div>
+      <div><dt>First Post</dt><dd><time datetime="{{ oldest.date | date: '%Y-%m-%d' }}">{{ oldest.date | date: "%B %-d, %Y" }}</time></dd></div>
+      <div><dt>Latest Post</dt><dd><a href="{{ newest.url | relative_url }}" lang="ko">{{ newest.title }}</a></dd></div>
       {%- endif %}
     </dl>
 
@@ -34,8 +34,8 @@ layout: desktop
     {%- endif %}
 
     <div class="about__actions">
-      <a class="button" href="{{ '/feed.xml' | relative_url }}">RSS 구독</a>
-      <a class="button button--primary" href="{{ '/' | relative_url }}">글 목록</a>
+      <a class="button" href="{{ '/feed.xml' | relative_url }}">Subscribe (RSS)</a>
+      <a class="button button--primary" href="{{ '/' | relative_url }}">All Posts</a>
     </div>
     <p class="about__legal">© {{ site.time | date: '%Y' }} {{ site.author }}</p>
   </div>

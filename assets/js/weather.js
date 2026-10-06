@@ -21,14 +21,14 @@ import { DESKTOP } from './windows.js';
 
 const root = document.querySelector('[data-weather]');
 
-const CITY = '서울';
+const CITY = 'Seoul';
 const API =
   'https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978' +
   '&current=temperature_2m,weather_code,is_day' +
   '&hourly=temperature_2m,weather_code,is_day' +
   '&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset' +
   '&timezone=Asia%2FSeoul&forecast_days=6';
-const DATA_KEY = 'ephemeris:weather:v2';
+const DATA_KEY = 'ephemeris:weather:v3'; // v3: 시각 · 요일 이름을 영어로 담는다
 const PLACE_KEY = 'ephemeris:weather-widget';
 const TTL = 30 * 60 * 1000;
 
@@ -49,19 +49,19 @@ const store = {
 // ── 날씨 코드와 그림 ────────────────────────────────────────────
 // WMO 날씨 코드 → [이름, 모양]. 모양은 그림과 판의 색을 고른다.
 function describe(code) {
-  if (code === 0) return ['맑음', 'clear'];
-  if (code === 1) return ['대체로 맑음', 'clear'];
-  if (code === 2) return ['구름 조금', 'partly'];
-  if (code === 3) return ['흐림', 'cloudy'];
-  if (code === 45 || code === 48) return ['안개', 'fog'];
-  if (code >= 51 && code <= 57) return ['이슬비', 'rain'];
-  if (code === 61 || code === 80) return ['약한 비', 'rain'];
-  if (code === 65 || code === 82) return ['강한 비', 'rain'];
-  if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return ['비', 'rain'];
-  if (code === 77) return ['싸락눈', 'snow'];
-  if ((code >= 71 && code <= 75) || code === 85 || code === 86) return ['눈', 'snow'];
-  if (code >= 95) return ['뇌우', 'storm'];
-  return ['흐림', 'cloudy'];
+  if (code === 0) return ['Clear', 'clear'];
+  if (code === 1) return ['Mostly Clear', 'clear'];
+  if (code === 2) return ['Partly Cloudy', 'partly'];
+  if (code === 3) return ['Cloudy', 'cloudy'];
+  if (code === 45 || code === 48) return ['Fog', 'fog'];
+  if (code >= 51 && code <= 57) return ['Drizzle', 'rain'];
+  if (code === 61 || code === 80) return ['Light Rain', 'rain'];
+  if (code === 65 || code === 82) return ['Heavy Rain', 'rain'];
+  if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return ['Rain', 'rain'];
+  if (code === 77) return ['Flurries', 'snow'];
+  if ((code >= 71 && code <= 75) || code === 85 || code === 86) return ['Snow', 'snow'];
+  if (code >= 95) return ['Thunderstorms', 'storm'];
+  return ['Cloudy', 'cloudy'];
 }
 
 // 맥의 여러 빛깔 기호처럼 해는 노랗게, 구름은 희게, 빗방울은 파랗게.
@@ -96,14 +96,15 @@ const deg = (n) => `${Math.round(n)}°`;
 
 // ── 받기 ────────────────────────────────────────────────────────
 // 시각은 모두 서울 시각의 글자('2026-09-29T16:00')로 온다. 글자 그대로 비교한다.
-const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+// 맥의 날씨처럼 '3PM', 해 뜨고 지는 때는 '6:42AM'
 function hourLabel(t, withMinutes = false) {
   const h = Number(t.slice(11, 13));
   const m = t.slice(14, 16);
-  const ampm = h < 12 ? '오전' : '오후';
+  const ampm = h < 12 ? 'AM' : 'PM';
   const h12 = h % 12 || 12;
-  return withMinutes ? `${ampm} ${h12}:${m}` : `${ampm} ${h12}시`;
+  return withMinutes ? `${h12}:${m}${ampm}` : `${h12}${ampm}`;
 }
 
 // 지금 다음 시각부터 여섯 칸. 그 사이에 해가 뜨거나 지면 그때도 한 칸 끼운다.
@@ -132,7 +133,7 @@ function buildDays(daily) {
   return daily.time.slice(0, 5).map((t, i) => {
     const [y, m, d] = t.split('-').map(Number);
     return {
-      label: i === 0 ? '오늘' : `${WEEK[new Date(y, m - 1, d).getDay()]}요일`,
+      label: i === 0 ? 'Today' : WEEK[new Date(y, m - 1, d).getDay()],
       kind: describe(daily.weather_code[i])[1],
       hi: daily.temperature_2m_max[i],
       lo: daily.temperature_2m_min[i],
@@ -185,7 +186,7 @@ function daysHTML(days) {
 function bodyFor(s) {
   const [name, kind] = describe(data.code);
   const now = `<div class="weather__now"><span class="weather__city">${CITY} ${ARROW}</span><span class="weather__temp">${deg(data.temp)}</span></div>`;
-  const sky = `<div class="weather__sky">${icon(kind, data.day)}<span class="weather__name">${name}</span><span class="weather__range">최고:${deg(data.hi)} 최저:${deg(data.lo)}</span></div>`;
+  const sky = `<div class="weather__sky">${icon(kind, data.day)}<span class="weather__name">${name}</span><span class="weather__range">H:${deg(data.hi)} L:${deg(data.lo)}</span></div>`;
   const el = document.createElement('div');
   el.className = `weather__body weather__body--${s}`;
   el.setAttribute('aria-hidden', 'true');
@@ -198,7 +199,7 @@ function bodyFor(s) {
 
 function label() {
   const [name] = describe(data.code);
-  return `${CITY} 날씨: ${name}, ${deg(data.temp)}, 최고 ${deg(data.hi)}, 최저 ${deg(data.lo)}`;
+  return `Weather in ${CITY}: ${name}, ${deg(data.temp)}, high ${deg(data.hi)}, low ${deg(data.lo)}`;
 }
 
 function paint() {

@@ -3,49 +3,56 @@
 # slug  글 머리말의 `categories: [slug]` 와 주소(?c=slug)에 쓰인다
 # name  화면에 보이는 이름
 # short 자리가 좁은 곳에 쓰는 짧은 이름
-# en    영문 이름. 보조 표기와 aria 에 쓴다
+# en    짧은 영문 이름. OG 썸네일의 보조 표기와 검색에 쓴다
+# ko    한국어 이름. 화면에는 보이지 않고, 한국어로 찾아도 걸리게 검색에만 쓴다
 # icon  _includes/icons.html 의 심볼 이름
 # color 달력에서 이 카테고리 글이 입는 색. 맥 캘린더 앱의 캘린더 색에서 골랐다
 #       (빨강은 '오늘' 동그라미와 겹쳐 쓰지 않는다)
 
 - slug: database
-  name: 데이터베이스
+  name: Database
   short: DB
   en: Database
+  ko: 데이터베이스
   icon: cylinder
   color: "#1badf8"
 
 - slug: network
-  name: 네트워크
-  short: 네트워크
+  name: Network
+  short: Network
   en: Network
+  ko: 네트워크
   icon: globe
   color: "#63da38"
 
 - slug: runtime
-  name: 런타임
-  short: 런타임
+  name: Runtime
+  short: Runtime
   en: Runtime
+  ko: 런타임
   icon: cpu
   color: "#ff9500"
 
 - slug: distributed
-  name: 분산 시스템
-  short: 분산
+  name: Distributed Systems
+  short: Distributed
   en: Distributed
+  ko: 분산 시스템
   icon: nodes
   color: "#cc73e1"
 
 - slug: ops
-  name: 운영
-  short: 운영
+  name: Operations
+  short: Ops
   en: Operations
+  ko: 운영
   icon: shippingbox
   color: "#ffcc00"
 
 - slug: notes
-  name: 노트
-  short: 노트
+  name: Notes
+  short: Notes
   en: Notes
+  ko: 노트
   icon: note
   color: "#a2845e"

@@ -10,37 +10,37 @@
     <span class="dock__plate" aria-hidden="true"></span>
     <ul class="dock__apps">
       <li>
-        <a class="dock__app{% if page.layout == 'home' %} is-running{% endif %}" href="{{ '/' | relative_url }}" data-dock-finder aria-label="Finder (글 목록)">
+        <a class="dock__app{% if page.layout == 'home' %} is-running{% endif %}" href="{{ '/' | relative_url }}" data-dock-finder aria-label="Finder (posts)">
           <img class="dock__icon" src="{{ dock }}finder-128.png" srcset="{{ dock }}finder-128.png 1x, {{ dock }}finder-256.png 2x" alt="" draggable="false">
           <span class="dock__tip" aria-hidden="true">Finder</span>
         </a>
       </li>
       <li>
-        <button class="dock__app" type="button" data-dock-obsidian data-folders="{{ site.data.categories | map: 'slug' | join: ' ' }}" aria-label="Obsidian (글을 노트로 읽기)">
+        <button class="dock__app" type="button" data-dock-obsidian data-folders="{{ site.data.categories | map: 'slug' | join: ' ' }}" aria-label="Obsidian (read posts as notes)">
           <img class="dock__icon" src="{{ dock }}obsidian-128.png" srcset="{{ dock }}obsidian-128.png 1x, {{ dock }}obsidian-256.png 2x" alt="" draggable="false">
           <span class="dock__tip" aria-hidden="true">Obsidian</span>
         </button>
       </li>
       <li>
-        <button class="dock__app" type="button" data-dock-notes aria-label="메모">
+        <button class="dock__app" type="button" data-dock-notes aria-label="Notes">
           <img class="dock__icon" src="{{ dock }}notes-128.png" srcset="{{ dock }}notes-128.png 1x, {{ dock }}notes-256.png 2x" alt="" draggable="false">
-          <span class="dock__tip" aria-hidden="true">메모</span>
+          <span class="dock__tip" aria-hidden="true">Notes</span>
         </button>
       </li>
       <li>
-        <button class="dock__app" type="button" data-dock-terminal aria-label="터미널">
+        <button class="dock__app" type="button" data-dock-terminal aria-label="Terminal">
           <img class="dock__icon" src="{{ dock }}terminal-128.png" srcset="{{ dock }}terminal-128.png 1x, {{ dock }}terminal-256.png 2x" alt="" draggable="false">
-          <span class="dock__tip" aria-hidden="true">터미널</span>
+          <span class="dock__tip" aria-hidden="true">Terminal</span>
         </button>
       </li>
       <li>
-        <button class="dock__app" type="button" data-dock-games aria-label="게임 (개인 프로젝트)">
+        <button class="dock__app" type="button" data-dock-games aria-label="Games (personal projects)">
           <img class="dock__icon" src="{{ dock }}games-128.png" srcset="{{ dock }}games-128.png 1x, {{ dock }}games-256.png 2x" alt="" draggable="false">
-          <span class="dock__tip" aria-hidden="true">게임</span>
+          <span class="dock__tip" aria-hidden="true">Games</span>
         </button>
       </li>
       <li>
-        <button class="dock__app" type="button" data-dock-music aria-label="Spotify (음악 플레이어)">
+        <button class="dock__app" type="button" data-dock-music aria-label="Spotify (music player)">
           <img class="dock__icon" src="{{ dock }}spotify-128.png" srcset="{{ dock }}spotify-128.png 1x, {{ dock }}spotify-256.png 2x" alt="" draggable="false">
           <span class="dock__tip" aria-hidden="true">Spotify</span>
         </button>
@@ -48,12 +48,12 @@
     </ul>
 
     <span class="dock__sep" aria-hidden="true"></span>
-    <ul class="dock__windows" data-dock-windows aria-label="최소화한 창"></ul>
+    <ul class="dock__windows" data-dock-windows aria-label="Minimized windows"></ul>
     <ul class="dock__apps">
       <li>
-        <button class="dock__app" type="button" data-dock-trash aria-label="휴지통">
+        <button class="dock__app" type="button" data-dock-trash aria-label="Trash">
           <img class="dock__icon" src="{{ dock }}trash-128.png" srcset="{{ dock }}trash-128.png 1x, {{ dock }}trash-256.png 2x" alt="" draggable="false">
-          <span class="dock__tip" aria-hidden="true">휴지통</span>
+          <span class="dock__tip" aria-hidden="true">Trash</span>
         </button>
       </li>
     </ul>

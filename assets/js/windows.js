@@ -264,7 +264,7 @@ export async function minimizeWindow(win) {
   tile.innerHTML = '<span class="dock__icon dock__icon--thumb" aria-hidden="true"></span><span class="dock__tip"></span>';
   $('.dock__icon', tile).append(thumbnail(win));
   $('.dock__tip', tile).textContent = windowTitle(win);
-  tile.setAttribute('aria-label', `${windowTitle(win)} 창 다시 열기`);
+  tile.setAttribute('aria-label', `Restore ${windowTitle(win)}`);
   tile.addEventListener('click', () => restoreWindow(win));
   slot.append(tile);
   dockWindows.append(slot);
@@ -823,7 +823,7 @@ export function notify(text, { title = '', icon = '' } = {}) {
   t.className = `toast glass${icon ? ' toast--rich' : ''}`;
   t.dataset.key = key;
   t.innerHTML = `
-    <button class="toast__close" type="button" aria-label="알림 닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <button class="toast__close" type="button" aria-label="Dismiss notification"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
     ${icon ? '<img class="toast__icon" alt="" width="40" height="40" draggable="false">' : ''}
     <div class="toast__text">${title ? '<p class="toast__title"></p>' : ''}<p class="toast__body"></p></div>
     <span class="toast__count" hidden></span>`;

@@ -16,11 +16,11 @@
     <p class="lock__time" data-lock-time></p>
   </div>
   <div class="lock__user">
-    <button class="lock__open" type="button" data-lock-open aria-label="잠금 해제">
+    <button class="lock__open" type="button" data-lock-open aria-label="Unlock">
       {% include bot.html class="lock__avatar" %}
     </button>
     <p class="lock__name" id="lock-name">{{ site.author }}</p>
-    <p class="lock__hint" id="lock-hint" data-lock-hint>누르면 열립니다</p>
+    <p class="lock__hint" id="lock-hint" data-lock-hint>Click to unlock</p>
   </div>
 </div>
 <script>
@@ -31,10 +31,10 @@
     if (open || /bot|crawl|spider|slurp|facebookexternalhit|lighthouse/i.test(navigator.userAgent)) return;
     var d = new Date();
     lock.querySelector('[data-lock-date]').textContent =
-      (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + '일월화수목금토'.charAt(d.getDay()) + '요일';
+      d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     lock.querySelector('[data-lock-time]').textContent =
       (d.getHours() % 12 || 12) + ':' + String(d.getMinutes()).padStart(2, '0');
-    if (matchMedia('(pointer: coarse)').matches) lock.querySelector('[data-lock-hint]').textContent = '위로 쓸어 올리거나 눌러서 열기';
+    if (matchMedia('(pointer: coarse)').matches) lock.querySelector('[data-lock-hint]').textContent = 'Tap or swipe up to unlock';
     lock.hidden = false;
     document.documentElement.classList.add('is-locked');
   })();

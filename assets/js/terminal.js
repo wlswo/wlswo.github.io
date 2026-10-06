@@ -55,9 +55,9 @@ function projects() {
 const APPS = {
   Finder: '[data-dock-finder]',
   Obsidian: '[data-dock-obsidian]',
-  메모: '[data-dock-notes]',
-  터미널: '[data-dock-terminal]',
-  게임: '[data-dock-games]',
+  Notes: '[data-dock-notes]',
+  Terminal: '[data-dock-terminal]',
+  Games: '[data-dock-games]',
   Spotify: '[data-dock-music]',
 };
 
@@ -116,6 +116,20 @@ function resolve(path = '') {
 const pretty = (path) => (path === HOME ? '~' : path.startsWith(`${HOME}/`) ? `~${path.slice(HOME.length)}` : path);
 const baseName = (path) => (path === HOME ? '~' : path.slice(path.lastIndexOf('/') + 1) || '/');
 
+// 맥의 date · Last login 꼴: 'Tue Oct  6 13:56:06'(날은 두 칸에 맞춘다)
+function stamp(d) {
+  const wd = d.toLocaleDateString('en-US', { weekday: 'short' });
+  const mon = d.toLocaleDateString('en-US', { month: 'short' });
+  return `${wd} ${mon} ${String(d.getDate()).padStart(2, ' ')} ${d.toTimeString().slice(0, 8)}`;
+}
+
+// 시간대 약자. en-US 는 서울을 'GMT+9' 로 적으니 맥처럼 KST 로.
+function zone(d) {
+  if (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Seoul') return 'KST';
+  const part = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(d).find((p) => p.type === 'timeZoneName');
+  return part?.value || 'UTC';
+}
+
 // ── 출력 ────────────────────────────────────────────────────────
 function print(html = '', cls = '') {
   const line = document.createElement('div');
@@ -134,16 +148,16 @@ function scrollDown() {
 // ── 명령 ────────────────────────────────────────────────────────
 const COMMANDS = {
   help: {
-    about: '명령 목록',
+    about: 'Show this list',
     run() {
-      print('<b>이 터미널에서 쓸 수 있는 명령</b>');
+      print('<b>Available commands:</b>');
       for (const [name, c] of Object.entries(COMMANDS)) print(`  <span class="term__cmd">${name.padEnd(9)}</span>${esc(c.about)}`);
       print('');
-      print('예) <span class="term__cmd">ls Obsidian</span> · <span class="term__cmd">cat Desktop/about.txt</span> · <span class="term__cmd">open -a Spotify</span> · <span class="term__cmd">search redis</span>');
+      print('Examples: <span class="term__cmd">ls Obsidian</span> · <span class="term__cmd">cat Desktop/about.txt</span> · <span class="term__cmd">open -a Spotify</span> · <span class="term__cmd">search redis</span>');
     },
   },
   ls: {
-    about: '폴더 내용 보기 (ls -l 로 자세히)',
+    about: 'List directory contents (ls -l for details)',
     run(args) {
       const long = args.some((a) => a.startsWith('-') && a.includes('l'));
       const target = resolve(args.find((a) => !a.startsWith('-')) || '.');
@@ -169,11 +183,11 @@ const COMMANDS = {
     },
   },
   ll: {
-    about: 'ls -l 과 같다 (자세히 보기)',
+    about: 'Same as ls -l',
     run: (args) => COMMANDS.ls.run(['-l', ...args]),
   },
   cd: {
-    about: '폴더 옮기기 (cd .. · cd ~)',
+    about: 'Change directory (cd .. · cd ~)',
     run(args) {
       const target = resolve(args[0] || '~');
       const node = fs.get(target);
@@ -182,11 +196,11 @@ const COMMANDS = {
       cwd = target;
     },
   },
-  pwd: { about: '지금 폴더', run: () => print(esc(cwd)) },
+  pwd: { about: 'Print working directory', run: () => print(esc(cwd)) },
   cat: {
-    about: '파일 읽기 (about.txt, 글.md)',
+    about: 'Print a file (about.txt, post .md)',
     run(args) {
-      if (!args[0]) return printText('cat: 읽을 파일을 적어 주세요', 'term__err');
+      if (!args[0]) return printText('usage: cat file ...', 'term__err');
       const target = resolve(args[0]);
       const node = fs.get(target);
       if (!node) return printText(`cat: ${args[0]}: No such file or directory`, 'term__err');
@@ -203,15 +217,18 @@ const COMMANDS = {
         print(`<b># ${esc(p.title)}</b>`);
         print(`<span class="term__dim">${esc(p.date)} · ${esc(p.category || '')}</span>`);
         if (p.description) printText(p.description);
-        print(`<span class="term__dim">→ open ${esc(args[0])} 로 전문을 엽니다</span>`);
+        print(`<span class="term__dim">→ open ${esc(args[0])} to read the full post</span>`);
         return;
       }
       if (node.url) return printText(`${node.desc || ''}\n${node.url}`);
-      if (node.app || node.druid) return printText(`cat: ${args[0]}: 앱은 open 으로 엽니다`, 'term__err');
+      if (node.app || node.druid) {
+        printText(`cat: ${args[0]}: Is a directory`, 'term__err');
+        print(`<span class="term__dim">→ open ${esc(args[0])} to launch it</span>`);
+      }
     },
   },
   open: {
-    about: '열기 (글 · 앱 · 주소) — open -a 앱이름',
+    about: 'Open a post, app or URL (open -a <app>)',
     run(args) {
       const a = args.indexOf('-a');
       if (a >= 0) {
@@ -222,7 +239,7 @@ const COMMANDS = {
         $(APPS[key])?.click();
         return;
       }
-      if (!args[0]) return printText('open: 열 것을 적어 주세요', 'term__err');
+      if (!args[0]) return printText('Usage: open [-a <application>] [filenames | URL]', 'term__err');
       if (/^https?:\/\//.test(args[0])) {
         window.open(args[0], '_blank', 'noopener');
         return;
@@ -237,7 +254,7 @@ const COMMANDS = {
       if (node.app) return $(node.app)?.click();
       if (node.druid) return dispatchEvent(new CustomEvent('ephemeris:druid'));
       if (node.url) return window.open(node.url, '_blank', 'noopener');
-      if (node.about) return $(APPS.메모)?.click();
+      if (node.about) return $(APPS.Notes)?.click();
       if (node.post) {
         const ev = new CustomEvent('ephemeris:open', { detail: { href: node.post.url }, cancelable: true });
         if (dispatchEvent(ev)) location.href = node.post.url;
@@ -245,17 +262,17 @@ const COMMANDS = {
     },
   },
   search: {
-    about: '글 찾기 (제목 · 설명)',
+    about: 'Search posts by title and description',
     run(args) {
       const q = args.join(' ').toLowerCase();
-      if (!q) return printText('search: 찾을 말을 적어 주세요', 'term__err');
+      if (!q) return printText('usage: search <words>', 'term__err');
       const hits = [...fs.entries()].filter(([, n]) => n.post && `${n.post.title} ${n.post.description}`.toLowerCase().includes(q));
-      if (!hits.length) return printText(`'${q}'와 맞는 글이 없습니다`, 'term__dim');
+      if (!hits.length) return printText(`No posts match '${q}'`, 'term__dim');
       for (const [path, n] of hits) print(`${esc(n.post.title)}  <span class="term__dim">${esc(pretty(path))}</span>`);
     },
   },
   posts: {
-    about: '최근 글 (posts 5)',
+    about: 'Recent posts (posts 5)',
     run(args) {
       const n = Math.max(1, Math.min(50, Number(args[0]) || 5));
       const all = [...fs.values()].filter((x) => x.post).map((x) => x.post);
@@ -264,23 +281,29 @@ const COMMANDS = {
     },
   },
   tags: {
-    about: '태그(카테고리)와 글 수',
+    about: 'Tags (categories) and post counts',
     run() {
       const count = new Map();
       for (const x of fs.values()) if (x.post) count.set(x.post.category, (count.get(x.post.category) || 0) + 1);
       for (const [name, c] of count) print(`${esc(name)}  <span class="term__dim">${c}</span>`);
     },
   },
-  echo: { about: '글자 그대로 쓰기', run: (args) => printText(args.join(' ')) },
-  date: { about: '지금 날짜와 시각', run: () => printText(new Date().toString()) },
-  whoami: { about: '사용자 이름', run: () => print(USER) },
-  hostname: { about: '컴퓨터 이름', run: () => print(HOST) },
+  echo: { about: 'Print text', run: (args) => printText(args.join(' ')) },
+  date: {
+    about: 'Show the date and time',
+    run() {
+      const d = new Date();
+      printText(`${stamp(d)} ${zone(d)} ${d.getFullYear()}`);
+    },
+  },
+  whoami: { about: 'Print user name', run: () => print(USER) },
+  hostname: { about: 'Print computer name', run: () => print(HOST) },
   uname: {
-    about: '시스템 정보 (uname -a)',
+    about: 'System information (uname -a)',
     run: (args) => print(args.includes('-a') ? `Darwin ${HOST} 26.0.0 Darwin Kernel Version 26.0.0: Ephemeris; root:xnu arm64` : 'Darwin'),
   },
   neofetch: {
-    about: '이 맥 소개',
+    about: 'About This Mac',
     run() {
       const s = site();
       const logo = ['       .:\'', '    __ :\'__', ' .\'`__`-\'__``.', ':__________.-\'', ':_________:', ' :_________`-;', '  `.__.-.__.\''];
@@ -299,31 +322,31 @@ const COMMANDS = {
     },
   },
   theme: {
-    about: '테마 바꾸기 (theme auto|light|dark)',
+    about: 'Change appearance (theme auto|light|dark)',
     run(args) {
-      if (!args[0]) return print(`지금 테마: ${getAppearance()}`);
-      if (!['auto', 'light', 'dark'].includes(args[0])) return printText('theme: auto · light · dark 중 하나', 'term__err');
+      if (!args[0]) return print(`Appearance: ${getAppearance()}`);
+      if (!['auto', 'light', 'dark'].includes(args[0])) return printText('usage: theme [auto | light | dark]', 'term__err');
       setAppearance(args[0]);
-      print(`테마를 ${args[0]} 로 바꿨습니다`);
+      print(`Appearance set to ${args[0]}`);
     },
   },
   lock: {
-    about: '화면 잠그기',
+    about: 'Lock Screen',
     async run() {
       const { showLock } = await import('./power.js');
       showLock();
     },
   },
   history: {
-    about: '지난 명령',
+    about: 'Command history',
     run: () => history.forEach((h, i) => print(`${String(i + 1).padStart(4)}  ${esc(h)}`)),
   },
-  clear: { about: '화면 지우기 (⌃L)', run: () => (out.innerHTML = '') },
+  clear: { about: 'Clear the screen (⌃L)', run: () => (out.innerHTML = '') },
   sudo: {
-    about: '관리자 권한으로 실행',
+    about: 'Run a command as administrator',
     run: () => printText(`${USER} is not in the sudoers file. This incident will be reported.`, 'term__err'),
   },
-  exit: { about: '터미널 닫기', run: () => $('[data-window-action="close"]', win)?.click() },
+  exit: { about: 'Close the window', run: () => $('[data-window-action="close"]', win)?.click() },
 };
 
 async function runLine(line) {
@@ -379,10 +402,10 @@ function complete() {
 
 // ── 창 ──────────────────────────────────────────────────────────
 const traffic = `
-  <div class="traffic" role="group" aria-label="창 조작">
-    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
-    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="확대" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
+  <div class="traffic" role="group" aria-label="Window controls">
+    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="Close"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="Minimize"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
+    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="Zoom" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
   </div>`;
 
 function build() {
@@ -395,14 +418,14 @@ function build() {
   el.innerHTML = `
     <header class="term__bar" data-window-drag>
       ${traffic}
-      <h2 class="term__title" id="term-title">${USER}</h2>
-      <button class="term__close" type="button" data-window-action="close" aria-label="터미널 닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+      <h2 class="term__title" id="term-title">${USER} — -zsh — 80×24</h2>
+      <button class="term__close" type="button" data-window-action="close" aria-label="Close Terminal"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
     </header>
     <div class="term__body" data-term-body>
       <div class="term__out" data-term-out role="log" aria-live="polite"></div>
       <label class="term__row">
         <span data-term-prompt></span>
-        <input class="term__input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="명령 입력" data-term-input>
+        <input class="term__input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command input" data-term-input>
       </label>
     </div>`;
   return el;
@@ -438,11 +461,8 @@ export async function openTerminal(button) {
   input = $('[data-term-input]', win);
   cwd = HOME;
   $('[data-term-prompt]', win).innerHTML = prompt();
-  const d = new Date();
-  print(
-    `<span class="term__dim">Last login: ${esc(d.toDateString())} ${esc(d.toTimeString().slice(0, 8))} on ttys000</span>`,
-  );
-  print('<span class="term__dim">help 를 치면 쓸 수 있는 명령이 나옵니다.</span>');
+  print(`<span class="term__dim">Last login: ${esc(stamp(new Date()))} on ttys000</span>`);
+  print('<span class="term__dim">Type help to see the available commands.</span>');
   input.focus();
 
   fs = await buildFs();

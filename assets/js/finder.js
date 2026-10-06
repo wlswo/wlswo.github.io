@@ -25,7 +25,7 @@ const clear = $('[data-search-clear]');
 const icons = $$('[data-desktop-icon]');
 const baseTitle = document.title;
 
-const PLACES = { apps: '응용 프로그램', desktop: '데스크탑', obsidian: 'Obsidian' };
+const PLACES = { apps: 'Applications', desktop: 'Desktop', obsidian: 'Obsidian' };
 const views = new Map($$('[data-place-view]', win).map((v) => [v.dataset.placeView, v]));
 
 // 태그(카테고리) 이름은 Finder 사이드바가 이미 들고 있다.
@@ -85,7 +85,10 @@ function render() {
   title.textContent = name;
   // 아래 상태 막대의 항목 수는 role=status 라 바뀔 때 읽힌다. 같은 글을 다시 쓰면
   // 괜히 읽히므로 바뀔 때만 쓴다.
-  const said = place === 'obsidian' && query ? `${shown}개 일치` : `${shown}개 항목`;
+  const said =
+    place === 'obsidian' && query
+      ? `${shown} ${shown === 1 ? 'match' : 'matches'}`
+      : `${shown} ${shown === 1 ? 'item' : 'items'}`;
   if (status.textContent !== said) status.textContent = said;
   const pageTitle = category ? `${name} · ${baseTitle}` : baseTitle;
   // 글 창이 앞에 있으면 쪽 제목은 그 글의 것이다. Finder 가 앞일 때만 바꾼다.

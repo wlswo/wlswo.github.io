@@ -44,9 +44,9 @@ function fan(bars) {
 
 function row(n) {
   const isOn = n.name === current;
-  const state = joining === n.name ? '연결 중…' : '';
+  const state = joining === n.name ? 'Connecting…' : '';
   return `<button class="menu__item menu__net${isOn ? ' is-joined' : ''}" role="menuitemradio" aria-checked="${isOn}"
-      type="button" data-net="${escapeHTML(n.name)}" aria-label="${escapeHTML(n.name)}${n.lock ? ', 암호 걸림' : ''}${isOn ? ', 연결됨' : ''}">
+      type="button" data-net="${escapeHTML(n.name)}" aria-label="${escapeHTML(n.name)}${n.lock ? ', secured' : ''}${isOn ? ', connected' : ''}">
     <span class="menu__net-icon">${fan(n.bars)}</span>
     <span class="menu__text">${escapeHTML(n.name)}</span>
     ${state ? `<span class="menu__meta">${state}</span>` : ''}
@@ -62,9 +62,9 @@ function render() {
   otherList.innerHTML = NETWORKS.filter((n) => !n.known).map(row).join('');
 
   glyph.setAttribute('href', on ? '#i-wifi' : '#i-wifi-off');
-  if (!on) button.setAttribute('aria-label', 'Wi-Fi: 꺼짐');
-  else if (joining) button.setAttribute('aria-label', `Wi-Fi: ${joining}에 연결하는 중`);
-  else button.setAttribute('aria-label', `Wi-Fi: ${current} 연결됨`);
+  if (!on) button.setAttribute('aria-label', 'Wi-Fi: Off');
+  else if (joining) button.setAttribute('aria-label', `Wi-Fi: connecting to ${joining}`);
+  else button.setAttribute('aria-label', `Wi-Fi: ${current}, connected`);
   button.classList.toggle('is-off', !on);
 }
 

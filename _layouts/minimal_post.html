@@ -13,19 +13,19 @@ layout: desktop
 <article class="window doc" id="main-window" tabindex="-1" data-window="doc" data-close-href="{{ '/' | relative_url }}" aria-labelledby="doc-title">
   <header class="doc__titlebar" data-window-drag>
     {% include traffic-lights.html %}
-    <a class="doc__back" href="{{ '/' | relative_url }}" data-back aria-label="글 목록으로">{% include icon.html name="chevron-left" %}</a>
+    <a class="doc__back" href="{{ '/' | relative_url }}" data-back aria-label="Back to All Posts">{% include icon.html name="chevron-left" %}</a>
 
     <div class="doc__proxy glass">
       {% include icon.html name="doc" class="doc__icon" %}
-      <span class="doc__name">{{ page.title }}</span>
+      <span class="doc__name" lang="ko">{{ page.title }}</span>
       {%- if cat %}<span class="doc__kind">— {{ cat.name }}</span>{% endif %}
     </div>
 
-    <button class="doc__tool" type="button" aria-label="목차" aria-pressed="true" aria-controls="toc" data-toc-toggle data-no-drag hidden>
+    <button class="doc__tool" type="button" aria-label="Contents" aria-pressed="true" aria-controls="toc" data-toc-toggle data-no-drag hidden>
       {% include icon.html name="sidebar" %}
     </button>
     {%- comment -%} 오른쪽 끝의 공유: 폰에서는 공유 시트, 그 밖에서는 링크 복사 {%- endcomment %}
-    <button class="doc__share glass glass-button" type="button" data-share data-no-drag aria-label="링크 공유">
+    <button class="doc__share glass glass-button" type="button" data-share data-no-drag aria-label="Share">
       {% include icon.html name="share" %}
     </button>
   </header>
@@ -33,31 +33,30 @@ layout: desktop
   <div class="doc__body">
     {%- comment -%} 목차는 post.js 가 본문의 제목을 읽어 채운다. 제목이 두 개 미만이면 숨은 채로 둔다. {%- endcomment %}
     <nav class="doc__toc glass" id="toc" aria-labelledby="toc-heading" hidden>
-      <p class="doc__toc-heading" id="toc-heading">목차</p>
-      <ol class="toc" data-lens-group></ol>
+      <p class="doc__toc-heading" id="toc-heading">Contents</p>
+      <ol class="toc" lang="ko" data-lens-group></ol>
     </nav>
 
-    <div class="doc__scroll" tabindex="0" role="region" data-scroll="doc" aria-label="본문">
+    <div class="doc__scroll" tabindex="0" role="region" data-scroll="doc" aria-label="Post">
       <div class="article">
         <header class="article__header">
           {%- if page.date %}
           <p class="article__eyebrow">
             {%- if cat %}<a href="{{ '/' | relative_url }}?c={{ cat.slug }}" data-category="{{ cat.slug }}" data-no-current>{% include icon.html name=cat.icon %}{{ cat.name }}</a><span aria-hidden="true">·</span>{% endif %}
-            {%- assign w = page.date | date: "%u" | minus: 1 %}{% assign days = "월,화,수,목,금,토,일" | split: "," %}
-            <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y년 " }}{{ page.date | date: "%-m" }}월 {{ page.date | date: "%-d" }}일 {{ days[w] }}요일</time>
+            <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%A, %B %-d, %Y" }}</time>
             {%- comment -%} 읽는 시간: 한국어 글은 1분에 500자 남짓 읽는다고 보고 어림한다. {%- endcomment %}
             {%- assign chars = content | strip_html | strip_newlines | size %}
             {%- assign minutes = chars | divided_by: 500 | plus: 1 %}
-            <span aria-hidden="true">·</span><span class="article__time">{{ minutes }}분 분량</span>
+            <span aria-hidden="true">·</span><span class="article__time">{{ minutes }} min read</span>
           </p>
           {%- endif %}
-          <h1 class="article__title" id="doc-title">{{ page.title }}</h1>
+          <h1 class="article__title" id="doc-title" lang="ko">{{ page.title }}</h1>
           {%- if page.description %}
-          <p class="article__lede">{{ page.description }}</p>
+          <p class="article__lede" lang="ko">{{ page.description }}</p>
           {%- endif %}
         </header>
 
-        <div class="post-content">
+        <div class="post-content" lang="ko">
           {{ content }}
         </div>
 
@@ -65,17 +64,17 @@ layout: desktop
         <footer class="article__end">
 
           {%- if page.previous or page.next %}
-          <nav class="pager" aria-label="이웃한 글">
+          <nav class="pager" aria-label="More posts">
             {%- if page.previous %}
             <a class="pager__link pager__link--prev" href="{{ page.previous.url | relative_url }}" rel="prev">
-              <span class="pager__label">{% include icon.html name="chevron-left" %}이전 글</span>
-              <span class="pager__title">{{ page.previous.title }}</span>
+              <span class="pager__label">{% include icon.html name="chevron-left" %}Previous Post</span>
+              <span class="pager__title" lang="ko">{{ page.previous.title }}</span>
             </a>
             {%- endif %}
             {%- if page.next %}
             <a class="pager__link pager__link--next" href="{{ page.next.url | relative_url }}" rel="next">
-              <span class="pager__label">다음 글{% include icon.html name="chevron-right" %}</span>
-              <span class="pager__title">{{ page.next.title }}</span>
+              <span class="pager__label">Next Post{% include icon.html name="chevron-right" %}</span>
+              <span class="pager__title" lang="ko">{{ page.next.title }}</span>
             </a>
             {%- endif %}
           </nav>

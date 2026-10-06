@@ -29,10 +29,10 @@ function projects() {
 }
 
 const traffic = `
-  <div class="traffic" role="group" aria-label="창 조작">
-    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="닫기"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="최소화"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
-    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="확대" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
+  <div class="traffic" role="group" aria-label="Window controls">
+    <button class="traffic__btn traffic__btn--close" type="button" data-window-action="close" aria-label="Close"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <button class="traffic__btn traffic__btn--min" type="button" data-window-action="minimize" aria-label="Minimize"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-minus"/></svg></button>
+    <button class="traffic__btn traffic__btn--zoom" type="button" data-window-action="zoom" aria-label="Zoom" aria-pressed="false"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-zoom"/></svg></button>
   </div>`;
 
 function build(list) {
@@ -46,17 +46,17 @@ function build(list) {
   el.innerHTML = `
     <header class="games__bar" data-window-drag>
       ${traffic}
-      <h2 class="games__title" id="games-title">게임</h2>
-      <button class="games__close" type="button" data-window-action="close" aria-label="게임 창 닫기">
+      <h2 class="games__title" id="games-title">Games</h2>
+      <button class="games__close" type="button" data-window-action="close" aria-label="Close Games">
         <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg>
       </button>
     </header>
-    <ul class="games__grid" aria-label="개인 프로젝트">
+    <ul class="games__grid" aria-label="Personal projects">
       ${list
         .map(
           (p) => `<li>
             <a class="games__app" href="${esc(p.url)}" target="_blank" rel="noopener"
-               aria-label="${esc(p.name)} — ${esc(p.desc)} (새 탭)">
+               aria-label="${esc(p.name)} — ${esc(p.desc)} (opens in a new tab)">
               <img class="games__icon" src="${base}${esc(p.icon)}-128.png"
                    srcset="${base}${esc(p.icon)}-128.png 1x, ${base}${esc(p.icon)}-256.png 2x" alt="" draggable="false">
               <span class="games__name">${esc(p.name)}</span>
@@ -66,7 +66,7 @@ function build(list) {
         )
         .join('')}
     </ul>
-    <footer class="games__status" data-games-status aria-hidden="true">개인 프로젝트 ${list.length}개</footer>`;
+    <footer class="games__status" data-games-status aria-hidden="true">${list.length} project${list.length === 1 ? '' : 's'}</footer>`;
   return el;
 }
 
