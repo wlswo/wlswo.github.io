@@ -965,11 +965,21 @@ html.is-still .battery__level {
   transform: translateX(-50%);
 
   &__bar {
+    position: relative;
     display: flex;
     align-items: flex-end;
     gap: 1px;
     padding: 2px 4px 6px;
     border-radius: 22px;
+  }
+
+  // 판: 흐린 반투명 바탕. 확대될 때 아이콘 자리는 그대로 두고 판만 양옆으로
+  // 늘인다(macos.js 가 left · right 를 준다).
+  &__plate {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
     background: var(--dock-bg);
     -webkit-backdrop-filter: blur(28px) saturate(1.8);
     backdrop-filter: blur(28px) saturate(1.8);
@@ -977,6 +987,20 @@ html.is-still .battery__level {
       inset 0 0 0 var(--hair) var(--dock-edge),
       0 0 0 var(--hair) rgba(0, 0, 0, 0.22),
       0 10px 34px -10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    transition:
+      left 0.24s cubic-bezier(0.3, 0.7, 0.2, 1),
+      right 0.24s cubic-bezier(0.3, 0.7, 0.2, 1);
+
+    // 마우스를 좇는 동안에는 프레임마다 값을 바로 넣는다(전환 없음). 들어올 때만 짧게.
+    .is-magnifying & {
+      transition: none;
+    }
+
+    .is-magnifying.is-entering & {
+      transition-property: left, right;
+      transition-duration: 0.12s;
+    }
   }
 
   &__apps,
@@ -1001,6 +1025,17 @@ html.is-still .battery__level {
     background: none;
     color: inherit;
     -webkit-user-drag: none;
+    // 확대: 커진 이웃에게 밀려난다(macos.js 가 translate 를 준다). 점과 이름표도 함께 간다.
+    will-change: transform;
+    transition: translate 0.24s cubic-bezier(0.3, 0.7, 0.2, 1);
+
+    .is-magnifying & {
+      transition: none;
+    }
+
+    .is-magnifying.is-entering & {
+      transition: translate 0.12s cubic-bezier(0.3, 0.7, 0.2, 1);
+    }
 
     &:focus-visible {
       outline: none;
@@ -1047,20 +1082,24 @@ html.is-still .battery__level {
     position: relative;
     display: grid;
     place-items: center;
-    // 확대: 마우스를 대면 가까운 아이콘들이 물결처럼 커진다(macos.js 가 --s 를 준다).
-    // transform 이 아니라 실제 크기를 키워, 끝날 때 다시 그려지며 줄어드는 일이 없다.
-    width: calc(var(--icon) * var(--s, 1));
-    height: calc(var(--icon) * var(--s, 1));
-    // 커진 만큼 위로 비어져 나가게 해 Dock 판의 높이는 그대로 둔다.
-    margin-top: calc(var(--icon) * (1 - var(--s, 1)));
+    width: var(--icon);
+    height: var(--icon);
+    // 확대: 마우스를 대면 가까운 아이콘들이 물결처럼 커진다(macos.js 가 scale 을 준다).
+    // 크기(width)를 바꾸면 움직일 때마다 레이아웃과 그림을 새로 하므로, 자리는 그대로
+    // 두고 scale 로 키워 합성기(GPU)가 맡게 한다. 아래 가운데를 축으로 위로 솟아
+    // Dock 판의 높이는 그대로다. 튀기(dock-bounce)는 transform 이라 겹쳐 쓴다.
+    transform-origin: 50% 100%;
+    // 제 층(layer)에 올려 두면 커질 때 그림을 다시 그리지 않고 합성만 한다.
+    will-change: transform;
     -webkit-user-drag: none;
-    transition:
-      width 0.24s cubic-bezier(0.3, 0.7, 0.2, 1),
-      height 0.24s cubic-bezier(0.3, 0.7, 0.2, 1),
-      margin 0.24s cubic-bezier(0.3, 0.7, 0.2, 1);
+    transition: scale 0.24s cubic-bezier(0.3, 0.7, 0.2, 1);
 
     .is-magnifying & {
-      transition-duration: 0.06s;
+      transition: none;
+    }
+
+    .is-magnifying.is-entering & {
+      transition: scale 0.12s cubic-bezier(0.3, 0.7, 0.2, 1);
     }
 
     > svg {
@@ -1096,6 +1135,16 @@ html.is-still .battery__level {
     width: 0;
     margin: 2px 4px -3px;
     border-left: 1px solid var(--dock-sep);
+    // 확대된 앱 아이콘에 밀려난다(macos.js).
+    transition: translate 0.24s cubic-bezier(0.3, 0.7, 0.2, 1);
+
+    .is-magnifying & {
+      transition: none;
+    }
+
+    .is-magnifying.is-entering & {
+      transition-duration: 0.12s;
+    }
   }
 
   // 아이콘 위에 뜨는 이름표
@@ -1120,9 +1169,22 @@ html.is-still .battery__level {
     text-shadow: none;
     white-space: nowrap;
     transform: translateX(-50%);
+    // 커진 아이콘 위로 올라선다(macos.js 가 translate 를 준다).
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.1s linear;
+    transition:
+      opacity 0.1s linear,
+      translate 0.24s cubic-bezier(0.3, 0.7, 0.2, 1);
+
+    .is-magnifying & {
+      transition: opacity 0.1s linear;
+    }
+
+    .is-magnifying.is-entering & {
+      transition:
+        opacity 0.1s linear,
+        translate 0.12s cubic-bezier(0.3, 0.7, 0.2, 1);
+    }
   }
 }
 

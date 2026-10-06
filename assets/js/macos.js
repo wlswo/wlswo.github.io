@@ -362,41 +362,85 @@ function leaveMission(pick = null) {
 
 // ── Dock: 확대와 떠 있는 앱 ─────────────────────────────────────
 // 맥의 '확대'처럼 마우스에 가까운 아이콘일수록 커진다(가장 가까운 것이 1.55배).
-// 크기를 잴 때는 마우스가 들어온 순간의(커지기 전의) 자리를 쓴다 — 그래야
-// 커지면서 자리가 밀려도 흔들리지 않는다.
+// 아이콘의 자리(레이아웃)는 그대로 두고 scale 로 키우고, 커진 만큼 이웃을
+// translate 로 밀어내고, 판만 양옆으로 늘인다. 크기를 바꾸면 움직일 때마다
+// 레이아웃과 그림을 새로 해야 하지만, 이 값들은 합성기(GPU)가 맡는다.
+// 마우스 아래의 점은 그 자리에 머물고 나머지가 양쪽으로 비켜선다.
+// 마우스 이벤트는 프레임마다 한 번으로 모으고, 값은 요소에 바로 넣는다
+// (CSS 변수로 주면 Dock 안의 모든 요소가 물려받아 스타일을 다시 계산한다).
 const dockBar = $('.dock__bar');
-if (dockBar) {
+const dockPlate = $('.dock__plate');
+if (dockBar && dockPlate) {
   const MAX = 1.55;
-  let centers = null;
-  const apps = () => $$('.dock__app', dockBar);
+  let items = null; // 확대 전 자리: [{ app, icon, tip, left, w, sep }] (판 왼쪽 끝 기준)
+  let barLeft = 0;
+  let x = 0;
+  let raf = 0;
+  let entering = 0;
+  // 구분선도 함께 밀려나야 하므로 같이 잰다(커지지는 않는다).
+  const TILES = '.dock__app, .dock__sep';
+  // offsetLeft 는 translate 를 무시하므로, 밀려나 있는 동안 재도 확대 전 자리다.
   const measure = () => {
-    centers = new Map(apps().map((a) => {
-      const r = a.getBoundingClientRect();
-      return [a, r.left + r.width / 2];
-    }));
+    barLeft = dockBar.getBoundingClientRect().left;
+    items = $$(TILES, dockBar).map((app) => {
+      let left = 0;
+      for (let n = app; n && n !== dockBar; n = n.offsetParent) left += n.offsetLeft;
+      const sep = app.classList.contains('dock__sep');
+      return { app, icon: $('.dock__icon', app), tip: $('.dock__tip', app), left, w: app.offsetWidth, sep };
+    });
+  };
+  const apply = () => {
+    raf = 0;
+    if (!items || items.length !== dockBar.querySelectorAll(TILES).length) measure();
+    const px = x - barLeft;
+    const reach = (items.find((it) => !it.sep)?.w || 62) * 2.6;
+    // 커진 만큼(e)을 왼쪽부터 쌓는다. at = 마우스 자리 왼쪽에 쌓인 양.
+    let sum = 0;
+    let at = 0;
+    const grown = items.map((it) => {
+      const d = Math.abs(px - (it.left + it.w / 2));
+      const g = d < reach ? (Math.cos((d / reach) * Math.PI) + 1) / 2 : 0;
+      const s = it.sep ? 1 : 1 + (MAX - 1) * g;
+      const e = it.w * (s - 1);
+      if (px >= it.left + it.w) at = sum + e;
+      else if (px > it.left) at = sum + e * ((px - it.left) / it.w);
+      const dx = sum + e / 2;
+      sum += e;
+      return { it, s, dx };
+    });
+    for (const { it, s, dx } of grown) {
+      it.app.style.translate = `${(dx - at).toFixed(1)}px 0`;
+      if (it.icon) it.icon.style.scale = s.toFixed(3);
+      if (it.tip) it.tip.style.translate = `0 ${((1 - s) * it.w).toFixed(1)}px`;
+    }
+    dockPlate.style.left = `${(-at).toFixed(1)}px`;
+    dockPlate.style.right = `${(at - sum).toFixed(1)}px`;
   };
   const reset = () => {
-    dockBar.classList.remove('is-magnifying');
-    for (const a of apps()) a.style.removeProperty('--s');
-    centers = null;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    clearTimeout(entering);
+    dockBar.classList.remove('is-magnifying', 'is-entering');
+    for (const app of $$(TILES, dockBar)) {
+      app.style.removeProperty('translate');
+      $('.dock__icon', app)?.style.removeProperty('scale');
+      $('.dock__tip', app)?.style.removeProperty('translate');
+    }
+    dockPlate.style.removeProperty('left');
+    dockPlate.style.removeProperty('right');
+    items = null;
   };
-  dockBar.addEventListener('pointerenter', (e) => {
-    if (e.pointerType !== 'mouse' || reducedMotion.matches || !DESKTOP.matches) return;
-    measure();
-  });
+  // 들어올 때만 0.12초 동안 부드럽게 커지고, 그 뒤로는 마우스를 바로 좇는다.
   dockBar.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse' || reducedMotion.matches || !DESKTOP.matches) return;
-    if (!centers) measure();
-    dockBar.classList.add('is-magnifying');
-    const base = parseFloat(getComputedStyle($('[data-dock]')).getPropertyValue('--icon')) || 62;
-    const reach = base * 2.6;
-    for (const a of apps()) {
-      if (!centers.has(a)) measure();
-      const d = Math.abs(e.clientX - centers.get(a));
-      const g = d < reach ? (Math.cos((d / reach) * Math.PI) + 1) / 2 : 0;
-      a.style.setProperty('--s', (1 + (MAX - 1) * g).toFixed(3));
+    x = e.clientX;
+    if (!dockBar.classList.contains('is-magnifying')) {
+      dockBar.classList.add('is-magnifying', 'is-entering');
+      clearTimeout(entering);
+      entering = setTimeout(() => dockBar.classList.remove('is-entering'), 120);
     }
-  });
+    if (!raf) raf = requestAnimationFrame(apply);
+  }, { passive: true });
   dockBar.addEventListener('pointerleave', reset);
 }
 

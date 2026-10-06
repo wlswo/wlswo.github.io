@@ -7,6 +7,7 @@
 {%- assign dock = '/assets/images/dock/' | relative_url %}
 <div class="dock" data-dock>
   <nav class="dock__bar" aria-label="Dock">
+    <span class="dock__plate" aria-hidden="true"></span>
     <ul class="dock__apps">
       <li>
         <a class="dock__app{% if page.layout == 'home' %} is-running{% endif %}" href="{{ '/' | relative_url }}" data-dock-finder aria-label="Finder (글 목록)">
