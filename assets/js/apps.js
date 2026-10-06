@@ -4,9 +4,12 @@
  * 창의 종류(data-window)가 어느 앱의 것인지, 그 앱의 이름, 아이콘, Dock 단추가
  * 무엇인지 한데 적어 둔다. 메뉴 막대(앞에 선 앱 이름), 앱 전환기(⌥Tab),
  * Spotlight 의 앱 찾기, 최소화한 창의 미리보기가 모두 여기를 본다.
- * 다른 모듈을 가져오지 않는다(누구나 가져다 쓰게).
+ * 설정(site.js) 말고는 다른 모듈을 가져오지 않는다(누구나 가져다 쓰게).
  */
+import { SITE } from './site.js';
+
 const base = '/assets/images/';
+const { album } = SITE.music;
 
 /** 캘린더 앱 아이콘: 흰 둥근 판 위에 빨간 요일, 큰 날짜(SVG 를 data: 주소로). */
 export function calendarIcon(d) {
@@ -87,7 +90,8 @@ export const APPS = {
     icon: `${base}dock/spotify-128.png`,
     dock: '[data-dock-music]',
     windows: ['music'],
-    about: 'Plays SOS, the album by SZA.',
+    // 앨범은 _data/music.yml
+    about: album.title && album.artist ? `Plays ${album.title}, the album by ${album.artist}.` : 'Plays an album from YouTube.',
     keywords: 'spotify 스포티파이 음악 music 노래',
   },
   settings: {
@@ -116,6 +120,10 @@ export const APPS = {
     keywords: 'druid 드루이드 apache 아파치',
   },
 };
+
+// _config.yml 의 desktop.druid 가 false 면 Apache Druid 를 목록에서 뺀다.
+// Spotlight · 앱 전환기 · Dock 의 임시 칸이 모두 이 목록을 보므로 여기 한 곳에서.
+if (!SITE.desktop.druid) delete APPS.druid;
 
 /** 창 → 앱 이름(키). 모르는 창은 Finder 로 친다. */
 export function appOf(win) {

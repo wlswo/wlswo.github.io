@@ -3,7 +3,7 @@
  *
  * 맥처럼 옅은 유리 판 위에 까만 유리 위젯이 떠 있다.
  *   위     지나간 알림(있을 때만. 그리는 일은 macos.js 가 한다)
- *   아래   캘린더 위젯(이달) · 코인 위젯(BTC-USD · ETH-USD)
+ *   아래   캘린더 위젯(이달) · 코인 위젯(_config.yml 의 desktop.coins, 예: BTC-USD · ETH-USD)
  * 캘린더 위젯을 누르면 캘린더 앱(calendar.js)이 뜬다.
  *
  * 닫기: Esc, 판 바깥 누르기, 날짜 다시 누르기, 다른 메뉴가 열릴 때.
@@ -12,6 +12,8 @@
  * 판을 열 때 받고(1분 안에 받은 것이 있으면 그대로), 열려 있는 동안 30초마다.
  * 오르면 빨간 ▲, 내리면 파란 ▼(한국의 시세 색). 받지 못하면 '—'.
  */
+import { SITE } from './site.js';
+
 const $ = (sel, root = document) => root.querySelector(sel);
 
 const root = $('[data-nc-root]');
@@ -46,10 +48,15 @@ function renderCalendar() {
 }
 
 // ── 코인 위젯 ───────────────────────────────────────────────────
-const COINS = [
-  { id: 'BTC-USD', name: 'Bitcoin' },
-  { id: 'ETH-USD', name: 'Ethereum' },
-];
+// Coinbase 의 상품 이름(BTC-USD 꼴). 위젯이 작은 정사각이라 둘까지만 들어간다.
+// 이름은 흔한 것만 적어 두고, 모르는 것은 앞의 기호(SOL 따위)로 부른다.
+const NAMES = { BTC: 'Bitcoin', ETH: 'Ethereum', SOL: 'Solana', XRP: 'XRP', DOGE: 'Dogecoin', ADA: 'Cardano', LTC: 'Litecoin' };
+const COINS = SITE.desktop.coins.slice(0, 2).map((id) => {
+  const [base, quote] = id.split('-');
+  return { id, name: NAMES[base] || base, quote };
+});
+// 값의 단위: 달러는 앞에 $, 다른 돈은 뒤에 이름(1,234.56 EUR)
+const price = (n, quote) => (quote === 'USD' ? `$${money(n)}` : `${money(n)} ${quote}`);
 const API = 'https://api.exchange.coinbase.com/products/';
 let quotes = null; // { at, list: [{ id, last, open, points }] }
 let quoteTimer = 0;
@@ -89,7 +96,9 @@ function spark(points, open, up) {
 
 function renderCoins() {
   const el = $('[data-nc-coins]', panel);
-  el.innerHTML = COINS.map(({ id, name }) => {
+  // 설정의 코인 목록이 비었으면 위젯을 숨긴다.
+  el.hidden = !COINS.length;
+  el.innerHTML = COINS.map(({ id, name, quote }) => {
     const q = quotes?.list.find((c) => c.id === id);
     if (!q) {
       const v = failed ? '—' : '';
@@ -99,7 +108,7 @@ function renderCoins() {
     const pct = (diff / q.open) * 100;
     const up = diff >= 0;
     const sign = up ? '+' : '−';
-    return `<div class="coin ${up ? 'is-up' : 'is-down'}" aria-label="${name} $${money(q.last)}, ${sign}${Math.abs(pct).toFixed(2)}% today">
+    return `<div class="coin ${up ? 'is-up' : 'is-down'}" aria-label="${name} ${price(q.last, quote)}, ${sign}${Math.abs(pct).toFixed(2)}% today">
       <p class="coin__row" aria-hidden="true"><b><i>${up ? '▲' : '▼'}</i>${id}</b><span class="coin__chg">${sign}${Math.abs(pct).toFixed(2)}%</span></p>
       <p class="coin__row coin__sub" aria-hidden="true"><span>${money(q.last)}</span><span class="coin__chg">${sign}${money(Math.abs(diff))}</span></p>
       ${spark(q.points, q.open, up)}
@@ -109,6 +118,7 @@ function renderCoins() {
 
 async function refreshCoins({ force = false } = {}) {
   clearTimeout(quoteTimer);
+  if (!COINS.length) return; // 숨긴 위젯의 시세는 받지 않는다
   if (force || !quotes || Date.now() - quotes.at > 60_000) {
     try {
       quotes = { at: Date.now(), list: await Promise.all(COINS.map(fetchCoin)) };

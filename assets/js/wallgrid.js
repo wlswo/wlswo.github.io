@@ -16,8 +16,13 @@
  * 배경화면이 격자일 때만 깔린다: 시스템 설정(settings.js)에서 'Linux Commands' 를 골랐거나,
  * 고른 것이 없고 _config.yml 의 wallpaper_grid 가 true 일 때(desktop.html 이 그때만 불러온다).
  * 설정에서 다른 배경화면으로 바꾸면 setGrid(false) 로 걷는다.
+ *
+ * 명령 속의 사용자 이름과 블로그 주소는 _config.yml 의 desktop.username · url 이다.
  */
+import { SITE } from './site.js';
+
 const wall = document.querySelector('.wallpaper');
+const USER = SITE.desktop.username;
 
 const COL = 200; // 칸 폭의 최소. 남는 폭은 칸들이 나눠 가진다
 const ROW = 140; // 칸 높이의 최소. 남는 높이도 나눠 가져 화면 아래에 딱 맞춘다
@@ -33,8 +38,8 @@ const SHRINK = { wide: ['wide', 'big', 'c2', ''], big: ['big', 'c2', 'r2', ''], 
 
 // [명령, 설명, 출력] — 작은 칸. 출력은 평소엔 숨겨 두고 재생할 때만 찍는다
 const SMALL = [
-  ['pwd', 'where am i', '/home/jaejin/blog'],
-  ['whoami', 'who am i', 'jaejin'],
+  ['pwd', 'where am i', `/home/${USER}/blog`],
+  ['whoami', 'who am i', USER],
   ['uname -sr', 'kernel info', 'Linux 6.8.0-45-generic'],
   ['uptime', 'how long up', ' 09:24:11 up 42 days, 3:17\n load average: 0.12, 0.08'],
   ['cd -', 'back to last dir', '/var/www/blog'],
@@ -64,8 +69,8 @@ const SMALL = [
   ['nohup ./run.sh &', 'keep running', '[1] 4821\nnohup: ignoring input'],
   ['jobs -l', 'background jobs', '[1]+ 4821 Running\n     nohup ./run.sh &'],
   ['ping -c 2 1.1.1.1', 'is it up', '64 bytes: time=3.1 ms\n64 bytes: time=2.9 ms'],
-  ['curl -sI https://wlswo.me', 'headers only', 'HTTP/2 200\nserver: GitHub.com\ncontent-type: text/html'],
-  ['dig +short wlswo.me', 'resolve name', '185.199.108.153\n185.199.109.153'],
+  [`curl -sI ${SITE.url}`, 'headers only', 'HTTP/2 200\nserver: GitHub.com\ncontent-type: text/html'],
+  [`dig +short ${SITE.host}`, 'resolve name', '185.199.108.153\n185.199.109.153'],
   ['nc -zv db 5432', 'port open?', 'Connection to db 5432\nport [tcp] succeeded!'],
   ['ssh ubuntu@host uptime', 'remote shell', ' 09:25:02 up 12 days\n load average: 0.03'],
   ['scp app.jar host:/opt/', 'copy over ssh', 'app.jar  100%  42MB\n11.2MB/s   00:03'],
@@ -85,18 +90,18 @@ const SMALL = [
   ['git status -sb', 'short status', '## main...origin/main\n M _config.yml'],
   ['docker logs --tail 2 api', 'container log', 'INFO Started in 2.31s\nINFO Listening on :8080'],
   ['kubectl get ns', 'namespaces', 'NAME         STATUS\ndefault      Active\nkube-system  Active'],
-  ['id', 'user and groups', 'uid=1000(jaejin)\ngroups=1000(jaejin),27(sudo)'],
+  ['id', 'user and groups', `uid=1000(${USER})\ngroups=1000(${USER}),27(sudo)`],
   ['hostname -I', 'my addresses', '10.0.0.5 172.17.0.1'],
 ];
 
 // [명령, 설명, 출력] — 큰 칸. 출력이 늘 보인다
 const LARGE = [
-  ['ls -alh', 'list everything', `drwxr-xr-x 12 jaejin staff 384B .
-drwxr-xr-x  5 jaejin staff 160B ..
--rw-r--r--  1 jaejin staff 1.2K _config.yml
-drwxr-xr-x 48 jaejin staff 1.5K _posts
--rwxr-xr-x  1 jaejin staff 412B deploy.sh
--rw-r--r--  1 jaejin staff  86B .gitignore`],
+  ['ls -alh', 'list everything', `drwxr-xr-x 12 ${USER} staff 384B .
+drwxr-xr-x  5 ${USER} staff 160B ..
+-rw-r--r--  1 ${USER} staff 1.2K _config.yml
+drwxr-xr-x 48 ${USER} staff 1.5K _posts
+-rwxr-xr-x  1 ${USER} staff 412B deploy.sh
+-rw-r--r--  1 ${USER} staff  86B .gitignore`],
   ['top -bn1 | head -5', 'what is busy', `top - 09:24:11 up 42 days, 3:17
 Tasks: 213 total,   1 running
 %Cpu(s):  3.1 us,  1.2 sy, 95.4 id

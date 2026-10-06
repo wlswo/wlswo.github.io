@@ -7,13 +7,14 @@
  * 받은 편지함은 정직하게 채운다: 주인이 쓴 환영 편지(고정) 하나와, search.json 의
  * 진짜 글로 만든 '새 글' 알림. 지어낸 회사 메일이나 남의 이름을 빌린 편지는 없다.
  * 읽음 표시 · 임시 저장(Drafts) · 보낸 편지(Sent)는 이 브라우저의 localStorage 에만 남는다.
- * 주인의 주소와 이름은 dock.html 의 #site-data(_config.yml)에서 읽는다(코드에 적지 않는다).
+ * 주인의 주소와 이름은 dock.html 의 #site-data(_config.yml)를 site.js 로 읽는다(코드에 적지 않는다).
  *
  * 창은 둘이고 하나씩만 뜬다: 보기 창(mail)과 새 메시지 창(compose).
  * 폰에서는 메모 앱처럼 한 화면에 한 판씩(편지함 → 목록 → 편지), ‹ 로 돌아온다.
  */
 import { setupWindow, focusWindow, closeWindow, setCloser, openWindow, flyTo, notify } from './windows.js';
 import { loadPosts } from './posts.js';
+import { SITE } from './site.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -75,16 +76,8 @@ function loadSent() {
 }
 
 // ── 사이트 주인 ─────────────────────────────────────────────────
-function site() {
-  try {
-    return JSON.parse($('#site-data')?.textContent || '{}') || {};
-  } catch {
-    return {};
-  }
-}
-
 function owner() {
-  const s = site();
+  const s = SITE;
   const email = typeof s.email === 'string' && /^[^\s@<>]+@[^\s@<>]+$/.test(s.email.trim()) ? s.email.trim() : '';
   return { name: s.author || 'the author', email, blog: s.title || 'Ephemeris' };
 }
@@ -446,7 +439,7 @@ function renderReader() {
       ${head(m, { from: o.blog, to: 'You', date: esc(longDate(m.date)) })}
       <div class="mail__body">
         <div class="mail__card" style="--c: ${esc(p.color || '#8e8e93')}">
-          <p class="mail__kicker">${use(esc(p.icon || 'doc'))}New post in ${esc(p.category || 'Ephemeris')}</p>
+          <p class="mail__kicker">${use(esc(p.icon || 'doc'))}New post in ${esc(p.category || o.blog)}</p>
           <h4 class="mail__card-title" lang="ko">${esc(p.title)}</h4>
           ${p.description ? `<p class="mail__card-desc" lang="ko">${esc(p.description)}</p>` : ''}
           <a class="mail__cta" href="${esc(p.url)}" data-mail-post>Read Post</a>

@@ -152,9 +152,11 @@
     {%- comment -%}
       Wi-Fi 와 배터리. 이 블로그가 실제 기기의 상태를 읽지는 않는다 — 맥의 메뉴를
       흉내 낸 모형이다(status.js). 저전력 모드만은 진짜로 움직임을 멈춘다.
+      이어진 네트워크 이름은 _config.yml 의 desktop.wifi(없을 때의 이름은 site.js 와 같게).
     {%- endcomment %}
+    {%- assign wifi = site.desktop.wifi | default: 'Home-5G' %}
     <div class="menu menu--right" data-menu>
-      <button class="menubar__item menubar__icon menubar__wifi" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-wifi" aria-label="Wi-Fi: Ephemeris-5G, connected" data-wifi-button>
+      <button class="menubar__item menubar__icon menubar__wifi" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-wifi" aria-label="Wi-Fi: {{ wifi | escape }}, connected" data-wifi-button>
         <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-wifi" data-wifi-glyph/></svg>
       </button>
       <div class="menu__panel menu__panel--status glass" id="menu-wifi" role="menu" aria-label="Wi-Fi" hidden>
@@ -197,7 +199,7 @@
         <div class="cc__grid">
           <div class="cc__tile cc__tile--stack">
             <button class="cc__toggle" role="menuitemcheckbox" aria-checked="true" type="button" data-cc="wifi" data-keep-open>
-              <span class="cc__dot"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-wifi"/></svg></span><span class="cc__name">Wi-Fi<small data-cc-wifi-name>Ephemeris-5G</small></span>
+              <span class="cc__dot"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-wifi"/></svg></span><span class="cc__name">Wi-Fi<small data-cc-wifi-name>{{ wifi | escape }}</small></span>
             </button>
             <button class="cc__toggle" role="menuitemcheckbox" aria-checked="false" type="button" data-cc="dnd" data-keep-open>
               <span class="cc__dot"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-moon"/></svg></span><span class="cc__name">Do Not Disturb<small>Notifications silenced</small></span>

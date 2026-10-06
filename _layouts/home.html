@@ -5,7 +5,7 @@ layout: desktop
   첫 화면: 맥을 막 켠 데스크톱. Finder 창은 닫힌 채로 시작한다(Dock 의 Finder 로
   연다). 바탕에는 About.txt 와 Apache Druid 가 놓인다(한 번 누르면 고르고, 두 번 누르면 또는 ↩ 로 연다). About.txt 는
   메모 앱의 '📍about me' 메모로, Apache Druid 는 Druid 의 동작을 그림으로 보여 주는
-  창(druid.js · /druid/)으로 열린다.
+  창(druid.js · /druid/)으로 열린다. _config.yml 의 desktop.druid 가 false 면 Apache Druid 는 빠진다.
 
   Finder 는 맥처럼 사이드바의 위치를 오간다: 응용 프로그램(Dock 의 앱들),
   데스크탑(About.txt), 다운로드(Dock 의 다운로드 스택과 같은 파일들),
@@ -26,12 +26,14 @@ layout: desktop
       <span class="desktop-icon__label">About.txt</span>
     </a>
   </li>
+  {%- if site.desktop.druid != false %}
   <li>
     <a class="desktop-icon" href="{{ '/druid/' | relative_url }}" data-desktop-icon data-druid>
       <img class="desktop-icon__img" src="{{ '/assets/images/apps/apache-druid.svg' | relative_url }}" width="64" height="64" alt="" draggable="false">
       <span class="desktop-icon__label">Apache Druid</span>
     </a>
   </li>
+  {%- endif %}
 </ul>
 
 <noscript><style>.finder [data-place-view="obsidian"] { display: block !important; } .finder [data-place-view="apps"] { display: none; }</style></noscript>
@@ -116,17 +118,21 @@ layout: desktop
       <ul class="ficons">
         <li><button class="ficon" type="button" data-open-app="finder"><img src="{{ '/assets/images/dock/' | relative_url }}finder-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Finder</span></button></li>
         <li><button class="ficon" type="button" data-open-app="obsidian"><img src="{{ '/assets/images/dock/' | relative_url }}obsidian-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Obsidian</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="mail"><img src="{{ '/assets/images/dock/' | relative_url }}mail-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Mail</span></button></li>
         <li><button class="ficon" type="button" data-open-app="notes"><img src="{{ '/assets/images/dock/' | relative_url }}notes-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Notes</span></button></li>
         <li><button class="ficon" type="button" data-open-app="terminal"><img src="{{ '/assets/images/dock/' | relative_url }}terminal-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Terminal</span></button></li>
         <li><button class="ficon" type="button" data-open-app="games"><img src="{{ '/assets/images/dock/' | relative_url }}games-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Games</span></button></li>
         <li><button class="ficon" type="button" data-open-app="music"><img src="{{ '/assets/images/dock/' | relative_url }}spotify-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Spotify</span></button></li>
+        <li><button class="ficon" type="button" data-open-app="settings"><img src="{{ '/assets/images/dock/' | relative_url }}settings-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">System Settings</span></button></li>
       </ul>
     </div>
 
     <div class="finder__place finder__grid" data-place-view="desktop" role="region" aria-label="Desktop" tabindex="0" hidden>
       <ul class="ficons">
         <li><a class="ficon" href="{{ '/about/' | relative_url }}" data-about-note><img src="{{ '/assets/images/dock/' | relative_url }}notes-128.png" alt="" width="64" height="64" draggable="false"><span class="ficon__label">About.txt</span></a></li>
+        {%- if site.desktop.druid != false %}
         <li><a class="ficon" href="{{ '/druid/' | relative_url }}" data-druid><img src="{{ '/assets/images/apps/' | relative_url }}apache-druid.svg" alt="" width="64" height="64" draggable="false"><span class="ficon__label">Apache Druid</span></a></li>
+        {%- endif %}
       </ul>
     </div>
 
@@ -185,7 +191,7 @@ layout: desktop
     </div>
 
     <footer class="finder__status">
-      <span data-status role="status">6 items</span>
+      <span data-status role="status">8 items</span>
     </footer>
   </div>
 </section>

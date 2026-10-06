@@ -1,7 +1,8 @@
 /*
  * 바탕의 날씨: 맥의 '날씨' 위젯
  *
- * 서울의 날씨를 Open-Meteo(키 없이 쓰는 공개 날씨 API)에서 받아 둥근 판에 그린다.
+ * _config.yml 의 desktop.weather 에 적은 도시의 날씨를 Open-Meteo(키 없이 쓰는 공개
+ * 날씨 API)에서 받아 둥근 판에 그린다.
  * 판의 색은 날씨와 낮·밤을 따라 바뀐다(맑은 낮은 하늘색, 밤은 남색, 흐리면
  * 회청색, 비·눈은 짙은 회색).
  *
@@ -18,17 +19,20 @@
  * 새로 받는다. 받기 전이나 받지 못하면 위젯을 숨긴 채로 둔다.
  */
 import { DESKTOP } from './windows.js';
+import { SITE } from './site.js';
 
 const root = document.querySelector('[data-weather]');
 
-const CITY = 'Seoul';
+const { city: CITY, latitude: LAT, longitude: LON } = SITE.desktop.weather;
+// timezone=auto: 시각을 그 도시의 시간대로 받는다(아래의 시각 비교가 모두 그 시각이다).
 const API =
-  'https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978' +
+  `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
   '&current=temperature_2m,weather_code,is_day' +
   '&hourly=temperature_2m,weather_code,is_day' +
   '&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset' +
-  '&timezone=Asia%2FSeoul&forecast_days=6';
-const DATA_KEY = 'ephemeris:weather:v3'; // v3: 시각 · 요일 이름을 영어로 담는다
+  '&timezone=auto&forecast_days=6';
+// v3: 시각 · 요일 이름을 영어로 담는다. 좌표를 이름에 넣어, 도시를 바꾸면 옛 도시의 날씨를 쓰지 않는다.
+const DATA_KEY = `ephemeris:weather:v3:${LAT},${LON}`;
 const PLACE_KEY = 'ephemeris:weather-widget';
 const TTL = 30 * 60 * 1000;
 
@@ -93,9 +97,11 @@ function icon(kind, day = true) {
 const ARROW = '<svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M11 1L1 5.2l4.4 1.4L6.8 11z" fill="currentColor"/></svg>';
 
 const deg = (n) => `${Math.round(n)}°`;
+// 도시 이름은 설정에서 오므로 판에 넣기 전에 HTML 글자를 막는다.
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 // ── 받기 ────────────────────────────────────────────────────────
-// 시각은 모두 서울 시각의 글자('2026-09-29T16:00')로 온다. 글자 그대로 비교한다.
+// 시각은 모두 그 도시 시각의 글자('2026-09-29T16:00')로 온다. 글자 그대로 비교한다.
 const WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // 맥의 날씨처럼 '3PM', 해 뜨고 지는 때는 '6:42AM'
@@ -185,7 +191,7 @@ function daysHTML(days) {
 
 function bodyFor(s) {
   const [name, kind] = describe(data.code);
-  const now = `<div class="weather__now"><span class="weather__city">${CITY} ${ARROW}</span><span class="weather__temp">${deg(data.temp)}</span></div>`;
+  const now = `<div class="weather__now"><span class="weather__city">${esc(CITY)} ${ARROW}</span><span class="weather__temp">${deg(data.temp)}</span></div>`;
   const sky = `<div class="weather__sky">${icon(kind, data.day)}<span class="weather__name">${name}</span><span class="weather__range">H:${deg(data.hi)} L:${deg(data.lo)}</span></div>`;
   const el = document.createElement('div');
   el.className = `weather__body weather__body--${s}`;

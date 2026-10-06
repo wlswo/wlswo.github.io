@@ -1,3 +1,8 @@
+# The pinned, read-only "about me" note in Notes (also opened by About.txt on the desktop
+# and printed by `cat Desktop/about.txt` in Terminal).
+#   title    the note's title
+#   bullets  one bullet per line; {posts} becomes the post count, {latest} the newest post's title
+#
 # 메모 앱(Dock 의 메모, 바탕의 About.txt)에 고정되어 있는 '📍about me' 메모.
 # 방문자는 읽기만 한다(잠긴 메모). 고치려면 이 파일을 고친다.
 # 줄마다 글머리 기호 한 줄. {posts} 는 글 수, {latest} 는 가장 최근 글 제목으로 바뀐다.

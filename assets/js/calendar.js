@@ -5,7 +5,7 @@
  * (Spotlight 로도 연다. desktop.js 가 이 모듈을 그때 불러온다).
  * 쓴 글이 그날의 일정처럼 카테고리 색 라벨로 붙고, 누르면 그 글이 열린다.
  *
- *   왼쪽   카테고리를 캘린더 목록처럼(체크를 끄면 그 글을 숨긴다) · 작은 달력
+ *   왼쪽   카테고리를 블로그 이름 아래 캘린더 목록처럼(체크를 끄면 그 글을 숨긴다) · 작은 달력
  *   위     Day · Week · Month · Year, 제목, ‹ Today ›
  *   가운데 고른 보기. 처음에는 Month.
  *
@@ -13,6 +13,7 @@
  */
 import { setupWindow, focusWindow, closeWindow, setCloser, openWindow, flyTo } from './windows.js';
 import { loadPosts } from './posts.js';
+import { SITE } from './site.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -242,7 +243,7 @@ function build() {
     <aside class="calapp__side" aria-label="Calendars">
       <div class="calapp__chrome" data-window-drag>${traffic}</div>
       <div class="calapp__lists">
-        <p class="calapp__group">Ephemeris</p>
+        <p class="calapp__group">${esc(SITE.title || 'Calendars')}</p>
         <ul class="calapp__cals" data-cal-list></ul>
       </div>
       <div class="calapp__mini">

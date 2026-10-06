@@ -84,6 +84,10 @@
 </div>
 {%- comment -%} 게임 창의 앱들(_data/projects.yml). games.js 가 읽는다. {%- endcomment %}
 <script type="application/json" id="projects-data">{{ site.data.projects | jsonify }}</script>
-{%- comment -%} 메모 앱의 고정 메모(_data/about_me.yml)와 터미널이 읽는 사이트 정보. {%- endcomment %}
+{%- comment -%}
+  JS 가 읽는 사이트 설정: _config.yml 의 title · author · email · url · desktop 묶음,
+  메모 앱의 고정 메모(_data/about_me.yml), Spotify 의 앨범(_data/music.yml), 글 수와 최근 글.
+  assets/js/site.js 가 한 번 읽어 기본값을 채워 나눠 준다(코드에 개인 값을 적지 않게).
+{%- endcomment %}
 {%- assign latest = site.posts | first %}
-<script type="application/json" id="site-data">{"about": {{ site.data.about_me | jsonify }}, "posts": {{ site.posts | size }}, "latest": {{ latest.title | jsonify }}, "author": {{ site.author | jsonify }}, "email": {{ site.email | jsonify }}, "title": {{ site.title | jsonify }}, "first": {{ site.posts.last.date | date: "%Y-%m-%d" | jsonify }}}</script>
+<script type="application/json" id="site-data">{"about": {{ site.data.about_me | jsonify }}, "posts": {{ site.posts | size }}, "latest": {{ latest.title | jsonify }}, "author": {{ site.author | jsonify }}, "email": {{ site.email | jsonify }}, "title": {{ site.title | jsonify }}, "first": {{ site.posts.last.date | date: "%Y-%m-%d" | jsonify }}, "url": {{ site.url | jsonify }}, "desktop": {{ site.desktop | jsonify }}, "music": {{ site.data.music | jsonify }}}</script>

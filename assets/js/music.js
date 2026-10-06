@@ -1,8 +1,8 @@
 /*
  * 음악: Dock 의 Spotify 를 누르면 뜨는 유리 뮤직 플레이어 창
  *
- * SZA 의 앨범 SOS(23곡)를 처음부터 끝까지 튼다. 소리는 유튜브의 앨범 재생목록을
- * 유튜브 공식 임베드 플레이어(IFrame Player API)로 받는다. 창에는 앨범 그림과
+ * _data/music.yml 에 적은 앨범 한 장을 처음부터 끝까지 튼다. 소리는 곡마다 적어 둔
+ * 유튜브 영상을 유튜브 공식 임베드 플레이어(IFrame Player API)로 받는다. 창에는 앨범 그림과
  * 곡 이름 · 진행 막대 · 조작 · 음량만 보인다. 유튜브 영상은 앨범 그림 밑에
  * 같은 크기로 깔아 두고(작게 줄이거나 display: none 으로 치우면 재생이 멈추는
  * 브라우저가 있다) 그림으로 덮는다. 곡이 끝나면 다음 곡으로, 재생할 수 없는
@@ -11,47 +11,16 @@
  * 유튜브의 임베드 정책은 플레이어가 보이게 두기를 요구한다. 영상을 가리는 것은
  * 사이트 주인의 선택이다(가리지 않으려면 .music__cover 를 치우면 된다).
  *
- *   https://www.youtube.com/playlist?list=PLf7ytxKzTZxvXeAH2MPmZO54Ej47Ol0Nc
- *
  * 창을 닫으면 음악도 멈춘다(최소화하면 계속 나온다).
  */
 import { setupWindow, focusWindow, closeWindow, setCloser, openWindow, flyTo } from './windows.js';
+import { SITE } from './site.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-const ALBUM = {
-  title: 'SOS',
-  artist: 'SZA',
-  year: 2022,
-  art: 'https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/bd/3b/a9/bd3ba9fb-9609-144f-bcfe-ead67b5f6ab3/196589564931.jpg/600x600bb.jpg',
-};
-
-// [유튜브 영상 id, 곡 이름, 함께한 사람]
-const TRACKS = [
-  ['WxflcXmtVTM', 'SOS'],
-  ['SQnc1QibapQ', 'Kill Bill'],
-  ['SB0GxBSFUJk', 'Seek & Destroy'],
-  ['Z-T_O_vl-8Y', 'Low'],
-  ['npu0F7n4M9Y', 'Love Language'],
-  ['RwFflrGOsv8', 'Blind'],
-  ['Yd0IYrgrss4', 'Used', 'Don Toliver'],
-  ['Sv5yCzPCkv8', 'Snooze'],
-  ['d5HnmWR8JIQ', 'Notice Me'],
-  ['rA6DIHIg5To', 'Gone Girl'],
-  ['0pWcpuyYrRk', 'Smoking on my Ex Pack'],
-  ['s8EU5Sm9GQY', 'Ghost in the Machine', 'Phoebe Bridgers'],
-  ['h-oGPR9jHtk', 'F2F'],
-  ['7frfkBdV0-w', 'Nobody Gets Me'],
-  ['MgGdikddX_g', 'Conceited'],
-  ['2B-G_jB0Wzo', 'Special'],
-  ['w_6Ds6hr01M', 'Too Late'],
-  ['lyNbWD07o1Q', 'Far'],
-  ['hdFDrjfW548', 'Shirt'],
-  ['JLd09jmEAYA', 'Open Arms', 'Travis Scott'],
-  ['iwyAxyE2Ajg', 'I Hate U'],
-  ['0BdlKkvjEgA', 'Good Days'],
-  ['2ing0GBYUws', 'Forgiveless', "Ol' Dirty Bastard"],
-].map(([id, title, feat]) => ({ id, title, feat }));
+// 앨범 { title, artist, year, art } 과 곡 [{ id: 유튜브 영상 id, title, feat: 함께한 사람 }]
+const { album: ALBUM, tracks: TRACKS } = SITE.music;
 
 const ICON = {
   play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l11-6.8a.8.8 0 0 0 0-1.4l-11-6.8A.8.8 0 0 0 8 5.2z"/></svg>',
@@ -122,7 +91,7 @@ function build() {
     <div class="music__main">
       <div class="music__art">
         <div class="music__video" aria-hidden="true"><div data-music-player></div></div>
-        <img class="music__cover" src="${ALBUM.art}" alt="${ALBUM.title} album artwork by ${ALBUM.artist}" width="600" height="600" draggable="false">
+        <img class="music__cover" src="${esc(ALBUM.art)}" alt="${esc([ALBUM.title, 'album artwork', ALBUM.artist && `by ${ALBUM.artist}`].filter(Boolean).join(' '))}" width="600" height="600" draggable="false">
       </div>
       <div class="music__now">
         <div class="music__meta">
@@ -151,8 +120,8 @@ function build() {
 
 // ── 그리기 ──────────────────────────────────────────────────────
 function paintTrack() {
-  if (!win) return;
   const t = TRACKS[index];
+  if (!win || !t) return;
   $('[data-music-title]', win).textContent = t.title;
   $('[data-music-artist]', win).textContent = `${ALBUM.artist}${t.feat ? `, ${t.feat}` : ''} — ${ALBUM.title}`;
   $('[data-music-count]', win).textContent = `${index + 1} of ${TRACKS.length}`;
@@ -217,7 +186,9 @@ function onError() {
   if (++skipped >= 3) {
     skipped = 0;
     const note = win && $('[data-music-status]', win);
-    if (note) note.textContent = 'Playback isn’t available on this address. Open the site on wlswo.me or localhost.';
+    // 블로그의 주소는 _config.yml 의 url(로컬에서 띄웠다면 그 주소가 곧 localhost 다)
+    const where = /^(localhost|127\.0\.0\.1)(:|$)/.test(SITE.host) ? 'localhost' : `${SITE.host} or localhost`;
+    if (note) note.textContent = `Playback isn’t available on this address. Open the site on ${where}.`;
     return;
   }
   play(index + 1);
@@ -312,6 +283,8 @@ export async function openMusic(button) {
   });
   $('[data-music-volume]', win).style.setProperty('--p', '80%');
 
-  startPlayer();
+  // 곡이 하나도 없으면(_data/music.yml 이 비었으면) 플레이어를 띄우지 않는다.
+  if (TRACKS.length) startPlayer();
+  else $('[data-music-status]', win).textContent = 'No tracks to play.';
   return win;
 }

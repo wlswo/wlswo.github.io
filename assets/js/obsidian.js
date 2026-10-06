@@ -2,7 +2,7 @@
  * Obsidian: 글을 노트처럼 읽는 창
  *
  * Dock 의 Obsidian 을 누르면 뜬다(desktop.js 가 이 모듈을 그때 불러온다).
- * 왼쪽은 보관함(vault)의 파일 탐색기: 카테고리가 폴더, 글이 노트다. 노트를
+ * 왼쪽은 보관함(vault, 이름은 블로그 이름)의 파일 탐색기: 카테고리가 폴더, 글이 노트다. 노트를
  * 고르면 오른쪽 읽기 보기에 그 글의 속성(날짜 · 태그 · 설명)과 본문이 뜬다.
  * 본문은 그 글의 쪽을 받아 와 본문(.post-content)만 옮겨 담는다.
  *
@@ -12,6 +12,7 @@
  */
 import { setupWindow, focusWindow, closeWindow, setCloser, openWindow, flyTo } from './windows.js';
 import { loadPosts } from './posts.js';
+import { SITE } from './site.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -44,7 +45,7 @@ function build() {
     <aside class="obsidian__side" aria-label="File explorer">
       <div class="obsidian__chrome" data-window-drag>${traffic}</div>
       <div class="obsidian__vault">
-        <h2 class="obsidian__vault-name" id="obsidian-title">Ephemeris</h2>
+        <h2 class="obsidian__vault-name" id="obsidian-title">${esc(SITE.title || 'Obsidian')}</h2>
         <span class="obsidian__count" data-obs-count></span>
       </div>
       <label class="obsidian__search">

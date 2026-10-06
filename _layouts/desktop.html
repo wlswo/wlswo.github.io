@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ site.language | default: "en" }}" data-theme="light">
 <head>
-  {%- if page.layout == "minimal_post" or page.layout == "minimal_page" or page.layout == "home" %}
+  {%- if page.layout == "minimal_post" or page.layout == "home" %}
   {% include head.html syntax=true %}
   {%- else %}
   {% include head.html %}
@@ -110,7 +110,7 @@
   {%- if page.layout == "home" %}
   <script type="module" src="{{ "/assets/js/finder.js" | relative_url }}"></script>
   <script type="module" src="{{ "/assets/js/docs.js" | relative_url }}"></script>
-  {%- elsif page.layout == "minimal_post" or page.layout == "minimal_page" %}
+  {%- elsif page.layout == "minimal_post" %}
   <script type="module" src="{{ "/assets/js/post.js" | relative_url }}"></script>
   {%- endif %}
 </body>

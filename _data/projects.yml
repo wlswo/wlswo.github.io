@@ -1,3 +1,8 @@
+# Your projects, shown in order as app icons in the Games window (Dock) and listed
+# under ~/Projects in Terminal.
+#   name  label under the icon · desc  one-line description · url  opens in a new tab
+#   icon  picture name: assets/images/apps/<icon>-128.png and <icon>-256.png (rounded-square app icon)
+#
 # Dock 의 '게임'을 누르면 뜨는 창에 앱 아이콘으로 서는 개인 프로젝트. 순서대로 놓인다.
 #
 # name  아이콘 밑의 이름

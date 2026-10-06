@@ -161,10 +161,12 @@ addEventListener('popstate', () => {
 const DOCK = {
   finder: '[data-dock-finder]',
   obsidian: '[data-dock-obsidian]',
+  mail: '[data-dock-mail]',
   notes: '[data-dock-notes]',
   terminal: '[data-dock-terminal]',
   games: '[data-dock-games]',
   music: '[data-dock-music]',
+  settings: '[data-dock-settings]',
 };
 const ficons = $$('.ficon', win);
 

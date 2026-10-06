@@ -60,7 +60,7 @@ const SPEC = [
   { id: 'postman-collection', at: [1, 14, 5, 31], name: 'order-api.postman_collection.json', ext: 'json', size: 48733 },
   { id: 'invoice', at: [2, 10, 31, 2], name: invoiceName, ext: 'pdf', size: 182406, page: 'invoice' },
   { id: 'intellij', at: [3, 21, 14, 40], name: (d) => `ideaIU-${ideaVersion(d)}-aarch64.dmg`, ext: 'dmg', size: 1243551744 },
-  { id: 'architecture', at: [4, 16, 47, 12], name: 'moco-aws-architecture.drawio.png', ext: 'png', size: 412880, thumb: 'architecture' },
+  { id: 'architecture', at: [4, 16, 47, 12], name: 'aws-architecture.drawio.png', ext: 'png', size: 412880, thumb: 'architecture' },
   { id: 'docker', at: [5, 11, 20, 5], name: 'Docker.dmg', ext: 'dmg', size: 612385021 },
   { id: 'kafka', at: [6, 15, 3, 44], name: 'kafka_2.13-3.8.0', ext: 'folder' }, // 아래 tgz 를 푼 폴더
   { id: 'kafka-tgz', at: [6, 15, 2, 18], name: 'kafka_2.13-3.8.0.tgz', ext: 'tgz', size: 118153224 },

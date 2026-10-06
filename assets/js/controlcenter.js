@@ -12,6 +12,7 @@
  *   지금 재생 중 Spotify 의 곡 이름과 이전, 재생, 다음
  */
 import { setAppearance } from './theme.js';
+import { SITE } from './site.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const root = document.documentElement;
@@ -60,7 +61,7 @@ function sync() {
   const wifi = $('[data-wifi-toggle]');
   check('wifi', wifi ? wifi.getAttribute('aria-checked') === 'true' : true);
   const net = $('.menu__net.is-joined .menu__text')?.textContent;
-  $('[data-cc-wifi-name]', panel).textContent = wifi?.getAttribute('aria-checked') === 'false' ? 'Off' : net || 'Ephemeris-5G';
+  $('[data-cc-wifi-name]', panel).textContent = wifi?.getAttribute('aria-checked') === 'false' ? 'Off' : net || SITE.desktop.wifi;
   check('dnd', root.dataset.dnd === 'on');
   check('dark', root.dataset.theme === 'dark');
   check('still', root.classList.contains('is-still'));
@@ -73,7 +74,7 @@ function sync() {
   const music = $('.window.music');
   const title = music && $('[data-music-title]', music)?.textContent;
   $('[data-cc-title]', panel).textContent = title || 'Not Playing';
-  $('[data-cc-artist]', panel).textContent = title ? $('[data-music-artist]', music)?.textContent || 'SZA' : 'Spotify';
+  $('[data-cc-artist]', panel).textContent = title ? $('[data-music-artist]', music)?.textContent || SITE.music.album.artist : 'Spotify';
   const cover = music && $('.music__cover', music)?.src;
   $('[data-cc-art]', panel).src = cover || $('[data-cc-art]', panel).src;
   const playing = music?.classList.contains('is-playing');

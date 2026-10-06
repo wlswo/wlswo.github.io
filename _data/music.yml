@@ -1,0 +1,55 @@
+# Music — the album the Spotify app in the Dock plays (assets/js/music.js).
+#
+# Sound comes from YouTube through its official embed player, one video per track,
+# played in order from the first track to the last.
+#
+# album
+#   title   album name
+#   artist  main artist (shown under every track title)
+#   year    release year
+#   art     cover image URL (a square image, about 600×600). Leave empty to show the Spotify icon.
+#
+# tracks (in play order)
+#   id      YouTube video id: the part after "watch?v=" in a video URL, e.g.
+#           https://www.youtube.com/watch?v=WxflcXmtVTM  ->  WxflcXmtVTM
+#           Open the album's playlist on YouTube (or YouTube Music) and copy each video's id.
+#           Quote it — some ids start with "-" or look like numbers.
+#   title   track title
+#   feat    featured artist (optional)
+#
+# Some label videos refuse to play on 127.0.0.1 or other unusual hosts; open the
+# site on your domain or on localhost.
+#
+# Album used here: SZA — SOS (2022), from this playlist:
+#   https://www.youtube.com/playlist?list=PLf7ytxKzTZxvXeAH2MPmZO54Ej47Ol0Nc
+
+album:
+  title: SOS
+  artist: SZA
+  year: 2022
+  art: https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/bd/3b/a9/bd3ba9fb-9609-144f-bcfe-ead67b5f6ab3/196589564931.jpg/600x600bb.jpg
+
+tracks:
+  - { id: "WxflcXmtVTM", title: "SOS" }
+  - { id: "SQnc1QibapQ", title: "Kill Bill" }
+  - { id: "SB0GxBSFUJk", title: "Seek & Destroy" }
+  - { id: "Z-T_O_vl-8Y", title: "Low" }
+  - { id: "npu0F7n4M9Y", title: "Love Language" }
+  - { id: "RwFflrGOsv8", title: "Blind" }
+  - { id: "Yd0IYrgrss4", title: "Used", feat: "Don Toliver" }
+  - { id: "Sv5yCzPCkv8", title: "Snooze" }
+  - { id: "d5HnmWR8JIQ", title: "Notice Me" }
+  - { id: "rA6DIHIg5To", title: "Gone Girl" }
+  - { id: "0pWcpuyYrRk", title: "Smoking on my Ex Pack" }
+  - { id: "s8EU5Sm9GQY", title: "Ghost in the Machine", feat: "Phoebe Bridgers" }
+  - { id: "h-oGPR9jHtk", title: "F2F" }
+  - { id: "7frfkBdV0-w", title: "Nobody Gets Me" }
+  - { id: "MgGdikddX_g", title: "Conceited" }
+  - { id: "2B-G_jB0Wzo", title: "Special" }
+  - { id: "w_6Ds6hr01M", title: "Too Late" }
+  - { id: "lyNbWD07o1Q", title: "Far" }
+  - { id: "hdFDrjfW548", title: "Shirt" }
+  - { id: "JLd09jmEAYA", title: "Open Arms", feat: "Travis Scott" }
+  - { id: "iwyAxyE2Ajg", title: "I Hate U" }
+  - { id: "0BdlKkvjEgA", title: "Good Days" }
+  - { id: "2ing0GBYUws", title: "Forgiveless", feat: "Ol' Dirty Bastard" }

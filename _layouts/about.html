@@ -18,7 +18,10 @@ layout: desktop
 
     <dl class="about__specs">
       <div><dt>Author</dt><dd>{{ site.author }}</dd></div>
-      <div><dt>Category</dt><dd>Computer Science</dd></div>
+      {%- comment -%} 블로그의 분야(_config.yml 의 desktop.about_category). 비우면 이 줄을 감춘다. {%- endcomment %}
+      {%- if site.desktop.about_category %}
+      <div><dt>Category</dt><dd>{{ site.desktop.about_category }}</dd></div>
+      {%- endif %}
       {%- if oldest %}
       <div><dt>First Post</dt><dd><time datetime="{{ oldest.date | date: '%Y-%m-%d' }}">{{ oldest.date | date: "%B %-d, %Y" }}</time></dd></div>
       <div><dt>Latest Post</dt><dd><a href="{{ newest.url | relative_url }}" lang="ko">{{ newest.title }}</a></dd></div>

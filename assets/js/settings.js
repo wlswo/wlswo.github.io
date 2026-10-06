@@ -28,6 +28,7 @@ import {
   clearNotifications,
 } from './windows.js';
 import { getAppearance, setAppearance } from './theme.js';
+import { SITE } from './site.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -95,14 +96,6 @@ const paneOf = (id) => PANES.find((p) => p.id === id);
 const titleOf = (id) => TITLE[id] || paneOf(id)?.label || '';
 const validView = (id) => !!(paneOf(id) || PARENT[id]);
 const NARROW = () => !DESKTOP.matches;
-
-function site() {
-  try {
-    return JSON.parse($('#site-data')?.textContent || '{}');
-  } catch {
-    return {};
-  }
-}
 
 // 사용자 사진 자리: 잠금 화면 · About 창의 그 캐릭터(bot.js 가 눈을 움직인다)
 const BOT = (cls) => `<svg class="bot ${cls}" viewBox="0 0 120 120" data-bot aria-hidden="true" focusable="false">
@@ -341,7 +334,7 @@ const VIEWS = {
   },
 
   about() {
-    const s = site();
+    const s = SITE;
     const about = $('#menu-app a[href$="/about/"]')?.getAttribute('href') || '/about/';
     const first = s.first ? new Date(`${s.first}T00:00:00`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
     const rows = [
@@ -406,7 +399,7 @@ const VIEWS = {
       <h3 class="settings__head">Desktop</h3>
       <div class="settings__card">
         <div class="settings__row">
-          <span class="settings__label"><span id="set-items-l">Show Items on Desktop</span><small id="set-items-d">About.txt and Apache Druid</small></span>
+          <span class="settings__label"><span id="set-items-l">Show Items on Desktop</span><small id="set-items-d">${SITE.desktop.druid ? 'About.txt and Apache Druid' : 'About.txt'}</small></span>
           ${sw('items', 'set-items-l', 'set-items-d')}
         </div>
         <div class="settings__row">
@@ -594,7 +587,7 @@ function sidebar() {
 }
 
 function build() {
-  const s = site();
+  const s = SITE;
   const el = document.createElement('section');
   el.className = 'window settings';
   el.dataset.window = 'settings';
@@ -681,7 +674,7 @@ function filter() {
     if (hit) any = true;
   }
   for (const g of $$('.settings__group', win)) g.hidden = !$('[data-pane]:not([hidden])', g);
-  $('.settings__me', win).hidden = !!q && !'about author profile blog 정보'.includes(q) && !(site().author || '').toLowerCase().includes(q);
+  $('.settings__me', win).hidden = !!q && !'about author profile blog 정보'.includes(q) && !(SITE.author || '').toLowerCase().includes(q);
   $('[data-settings-none]', win).hidden = any;
   // 고른 칸이 걸러져 숨으면 Tab 으로 목록에 들어올 자리를 첫 결과에 준다
   const items = visibleOptions();

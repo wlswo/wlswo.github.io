@@ -7,13 +7,20 @@
  * 배터리 메뉴의 '저전력 모드'는
  * 진짜로 움직임(고양이 따위)을 멈춘다(desktop.js). 그동안 배터리는 노랗게 된다(CSS).
  */
+import { SITE } from './site.js';
+
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-// 신호 세기(1~3), 잠금 여부. 앞의 둘은 전에 붙어 본 네트워크다.
+// 처음 붙어 있는 네트워크는 _config.yml 의 desktop.wifi. 이름이 -5G 로 끝나면
+// 같은 공유기의 2.4GHz 쪽(-5G 를 뗀 이름)도 전에 붙어 본 네트워크로 둔다.
+const WIFI = SITE.desktop.wifi;
+const BAND = WIFI.replace(/[-_ ]?5G$/i, '');
+
+// 신호 세기(1~3), 잠금 여부. known 은 전에 붙어 본 네트워크다.
 const NETWORKS = [
-  { name: 'Ephemeris-5G', bars: 3, lock: true, known: true },
-  { name: 'Ephemeris', bars: 3, lock: true, known: true },
+  { name: WIFI, bars: 3, lock: true, known: true },
+  ...(BAND && BAND !== WIFI ? [{ name: BAND, bars: 3, lock: true, known: true }] : []),
   { name: 'iptime', bars: 2, lock: true },
   { name: 'KT_GiGA_5G_3F1C', bars: 2, lock: true },
   { name: 'U+Net8A2C', bars: 1, lock: true },
@@ -27,7 +34,7 @@ const knownList = $('[data-wifi-list]');
 const otherList = $('[data-wifi-others]');
 
 let on = true;
-let current = 'Ephemeris-5G';
+let current = WIFI;
 let joining = null;
 
 const escapeHTML = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);

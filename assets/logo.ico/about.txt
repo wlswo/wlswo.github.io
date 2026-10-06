@@ -1,6 +1,0 @@
-This favicon was generated using the following font:
-
-- Font Title: Aclonica
-- Font Author: undefined
-- Font Source: https://fonts.gstatic.com/s/aclonica/v24/K2FyfZJVlfNNSEBXGb7TCI6oBjLz.ttf
-- Font License: undefined)

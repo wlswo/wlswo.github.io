@@ -1,3 +1,10 @@
+# Post categories — Finder tags, Obsidian folders, Calendar colors. Listed in sidebar order.
+# A post joins one with `categories: [slug]` in its front matter.
+#   slug   used in front matter and in the address (?c=slug)
+#   name   shown on screen · short  for tight spots · en  short English name (OG image, search)
+#   ko     extra search words (not shown) · icon  symbol id from _includes/icons.html
+#   color  the category's color in Calendar
+#
 # 글의 카테고리. 순서가 곧 사이드바의 순서다.
 #
 # slug  글 머리말의 `categories: [slug]` 와 주소(?c=slug)에 쓰인다

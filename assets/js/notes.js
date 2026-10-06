@@ -2,7 +2,7 @@
  * 메모: 맥의 메모 앱
  *
  * 왼쪽은 메모 목록(맨 위에 '고정됨'), 오른쪽은 편집기. 맨 위의 '📍about me'는
- * 사이트 주인이 쓴 잠긴 메모다(_data/about_me.yml → dock.html 의 #site-data).
+ * 사이트 주인이 쓴 잠긴 메모다(_data/about_me.yml → dock.html 의 #site-data → site.js).
  * 방문자는 새 메모를 쓰고, 고치고, 지울 수 있다. 쓴 메모는 이 브라우저의
  * localStorage 에만 저장된다(다른 기기나 다른 사람에게는 보이지 않는다).
  *
@@ -10,6 +10,7 @@
  * 바탕의 About.txt 를 열면 이 앱이 about me 메모를 펼친 채로 뜬다.
  */
 import { setupWindow, focusWindow, closeWindow, setCloser, openWindow, flyTo } from './windows.js';
+import { SITE } from './site.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -46,16 +47,8 @@ function save() {
 }
 
 // ── 사이트 정보(about me) ───────────────────────────────────────
-function site() {
-  try {
-    return JSON.parse($('#site-data')?.textContent || '{}');
-  } catch {
-    return {};
-  }
-}
-
 function aboutNote() {
-  const s = site();
+  const s = SITE;
   const about = s.about || { title: '📍about me', bullets: [] };
   const fill = (t) => String(t).replace('{posts}', s.posts ?? '').replace('{latest}', s.latest ?? '');
   return { id: ABOUT, title: about.title, bullets: (about.bullets || []).map(fill), locked: true };

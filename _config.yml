@@ -1,14 +1,37 @@
+# ===============================================================
+# A Jekyll blog that looks and works like a macOS desktop.
+#
+# Everything personal is set here and in _data/ — the code reads it from there:
+#   _config.yml           site info, wallpaper, and the `desktop:` block at the bottom
+#   _data/about_me.yml    the pinned "about me" note (Notes app, About.txt on the desktop)
+#   _data/categories.yml  post categories (Finder tags, Obsidian folders, Calendar colors)
+#   _data/projects.yml    your projects, shown as apps in the Games window
+#   _data/music.yml       the album the Spotify app plays
+#
+# `jekyll serve` does not reload this file while it runs: restart it after editing.
+# ===============================================================
+
 # ---------------------------------------------------------------
 # Site Settings
 # ---------------------------------------------------------------
+# Blog name: browser tab, About This Mac, System Settings, Mail, Obsidian vault,
+# Calendar, Terminal (uname · neofetch)
 title: Ephemeris
-subtitle: 
-# 링크를 공유할 때 나오는 설명(글은 각 글의 description 이 앞선다)
+# Optional. Added to the home page's tab title ("title - subtitle")
+subtitle:
+# Description for search engines and link previews (a post's own description wins)
 description: Blog
+# Your name: lock screen, About This Mac, System Settings, Mail, © line
 author: JaeJin
+# Language of the page (<html lang>)
 language: en
+# Where the Mail app sends visitors' messages (opens their mail app with this address)
 email: byunjin11@naver.com
+# The site's address, without a trailing slash. Also used for feed/sitemap/SEO links and
+# shown in Terminal (neofetch) and the Linux-commands wallpaper.
 url: "https://wlswo.me"
+# Sub-path when the site does not live at the domain root, e.g. "/blog" for
+# username.github.io/blog. Leave "" for username.github.io or a custom domain.
 baseurl: ""
 
 # ---------------------------------------------------------------
@@ -21,6 +44,9 @@ highlighter: rouge
 
 permalink: /:year/:month/:day/:title/
 
+# Your time zone (IANA name, e.g. America/New_York). Post dates and URLs are counted
+# in it; without it GitHub Pages builds in UTC, so a post written early in the day
+# can get the previous day's URL.
 # 글의 날짜와 주소를 한국 시간으로 셈한다. 이 줄이 없으면 GitHub Pages(UTC)에서
 # 새벽 0~9시에 쓴 글의 주소가 하루 앞 날짜로 만들어진다.
 timezone: Asia/Seoul
@@ -43,28 +69,61 @@ exclude:
   - node_modules
   - vendor
   - README.md
-  - Rakefile
-  - changelog.md
-  - README_en.md
+  - README.ko.md
+  - NOTICE.md
 
 # ---------------------------------------------------------------
-# Custom Settings
+# Wallpaper — the default desktop and lock-screen background
+# (visitors can pick another one in System Settings › Wallpaper)
 # ---------------------------------------------------------------
-# 데스크톱 배경화면. 다른 그림을 쓰려면 assets/images/ 에 넣고 경로를 바꾼다.
-# wallpaper_2x 는 레티나 화면용(없으면 wallpaper 를 그대로 쓴다).
-# wallpaper_dark(_2x) 는 다크 모양일 때의 그림(없으면 위의 그림을 쓴다).
-# wallpaper_tone 은 그림의 밝기: dark 면 라이트 모양에서도 메뉴 막대와 데스크톱
-# 폴더 이름을 흰 글자로 쓴다(맥이 어두운 배경화면 위에서 하듯이).
+# To use your own picture, put it in assets/images/ and change the paths.
+#   wallpaper          the picture
+#   wallpaper_2x       a double-size copy for Retina screens (optional; falls back to wallpaper)
+#   wallpaper_dark     the picture in Dark appearance (optional; falls back to wallpaper)
+#   wallpaper_dark_2x  its Retina copy (optional)
+#   wallpaper_tone     how bright the picture is. dark: menu bar text and desktop icon
+#                      labels turn white even in Light appearance (as macOS does on a
+#                      dark wallpaper). light: they stay black.
 #
-# 직접 그린 밝은 배경(assets/images/wallpaper*.webp, 원본은 wallpaper.svg)도 남겨 두었다.
-# 되돌리려면 아래 네 줄을 wallpaper(-dark)(@2x).webp 로 바꾸고 tone 을 light 로.
+# A hand-drawn light wallpaper is included too (assets/images/wallpaper*.webp, source
+# wallpaper.svg). To use it, point the four paths at wallpaper(-dark)(@2x).webp and set
+# wallpaper_tone to light.
 wallpaper: /assets/images/wallpaper-monterey.webp
 wallpaper_2x: /assets/images/wallpaper-monterey@2x.webp
 wallpaper_dark: /assets/images/wallpaper-monterey.webp
 wallpaper_dark_2x: /assets/images/wallpaper-monterey@2x.webp
 wallpaper_tone: dark
-# 그림 대신 단색으로 칠하려면 색을 적는다(지우면 위의 그림으로 돌아간다).
-# 색이 어두우면 wallpaper_tone 을 dark, 밝으면 light 로 맞춘다.
+# Paint the desktop one solid color instead of a picture (remove the line to go back).
+# Set wallpaper_tone to dark for a dark color, light for a light one.
 # wallpaper_color: "#d3d9b3"
-# 배경화면을 크기 제각각의 칸으로 나누고 칸마다 리눅스 명령어를 적는다(assets/js/wallgrid.js).
+# Cover the wallpaper with a grid of Linux commands in cells of mixed sizes
+# (assets/js/wallgrid.js); a play button in the menu bar types them out.
 # wallpaper_grid: true
+
+# ---------------------------------------------------------------
+# Desktop — what the macOS desktop shows (Terminal, menu bar, widgets, apps)
+# ---------------------------------------------------------------
+desktop:
+  # Terminal: the prompt (username@hostname), whoami and the home folder /Users/<username>.
+  # Also the user in the Linux-commands wallpaper.
+  username: wlswo
+  # Terminal: the computer name in the prompt, hostname and uname -a
+  hostname: Ephemeris
+  # Wi-Fi network shown as connected (menu bar, Control Center, System Settings).
+  # A name ending in -5G also lists its 2.4 GHz twin (the same name without -5G).
+  wifi: Ephemeris-5G
+  # Weather widget on the desktop, from Open-Meteo (free, no API key).
+  # city is the label; latitude/longitude pick the forecast (look them up on any map).
+  weather:
+    city: Seoul
+    latitude: 37.5665
+    longitude: 126.978
+  # Notification Center's crypto widget (click the clock): Coinbase product ids
+  # (COIN-CURRENCY, e.g. BTC-USD, SOL-EUR), up to two. [] hides the widget.
+  coins: [BTC-USD, ETH-USD]
+  # The "Category" row of About This Mac. Remove the line to hide the row.
+  about_category: Computer Science
+  # Apache Druid, an illustrated explainer app (/druid/) on the desktop. false removes it
+  # from the desktop, Finder, Spotlight and Terminal (the /druid/ page itself still builds;
+  # delete druid/ and assets/druid/ to drop it entirely).
+  druid: true

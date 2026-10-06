@@ -5,9 +5,11 @@
  *
  *   ~/Applications   Dock 의 앱들            open 으로 연다
  *   ~/Desktop        about.txt               cat 으로 읽는다
- *                    ApacheDruid.app         open 으로 Druid 창을 연다
+ *                    ApacheDruid.app         open 으로 Druid 창을 연다(desktop.druid 가 false 면 없다)
  *   ~/Obsidian/<태그>/<글>.md                cat 은 요약, open 은 글 창
  *   ~/Projects       개인 프로젝트            open 은 새 탭
+ *
+ * 사용자 이름과 컴퓨터 이름은 _config.yml 의 desktop.username · hostname 이다.
  *
  * 명령은 help 로 본다. ↑↓ 로 지난 명령, Tab 으로 명령 · 경로 채우기(빈 줄에서는
  * 보통 Tab 이라 초점이 창 밖으로 나간다),
@@ -16,11 +18,12 @@
 import { setupWindow, focusWindow, closeWindow, setCloser, openWindow, flyTo } from './windows.js';
 import { loadPosts } from './posts.js';
 import { getAppearance, setAppearance } from './theme.js';
+import { SITE } from './site.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 
-const USER = 'wlswo';
-const HOST = 'Ephemeris';
+const USER = SITE.desktop.username;
+const HOST = SITE.desktop.hostname;
 const HOME = `/Users/${USER}`;
 
 const esc = (s) =>
@@ -34,14 +37,6 @@ let cwd = HOME;
 let fs = null; // 경로 → { dir: true, children: Set } | { file: ... }
 const history = [];
 let hIndex = 0;
-
-function site() {
-  try {
-    return JSON.parse($('#site-data')?.textContent || '{}');
-  } catch {
-    return {};
-  }
-}
 
 function projects() {
   try {
@@ -81,7 +76,7 @@ async function buildFs() {
   dir(HOME);
   for (const [name, sel] of Object.entries(APPS)) file(`${HOME}/Applications/${name}.app`, { app: sel });
   file(`${HOME}/Desktop/about.txt`, { about: true });
-  file(`${HOME}/Desktop/ApacheDruid.app`, { druid: true });
+  if (SITE.desktop.druid) file(`${HOME}/Desktop/ApacheDruid.app`, { druid: true });
   for (const p of projects()) file(`${HOME}/Projects/${p.name}`, { url: p.url, desc: p.desc });
 
   let posts = [];
@@ -138,7 +133,7 @@ function print(html = '', cls = '') {
   out.append(line);
 }
 const printText = (text, cls) => String(text).split('\n').forEach((l) => print(esc(l), cls));
-const prompt = () => `<span class="term__prompt">${USER}@${HOST} ${esc(baseName(cwd))} %</span>`;
+const prompt = () => `<span class="term__prompt">${esc(USER)}@${esc(HOST)} ${esc(baseName(cwd))} %</span>`;
 
 function scrollDown() {
   const body = $('.term__body', win);
@@ -175,7 +170,7 @@ const COMMANDS = {
           const child = fs.get(`${target}/${n}`);
           const kind = child?.dir ? 'drwxr-xr-x' : '-rw-r--r--';
           const date = child?.post?.date ? child.post.date.replace(/\./g, '-') : '2026-09-25';
-          print(`${kind}  ${USER}  staff  ${date}  ${show(n)}`);
+          print(`${kind}  ${esc(USER)}  staff  ${date}  ${show(n)}`);
         }
       } else {
         print(names.map(show).join('   '));
@@ -206,7 +201,7 @@ const COMMANDS = {
       if (!node) return printText(`cat: ${args[0]}: No such file or directory`, 'term__err');
       if (node.dir) return printText(`cat: ${args[0]}: Is a directory`, 'term__err');
       if (node.about) {
-        const s = site();
+        const s = SITE;
         const fill = (t) => String(t).replace('{posts}', s.posts ?? '').replace('{latest}', s.latest ?? '');
         print(`<b>${esc(s.about?.title || 'about me')}</b>`);
         for (const b of s.about?.bullets || []) print(`  • ${esc(fill(b))}`);
@@ -234,7 +229,7 @@ const COMMANDS = {
       if (a >= 0) {
         const name = args.slice(a + 1).join(' ');
         const key = Object.keys(APPS).find((k) => k.toLowerCase() === name.toLowerCase());
-        if (!key && /druid/i.test(name)) return dispatchEvent(new CustomEvent('ephemeris:druid'));
+        if (!key && SITE.desktop.druid && /druid/i.test(name)) return dispatchEvent(new CustomEvent('ephemeris:druid'));
         if (!key) return printText(`Unable to find application named '${name}'`, 'term__err');
         $(APPS[key])?.click();
         return;
@@ -296,22 +291,23 @@ const COMMANDS = {
       printText(`${stamp(d)} ${zone(d)} ${d.getFullYear()}`);
     },
   },
-  whoami: { about: 'Print user name', run: () => print(USER) },
-  hostname: { about: 'Print computer name', run: () => print(HOST) },
+  whoami: { about: 'Print user name', run: () => printText(USER) },
+  hostname: { about: 'Print computer name', run: () => printText(HOST) },
   uname: {
+    // 커널 판 이름과 neofetch 의 macOS 이름 자리에는 블로그 이름(_config.yml 의 title)이 선다.
     about: 'System information (uname -a)',
-    run: (args) => print(args.includes('-a') ? `Darwin ${HOST} 26.0.0 Darwin Kernel Version 26.0.0: Ephemeris; root:xnu arm64` : 'Darwin'),
+    run: (args) => printText(args.includes('-a') ? `Darwin ${HOST} 26.0.0 Darwin Kernel Version 26.0.0: ${SITE.title || HOST}; root:xnu arm64` : 'Darwin'),
   },
   neofetch: {
     about: 'About This Mac',
     run() {
-      const s = site();
+      const s = SITE;
       const logo = ['       .:\'', '    __ :\'__', ' .\'`__`-\'__``.', ':__________.-\'', ':_________:', ' :_________`-;', '  `.__.-.__.\''];
       const info = [
-        `<b>${USER}@${HOST}</b>`,
+        `<b>${esc(USER)}@${esc(HOST)}</b>`,
         '-----------------',
-        `<b>OS</b>: macOS Ephemeris`,
-        `<b>Host</b>: wlswo.me`,
+        `<b>OS</b>: macOS ${esc(s.title || HOST)}`,
+        `<b>Host</b>: ${esc(s.host)}`,
         `<b>Shell</b>: zsh 5.9`,
         `<b>Posts</b>: ${esc(s.posts ?? '?')}`,
         `<b>Latest</b>: ${esc(s.latest ?? '')}`,
@@ -418,7 +414,7 @@ function build() {
   el.innerHTML = `
     <header class="term__bar" data-window-drag>
       ${traffic}
-      <h2 class="term__title" id="term-title">${USER} — -zsh — 80×24</h2>
+      <h2 class="term__title" id="term-title">${esc(USER)} — -zsh — 80×24</h2>
       <button class="term__close" type="button" data-window-action="close" aria-label="Close Terminal"><svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-close"/></svg></button>
     </header>
     <div class="term__body" data-term-body>
