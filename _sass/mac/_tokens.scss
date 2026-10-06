@@ -61,9 +61,12 @@
   // 선. 레티나에서는 반 픽셀로 떨어진다.
   --hair: 1px;
 
-  // 글꼴은 어디서나 Pretendard. 코드만 고정폭.
-  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
-    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  // 글꼴은 맥의 시스템 글꼴: 영문은 SF Pro(-apple-system), 한글은 Apple SD Gothic Neo.
+  // 맥이 아니면(윈도우 · 안드로이드) Pretendard 로 받는다. system-ui 를 Pretendard 앞에
+  // 두면 윈도우에서 Segoe UI · 맑은 고딕이 잡혀 Pretendard 를 못 쓰므로 넣지 않는다.
+  // 코드만 고정폭.
+  --font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard Variable", Pretendard,
+    "Noto Sans KR", "Malgun Gothic", sans-serif;
   --mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
 
   // 노치·둥근 모서리를 피하는 좌우 여백(가로로 눕힌 아이폰, 홈 화면 앱).

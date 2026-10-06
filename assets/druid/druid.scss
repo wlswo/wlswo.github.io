@@ -36,7 +36,8 @@
 }
 
 :root {
-  --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard Variable", Pretendard,
+    "Noto Sans KR", "Malgun Gothic", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --toc-w: 248px;
   --panel-w: 384px;

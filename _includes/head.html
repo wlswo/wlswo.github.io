@@ -48,8 +48,9 @@
   <link rel="apple-touch-icon" sizes="180x180" href="{{ "/assets/logo.ico/apple-touch-icon.png" | relative_url }}" />
   <link rel="manifest" href="{{ "/assets/logo.ico/site.webmanifest" | relative_url }}" />
   {%- comment -%}
-    글꼴은 어디서나 Pretendard 하나. 쓰이는 글자 범위만 나눠 받는
-    가변 분할본이라 첫 화면에 필요한 조각만 내려온다.
+    글꼴은 맥의 시스템 글꼴(SF Pro · Apple SD Gothic Neo). 맥이 아닌 기기를 위해
+    Pretendard 를 둔다 — 쓰이는 글자 범위만 나눠 받는 가변 분할본이고, 맥에서는
+    앞의 시스템 글꼴이 모든 글자를 그리므로 글꼴 파일을 받지 않는다.
   {%- endcomment %}
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   {%- comment -%} 글꼴 CDN 이 느려도 화면이 비지 않게, 기다리지 않고 받는다. 늦게 오면 그때 바뀐다. {%- endcomment %}
