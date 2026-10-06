@@ -434,6 +434,7 @@ if (dockBar && dockPlate) {
   // 들어올 때만 0.12초 동안 부드럽게 커지고, 그 뒤로는 마우스를 바로 좇는다.
   dockBar.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse' || reducedMotion.matches || !DESKTOP.matches) return;
+    if (document.documentElement.dataset.dockMagnify === 'off') return;
     x = e.clientX;
     if (!dockBar.classList.contains('is-magnifying')) {
       dockBar.classList.add('is-magnifying', 'is-entering');
@@ -445,12 +446,12 @@ if (dockBar && dockPlate) {
   dockBar.addEventListener('pointerleave', reset);
 }
 
-// 떠 있는데 Dock 에 자리가 없는 앱(Apache Druid): 창이 떠 있는 동안 Dock 에 칸이 생긴다.
+// 떠 있는데 Dock 에 자리가 없는 앱(미리보기 · Apache Druid · 캘린더): 창이 떠 있는 동안 Dock 에 칸이 생긴다.
 function syncDockTiles() {
   const list = $('.dock__apps');
   if (!list) return;
   for (const [key, app] of Object.entries(APPS)) {
-    if (app.dock || key === 'finder' || key === 'preview' || key === 'system') continue;
+    if (app.dock || key === 'finder' || key === 'system') continue;
     const running = windowsOf(key).length > 0;
     let li = $(`[data-dock-extra="${key}"]`);
     if (running && !li) {
@@ -467,7 +468,17 @@ function syncDockTiles() {
     if (!app.dock || key === 'finder') continue;
     $(app.dock)?.classList.toggle('is-running', windowsOf(key).length > 0);
   }
+  fitDock();
 }
+
+// 폰: 보이는 칸 수에 맞춰 아이콘 크기를 정해 Dock 이 화면 밖으로 넘치지 않게 한다(_desktop.scss).
+function fitDock() {
+  const dock = $('[data-dock]');
+  if (!dock) return;
+  const tiles = $$('.dock__app', dock).filter((a) => a.getClientRects().length).length;
+  dock.style.setProperty('--dock-tiles', String(tiles + 0.3));
+}
+DESKTOP.addEventListener('change', fitDock);
 new MutationObserver(() => syncDockTiles()).observe(workspace || document.body, { childList: true });
 
 // ── 정보 가져오기 ───────────────────────────────────────────────

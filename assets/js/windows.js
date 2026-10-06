@@ -38,7 +38,7 @@ const minimizing = new Set(); // 그림을 뜨는 중(두 번 눌러도 한 번�
 const shotOf = new WeakMap(); // 최소화한 창 → 빨려 들어갈 때 쓴 그림(되살릴 때 거꾸로 돌린다)
 const closers = new WeakMap(); // 창 → 닫을 때 할 일 (글 창은 docs.js 가 정한다)
 const snapped = new WeakMap(); // 창 → 붙기 전의 자리
-export const MIN = { finder: [560, 380], doc: [460, 360], obsidian: [620, 400], games: [380, 300], notes: [560, 380], terminal: [460, 280], druid: [640, 420], calendar: [680, 440] };
+export const MIN = { finder: [560, 380], doc: [460, 360], obsidian: [620, 400], games: [380, 300], notes: [560, 380], terminal: [460, 280], druid: [640, 420], calendar: [680, 440], settings: [620, 420], mail: [640, 400], compose: [420, 320] };
 const EDGES = ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'];
 let order = []; // 뒤 → 앞
 

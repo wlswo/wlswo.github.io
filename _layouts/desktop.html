@@ -17,13 +17,29 @@
 {%- assign wall2x = site.wallpaper_2x | default: wall %}
 {%- assign wallDark = site.wallpaper_dark | default: wall %}
 {%- assign wallDark2x = site.wallpaper_dark_2x | default: wallDark %}
+{%- comment -%}
+  시스템 설정(settings.js)의 배경화면 목록에서 _config.yml 의 것이 어느 것인지(data-default).
+  목록에 없는 그림이면 custom — 설정에 'Default' 칸으로 따로 선다.
+{%- endcomment -%}
+{%- if site.wallpaper_grid %}{% assign wallId = 'grid' %}
+{%- elsif site.wallpaper_color %}{% assign wallId = 'color:' | append: site.wallpaper_color | downcase %}
+{%- elsif wall contains 'wallpaper-monterey' %}{% assign wallId = 'monterey' %}
+{%- elsif wall == '/assets/images/wallpaper.webp' %}{% assign wallId = 'ephemeris' %}
+{%- else %}{% assign wallId = 'custom' %}{% endif %}
 <body class="desktop desktop--{{ page.layout | default: 'page' }}" data-posts-src="{{ '/search.json' | relative_url }}" data-wallpaper-tone="{{ site.wallpaper_tone | default: 'light' }}">
+  {%- comment -%} 시스템 설정에서 고른 배경화면의 밝기(head.html 이 html 에 적어 둔 것)를 body 로. 메뉴 막대 글자색이 이것을 따른다. {%- endcomment %}
+  <script>
+    (function () {
+      var t = document.documentElement.getAttribute('data-wall-tone');
+      if (t) document.body.setAttribute('data-wallpaper-tone', t);
+    })();
+  </script>
   {% include icons.html %}
   {% include lockscreen.html %}
   {%- if site.wallpaper_color %}
-  <div class="wallpaper" aria-hidden="true" style="background: {{ site.wallpaper_color }}"></div>
+  <div class="wallpaper" aria-hidden="true" data-default="{{ wallId }}" data-default-tone="{{ site.wallpaper_tone | default: 'light' }}" style="background: {{ site.wallpaper_color }}"></div>
   {%- else %}
-  <div class="wallpaper" aria-hidden="true" style="--wallpaper: url('{{ wall | relative_url }}'); --wallpaper-2x: url('{{ wall2x | relative_url }}'); --wallpaper-dark: url('{{ wallDark | relative_url }}'); --wallpaper-dark-2x: url('{{ wallDark2x | relative_url }}')"></div>
+  <div class="wallpaper" aria-hidden="true" data-default="{{ wallId }}" data-default-tone="{{ site.wallpaper_tone | default: 'light' }}" style="--wallpaper: url('{{ wall | relative_url }}'); --wallpaper-2x: url('{{ wall2x | relative_url }}'); --wallpaper-dark: url('{{ wallDark | relative_url }}'); --wallpaper-dark-2x: url('{{ wallDark2x | relative_url }}')"></div>
   {%- endif %}
   <a class="skip-link" href="#main-window">Skip to content</a>
 
@@ -44,7 +60,7 @@
   <script>
   (function () {
     var q = new URLSearchParams(location.search), c = q.get('c'), at = q.get('at'), tag = null, n = 0;
-    var names = { desktop: 'Desktop', obsidian: 'Obsidian' };
+    var names = { desktop: 'Desktop', obsidian: 'Obsidian', downloads: 'Downloads' };
     if (c) {
       document.querySelectorAll('.finder__item[data-category]').forEach(function (a) {
         if (a.getAttribute('data-category') === c) tag = a;
@@ -71,11 +87,11 @@
         y.hidden = !y.querySelector('.row:not([hidden])');
       });
     } else {
-      n = document.querySelectorAll('.finder [data-place-view="' + at + '"] .ficon').length;
+      n = document.querySelectorAll('.finder [data-place-view="' + at + '"] .ficon, .finder [data-place-view="' + at + '"] [data-download]').length;
     }
     if (tag) tag.setAttribute('aria-current', 'true');
     document.querySelector('[data-list-title]').textContent = tag ? tag.querySelector('.finder__label').textContent.trim() : names[at];
-    document.querySelector('[data-status]').textContent = n + (n === 1 ? ' item' : ' items');
+    if (at !== 'downloads' || n) document.querySelector('[data-status]').textContent = n + (n === 1 ? ' item' : ' items');
   })();
   </script>
   {%- endif %}
@@ -83,9 +99,14 @@
 
   <script type="module" src="{{ "/assets/js/glass.js" | relative_url }}"></script>
   <script type="module" src="{{ "/assets/js/desktop.js" | relative_url }}"></script>
-  {%- if site.wallpaper_grid %}
-  <script type="module" src="{{ "/assets/js/wallgrid.js" | relative_url }}"></script>
-  {%- endif %}
+  {%- comment -%}
+    명령어 격자(wallgrid.js)는 배경화면이 격자일 때만 불러온다: 시스템 설정에서 'Linux Commands' 를
+    골랐거나, 아무것도 고르지 않았고 _config.yml 의 wallpaper_grid 가 true 일 때.
+  {%- endcomment %}
+  <script type="module">
+    var w = document.documentElement.getAttribute('data-wallpaper');
+    if (w === 'grid' || (!w && {{ site.wallpaper_grid | default: false }})) import('{{ "/assets/js/wallgrid.js" | relative_url }}');
+  </script>
   {%- if page.layout == "home" %}
   <script type="module" src="{{ "/assets/js/finder.js" | relative_url }}"></script>
   <script type="module" src="{{ "/assets/js/docs.js" | relative_url }}"></script>

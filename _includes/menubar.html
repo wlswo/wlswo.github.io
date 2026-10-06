@@ -12,15 +12,13 @@
       <div class="menu__panel glass" id="menu-app" role="menu" aria-label="Apple menu" hidden>
         <a class="menu__item" role="menuitem" href="{{ '/about/' | relative_url }}">{% include icon.html name="mac" %}<span>About This Mac</span></a>
         <div class="menu__sep" role="separator"></div>
+        {%- comment -%} 시스템 설정 창(settings.js). 화면 모드 · 배경화면 · Dock 은 거기서 고른다. {%- endcomment %}
+        <button class="menu__item" role="menuitem" type="button" data-open-settings>{% include icon.html name="gear" %}<span>System Settings…</span></button>
+        <div class="menu__sep" role="separator"></div>
         {%- comment -%} 잠자기 · 재시동 · 시스템 종료는 흉내만 낸다(power.js). 깨우면 잠금 화면으로. {%- endcomment %}
         <button class="menu__item" role="menuitem" type="button" data-power="sleep">{% include icon.html name="sleep" %}<span>Sleep</span></button>
         <button class="menu__item" role="menuitem" type="button" data-power="restart">{% include icon.html name="restart" %}<span>Restart…</span></button>
         <button class="menu__item" role="menuitem" type="button" data-power="shutdown">{% include icon.html name="power" %}<span>Shut Down…</span></button>
-        <div class="menu__sep" role="separator"></div>
-        {%- comment -%} 테마: 맥의 '모양' 설정처럼 자동 · 라이트 · 다크(theme.js) {%- endcomment %}
-        <button class="menu__item" role="menuitemradio" aria-checked="true" type="button" data-appearance="auto">{% include icon.html name="theme-auto" %}<span>Appearance: Auto</span></button>
-        <button class="menu__item" role="menuitemradio" aria-checked="false" type="button" data-appearance="light">{% include icon.html name="sun" %}<span>Appearance: Light</span></button>
-        <button class="menu__item" role="menuitemradio" aria-checked="false" type="button" data-appearance="dark">{% include icon.html name="moon" %}<span>Appearance: Dark</span></button>
       </div>
     </div>
 

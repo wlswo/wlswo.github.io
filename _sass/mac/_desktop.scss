@@ -1403,7 +1403,8 @@ html.is-still .battery__level {
 
   // Dock: 아이콘을 화면 폭에 맞게 줄이고, 최소화한 창 자리는 뺀다(폰에는 최소화가 없다).
   .dock {
-    --icon: clamp(38px, calc((100vw - 44px) / 7.3), 56px);
+    // 칸 수(--dock-tiles)는 macos.js 가 센다(앱이 뜨고 닫히며 칸이 늘고 준다). 구분선 몫 0.3 칸.
+    --icon: clamp(28px, calc((100vw - 44px) / var(--dock-tiles, 10.3)), 56px);
     bottom: calc(6px + env(safe-area-inset-bottom));
 
     &__windows {

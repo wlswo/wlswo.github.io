@@ -1,0 +1,1408 @@
+// ── 시스템 설정 ─────────────────────────────────────────────────
+// macOS Tahoe 의 시스템 설정(settings.js). 불투명한 창 안에 떠 있는 둥근 사이드바(검색 칸,
+// 사용자 줄, 색 타일을 단 칸 목록)와, 오른쪽에 무리 지은 카드(왼쪽 이름, 오른쪽 스위치 ·
+// 슬라이더 · 단추). 창 몸은 불투명하다 — 유리(--glass-window)를 쓰면 배경화면 색이 비쳐
+// 카드와 글자가 보랏빛으로 흐려진다.
+// 맨 아래에는 설정이 <html> 에 적는 값(Dock 크기, 배경화면 …)을 화면에 입히는 규칙이 있다.
+
+.window.settings {
+  overflow: visible; // 크기 손잡이가 테두리 바깥에 걸친다. 둥근 모서리는 안쪽 판이 자른다
+}
+
+.settings {
+  --set-card: rgba(0, 0, 0, 0.035);
+  --set-card-edge: rgba(0, 0, 0, 0.05);
+  --set-side: #f1f1f3;
+  --set-control: rgba(0, 0, 0, 0.13); // 꺼진 스위치, 슬라이더의 빈 길
+  --set-push: #ffffff;
+  --set-push-hover: #f4f4f5;
+  --set-push-edge: rgba(0, 0, 0, 0.14);
+  --set-thumb-edge: rgba(0, 0, 0, 0.12);
+  top: 44px;
+  left: clamp(16px, calc(50% - 390px), 50%);
+  width: clamp(660px, 54vw, 780px);
+  height: clamp(440px, calc(100% - var(--dock-reserve) - 96px), 660px);
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr);
+  background: var(--paper);
+  color: var(--ink);
+
+  // ── 사이드바: 창 안에 떠 있는 둥근 판(Tahoe). 신호등이 그 위에 앉는다
+  &__side {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    margin: 8px 0 8px 8px;
+    border-radius: 15px;
+    background: var(--set-side);
+    box-shadow:
+      0 0 0 var(--hair) var(--set-card-edge),
+      0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  &__chrome {
+    display: flex;
+    flex: none;
+    align-items: center;
+    height: 44px;
+    padding: 0 11px;
+  }
+
+  &__close {
+    display: none;
+  }
+
+  // 창 이름은 화면 낭독기용(맥의 시스템 설정에는 제목이 보이지 않는다). 폰에서는 크게 보인다
+  &__app {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  &__search {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    margin: 0 10px 8px;
+    padding: 0 11px;
+    border-radius: 999px;
+    background: var(--fill-2);
+    color: var(--ink-3);
+
+    .icon {
+      width: 15px;
+      height: 15px;
+      stroke-width: 1.7;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      background: none;
+      color: var(--ink);
+      font: inherit;
+      font-size: 14.5px;
+      outline: none;
+
+      &::placeholder {
+        color: var(--ink-3);
+      }
+    }
+
+    &:focus-within {
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+  }
+
+  &__scroll {
+    flex: 1;
+    min-height: 0;
+    padding: 0 10px 14px;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  // 사용자 줄: 동그란 사진, 이름, 그 밑에 블로그 이름(맥의 Apple 계정 자리)
+  &__me {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 2px 0 12px;
+    padding: 6px 7px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+
+    &:hover {
+      background: var(--fill);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+  }
+
+  &__avatar {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    padding: 2px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: 0 0 0 var(--hair) var(--set-card-edge);
+
+    .bot {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__me-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.25;
+
+    small {
+      font-size: 12.5px;
+      color: var(--ink-3);
+    }
+  }
+
+  &__me-name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+
+    & + & {
+      margin-top: 12px;
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    height: 32px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: 14.5px;
+    text-align: left;
+
+    &:hover {
+      background: var(--fill);
+    }
+
+    // 뒤에 있는 창: 옅은 회색. 앞의 창이면 강조색(아래)
+    &[aria-selected="true"] {
+      background: var(--finder-selected);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+  }
+
+  &__item-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__none {
+    margin: 18px 8px;
+    font-size: 14px;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  // 색 타일: 둥근 네모에 흰 기호. 위쪽이 살짝 밝다(맥의 아이콘처럼)
+  &__tile {
+    --tile: #8a8a90;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background-color: var(--tile);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+    box-shadow: inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.1);
+    color: #ffffff;
+
+    .icon {
+      width: 15px;
+      height: 15px;
+      stroke-width: 1.7;
+    }
+
+    &--blue {
+      --tile: #1a84ff;
+    }
+
+    &--green {
+      --tile: #30c048;
+    }
+
+    &--gray {
+      --tile: #8a8a90;
+    }
+
+    &--black {
+      --tile: #2c2c2e;
+    }
+
+    &--cyan {
+      --tile: #19aee8;
+    }
+
+    &--red {
+      --tile: #ff3b30;
+    }
+
+    &--indigo {
+      --tile: #5e5ce6;
+    }
+
+    &--md {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+
+      .icon {
+        width: 19px;
+        height: 19px;
+      }
+    }
+
+    &--xl {
+      width: 64px;
+      height: 64px;
+      border-radius: 15px;
+
+      .icon {
+        width: 42px;
+        height: 42px;
+        stroke-width: 1.4;
+      }
+    }
+  }
+
+  // ── 오른쪽: 도구 막대(뒤로 · 앞으로, 칸 이름)와 설정
+  &__main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 0 var(--r-window) var(--r-window) 0;
+    overflow: hidden;
+  }
+
+  &__bar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 12px;
+    height: 54px;
+    padding: 0 18px 0 16px;
+  }
+
+  &__back {
+    display: none;
+  }
+
+  // 뒤로 · 앞으로: 한 알약 안의 두 단추
+  &__navs {
+    display: flex;
+    flex: none;
+    padding: 2px;
+    border-radius: 999px;
+    background: var(--fill);
+    box-shadow: inset 0 0 0 var(--hair) var(--set-card-edge);
+  }
+
+  &__nav,
+  &__back {
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--ink-2);
+
+    .icon {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--fill-2);
+      color: var(--ink);
+    }
+
+    &:disabled {
+      color: var(--ink-4);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+  }
+
+  &__nav {
+    display: grid;
+    width: 32px;
+    height: 28px;
+  }
+
+  &__title {
+    margin: 0;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__page {
+    flex: 1;
+    min-height: 0;
+    padding: 2px 22px 28px 20px;
+    overflow-y: auto;
+    outline: none;
+  }
+
+  // ── 카드와 줄
+  &__card {
+    margin: 0 0 12px;
+    border-radius: 12px;
+    background: var(--set-card);
+    box-shadow: inset 0 0 0 var(--hair) var(--set-card-edge);
+  }
+
+  &__row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 46px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 14.5px;
+    text-align: left;
+
+    // 줄 사이의 머리카락 선(양 끝은 띄운다)
+    & + &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 14px;
+      right: 14px;
+      height: var(--hair);
+      background: var(--sep);
+    }
+
+    &--tall {
+      min-height: 62px;
+    }
+
+    // 누르면 하위 칸으로 가는 줄(일반 › 정보)
+    &--link {
+      border-radius: 12px;
+
+      > .icon {
+        width: 13px;
+        height: 13px;
+        color: var(--ink-3);
+        stroke-width: 2.2;
+      }
+
+      &:hover {
+        background: var(--fill);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+    }
+  }
+
+  [data-wifi-current] .settings__row::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 14px;
+    right: 14px;
+    height: var(--hair);
+    background: var(--sep);
+  }
+
+  &__label {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    line-height: 1.3;
+
+    small {
+      font-size: 12.5px;
+      line-height: 1.4;
+      color: var(--ink-3);
+    }
+  }
+
+  &__value {
+    max-width: 62%;
+    overflow: hidden;
+    color: var(--ink-3);
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__big {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  &__head {
+    margin: 20px 6px 7px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink-2);
+
+    &--first {
+      margin-top: 4px;
+    }
+  }
+
+  &__foot {
+    margin: -4px 6px 14px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--ink-3);
+
+    &--narrow {
+      display: none;
+    }
+  }
+
+  &__empty {
+    margin: 2px 6px 12px;
+    font-size: 13.5px;
+    color: var(--ink-3);
+  }
+
+  // 칸 맨 위의 큰 그림과 이름(일반, 정보)
+  &__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 22px 24px 20px;
+    text-align: center;
+
+    // 정보: 카드 없이 바탕에 바로(맥의 '정보'처럼)
+    &--about {
+      padding: 10px 24px 22px;
+    }
+  }
+
+  &__hero-title {
+    margin: 12px 0 3px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  &__hero-text {
+    max-width: 400px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--ink-3);
+  }
+
+  &__about-icon {
+    width: 86px;
+    height: 86px;
+
+    .bot {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2px;
+  }
+
+  // ── 스위치: 강조색 길에 흰 알약 손잡이(Tahoe)
+  &__switch {
+    position: relative;
+    flex: none;
+    width: 38px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--set-control);
+    transition: background-color 0.18s linear;
+
+    span {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.06),
+        0 1px 2.5px rgba(0, 0, 0, 0.24);
+      transition: transform 0.24s var(--ease-out);
+    }
+
+    &[aria-checked="true"] {
+      background: var(--accent);
+
+      span {
+        transform: translateX(12px);
+      }
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+  }
+
+  // ── 슬라이더: 가는 길, 지나온 쪽은 강조색, 흰 알약 손잡이
+  &__row--slider {
+    flex-wrap: wrap;
+  }
+
+  &__slider {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 48%;
+    min-width: 180px;
+    padding-top: 6px;
+  }
+
+  &__range {
+    --p: 50%;
+    width: 100%;
+    height: 20px;
+    margin: 0;
+    background: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: var(--cursor);
+
+    &::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to right, var(--accent) var(--p), var(--set-control) var(--p));
+    }
+
+    &::-webkit-slider-thumb {
+      width: 24px;
+      height: 16px;
+      margin-top: -6px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.12),
+        0 1px 3px rgba(0, 0, 0, 0.28);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    &::-moz-range-track {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--set-control);
+    }
+
+    &::-moz-range-progress {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    &::-moz-range-thumb {
+      width: 24px;
+      height: 16px;
+      border: 0;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.12),
+        0 1px 3px rgba(0, 0, 0, 0.28);
+    }
+
+    &:focus-visible {
+      outline: none;
+
+      &::-webkit-slider-thumb {
+        box-shadow:
+          0 0 0 3px var(--accent-ring),
+          0 1px 3px rgba(0, 0, 0, 0.28);
+      }
+
+      &::-moz-range-thumb {
+        box-shadow:
+          0 0 0 3px var(--accent-ring),
+          0 1px 3px rgba(0, 0, 0, 0.28);
+      }
+    }
+  }
+
+  &__ticks {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2px;
+    font-size: 11.5px;
+    color: var(--ink-3);
+  }
+
+  // ── 단추: 흰 알약(다크에서는 옅은 회색)
+  &__push {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--set-push);
+    box-shadow:
+      0 0 0 var(--hair) var(--set-push-edge),
+      0 1px 1.5px rgba(0, 0, 0, 0.07);
+    color: var(--ink);
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background: var(--set-push-hover);
+    }
+
+    &:active:not(:disabled) {
+      filter: brightness(0.94);
+    }
+
+    &:disabled {
+      color: var(--ink-4);
+      box-shadow: 0 0 0 var(--hair) var(--set-card-edge);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow:
+        0 0 0 3px var(--accent-ring),
+        0 0 0 var(--hair) var(--set-push-edge);
+    }
+
+    // 네트워크 줄의 '연결': 마우스를 대거나 초점이 오면 나타난다(맥처럼)
+    &--quiet {
+      opacity: 0;
+    }
+  }
+
+  &__row--net:hover &__push--quiet,
+  &__row--net:focus-within &__push--quiet {
+    opacity: 1;
+  }
+
+  // ── Wi-Fi
+  &__fan {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--fill-2);
+    color: var(--ink-2);
+
+    .icon {
+      width: 17px;
+      height: 17px;
+    }
+
+    &.is-joined {
+      background: var(--accent);
+      color: #ffffff;
+    }
+  }
+
+  // 자물쇠는 줄 오른쪽 끝에 맞춰 선다(없는 줄도 자리는 비워 둔다)
+  &__lockbox {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 16px;
+  }
+
+  &__lock {
+    width: 13px;
+    height: 13px;
+    color: var(--ink-3);
+  }
+
+  &__ok {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    &::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #30c048;
+    }
+  }
+
+  // ── 배터리: 큰 전지 그림. 저전력 모드면 노랗게(메뉴 막대처럼)
+  &__batt {
+    position: relative;
+    flex: none;
+    width: 46px;
+    height: 23px;
+    margin: 0 8px 0 2px;
+    padding: 2.5px;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 7px;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -5.5px;
+      width: 3px;
+      height: 8px;
+      margin-top: -4px;
+      border-radius: 0 2px 2px 0;
+      background: var(--ink-3);
+    }
+
+    i {
+      display: block;
+      width: calc(var(--level) * 100%);
+      height: 100%;
+      border-radius: 3.5px;
+      background: #30c048;
+    }
+
+    &.is-low i {
+      background: #f5c400;
+    }
+  }
+
+  // ── 모양: 자동 · 라이트 · 다크의 작은 그림(배경화면 위의 창)
+  &__row--looks {
+    flex-wrap: wrap;
+    gap: 12px 10px;
+    padding-top: 14px;
+    padding-bottom: 12px;
+
+    // 좁은 창에서는 이름을 줄이지 않고 그림들을 아랫줄로 보낸다
+    .settings__label {
+      flex: 1 0 auto;
+    }
+  }
+
+  &__looks {
+    display: flex;
+    gap: 16px;
+  }
+
+  &__choice,
+  &__pick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: 12.5px;
+
+    &[aria-checked="true"] {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  &__look {
+    position: relative;
+    display: block;
+    width: 84px;
+    height: 56px;
+    border-radius: 8px;
+    background: linear-gradient(140deg, #6fa3ff, #c3a6ff);
+    box-shadow: inset 0 0 0 var(--hair) var(--set-thumb-edge);
+    overflow: hidden;
+
+    // 메뉴 막대
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    // 창: 회색 사이드바와 흰 종이, 왼쪽 위의 신호등
+    i {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 0;
+      bottom: 0;
+      border-radius: 4px 0 0;
+      background: linear-gradient(to right, #e8e8ec 34%, #ffffff 34%);
+      box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.12),
+        0 2px 6px rgba(0, 0, 0, 0.2);
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: #ff5f57;
+        box-shadow:
+          4.5px 0 #febc2e,
+          9px 0 #28c840;
+      }
+    }
+
+    &--dark {
+      background: linear-gradient(140deg, #18275e, #3d2170);
+
+      &::before {
+        background: rgba(0, 0, 0, 0.32);
+      }
+
+      i {
+        background: linear-gradient(to right, #2b2b2f 34%, #1d1d20 34%);
+      }
+    }
+
+    // 자동: 라이트 위에 다크를 비스듬히 반쯤 겹친다
+    &--auto .settings__look {
+      position: absolute;
+      inset: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    &--auto .settings__look--dark {
+      clip-path: polygon(60% 0, 100% 0, 100% 100%, 40% 100%);
+    }
+  }
+
+  // 고른 것: 둘레에 강조색 테, 키보드 초점은 그 밖으로 옅은 테 한 겹 더
+  &__choice[aria-checked="true"] .settings__look,
+  &__pick[aria-checked="true"] .settings__wall,
+  &__swatch[aria-checked="true"],
+  &__swatch.is-checked {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  &__choice:focus-visible .settings__look,
+  &__pick:focus-visible .settings__wall,
+  &__swatch:focus-visible,
+  &__swatch:has(input:focus-visible) {
+    box-shadow:
+      inset 0 0 0 var(--hair) var(--set-thumb-edge),
+      0 0 0 8px var(--accent-ring);
+  }
+
+  // ── 배경화면
+  &__now {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px;
+  }
+
+  &__wall {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 8px;
+    background-color: #c8c8cc;
+    background-position: center;
+    background-size: cover;
+    box-shadow: inset 0 0 0 var(--hair) var(--set-thumb-edge);
+    overflow: hidden;
+
+    &--lg {
+      flex: none;
+      width: 150px;
+    }
+
+    &--monterey {
+      background-color: #2a1670;
+      background-image: url("../images/wallpaper-monterey.webp");
+      background-position: center 62%;
+    }
+
+    // 낮과 밤이 있는 그림: 오른쪽 반을 밤 그림으로 비스듬히 잘라 보인다(맥의 다이내믹 배경화면처럼)
+    &--ephemeris {
+      background-color: #dbe6fb;
+      background-image: url("../images/wallpaper.webp");
+
+      &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: #111633 url("../images/wallpaper-dark.webp") center / cover;
+        clip-path: polygon(64% 0, 100% 0, 100% 100%, 36% 100%);
+      }
+    }
+
+    &--grid {
+      background-color: #d3d9b3;
+    }
+  }
+
+  &__grid-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__picks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+    gap: 16px 14px;
+    margin-bottom: 4px;
+  }
+
+  &__pick {
+    align-items: stretch;
+    text-align: center;
+  }
+
+  &__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 4px;
+  }
+
+  &__swatch {
+    position: relative;
+    width: 54px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: var(--c);
+    box-shadow: inset 0 0 0 var(--hair) var(--set-thumb-edge);
+
+    // 사용자 색: 무지개 칸에 +. 고르면 그 색을 띤다
+    &--custom {
+      background: conic-gradient(#ff3b30, #ff9500, #ffcc00, #34c759, #00c7be, #007aff, #5856d6, #af52de, #ff2d55, #ff3b30);
+
+      &.is-checked {
+        background: var(--c);
+      }
+
+      &::after {
+        content: "+";
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        color: #ffffff;
+        font-size: 21px;
+        font-weight: 500;
+        line-height: 1;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+        pointer-events: none;
+      }
+
+      input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        opacity: 0;
+        cursor: var(--cursor);
+      }
+    }
+  }
+}
+
+// 앞의 창이면 고른 칸이 강조색으로 밝다(뒤로 물러나면 회색)
+.window.settings.is-front .settings__item[aria-selected="true"] {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.window.settings:not(.is-front) .settings__title {
+  opacity: 0.55;
+}
+
+// 마우스가 없는 기기에서는 '연결' 단추가 늘 보인다
+@media (hover: none) {
+  .settings__push--quiet {
+    opacity: 1;
+  }
+}
+
+// ── 다크 모양
+html[data-theme="dark"] .settings {
+  --set-card: rgba(255, 255, 255, 0.05);
+  --set-card-edge: rgba(255, 255, 255, 0.07);
+  --set-side: #29292c;
+  --set-control: rgba(255, 255, 255, 0.18);
+  --set-push: rgba(255, 255, 255, 0.15);
+  --set-push-hover: rgba(255, 255, 255, 0.22);
+  --set-push-edge: rgba(255, 255, 255, 0.06);
+  --set-thumb-edge: rgba(255, 255, 255, 0.14);
+
+  .settings__tile--black {
+    --tile: #3a3a3e;
+    box-shadow: inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.16);
+  }
+
+  .settings__avatar {
+    background: #1c1c1e;
+  }
+}
+
+// ── 폰: 목록과 설정이 한 화면씩(메모 앱처럼). 칸을 고르면 설정으로, '‹'로 돌아온다
+@media (max-width: 899px) {
+  .settings,
+  .settings.has-frame,
+  .settings.is-zoomed {
+    top: 6px;
+    left: var(--safe-l);
+    width: calc(100% - var(--safe-l) - var(--safe-r));
+    height: calc(100% - var(--dock-reserve) - 6px);
+  }
+
+  .settings {
+    grid-template-columns: minmax(0, 1fr);
+
+    &__side {
+      position: relative;
+      margin: 0;
+      border-radius: var(--r-window);
+      background: var(--paper);
+      box-shadow: none;
+    }
+
+    &__chrome {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      height: auto;
+      padding: 0;
+    }
+
+    &__close {
+      display: grid;
+      flex: none;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: var(--fill-2);
+      color: var(--ink-2);
+
+      .icon {
+        width: 14px;
+        height: 14px;
+        stroke-width: 2;
+      }
+
+      // 설정 화면의 도구 막대 오른쪽 끝에도
+      &--bar {
+        margin-left: auto;
+      }
+    }
+
+    &__app {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      padding: 16px 60px 10px 18px;
+      overflow: visible;
+      clip: auto;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: normal;
+    }
+
+    &__search {
+      height: 38px;
+      margin: 0 14px 10px;
+
+      input {
+        font-size: 17px; // 16px 아래면 iOS 가 확대해 버린다
+      }
+    }
+
+    &__scroll {
+      padding: 0 12px 16px;
+    }
+
+    &__item {
+      gap: 12px;
+      height: 46px;
+      padding: 0 10px;
+      border-radius: 11px;
+      font-size: 17px;
+
+      .settings__tile {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+
+        .icon {
+          width: 19px;
+          height: 19px;
+        }
+      }
+
+      // 목록에서는 고른 칸을 밝히지 않고, 줄 끝에 › 를 둔다
+      &::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        margin-right: 6px;
+        border-top: 2px solid var(--ink-4);
+        border-right: 2px solid var(--ink-4);
+        transform: rotate(45deg);
+      }
+    }
+
+    &__main {
+      display: none;
+      border-radius: var(--r-window);
+    }
+
+    &.is-reading &__side {
+      display: none;
+    }
+
+    &.is-reading &__main {
+      display: flex;
+    }
+
+    &__bar {
+      gap: 8px;
+      height: 56px;
+      padding: 0 12px;
+    }
+
+    &__navs {
+      display: none;
+    }
+
+    &__back {
+      display: grid;
+      flex: none;
+      width: 36px;
+      height: 36px;
+      background: var(--fill-2);
+
+      .icon {
+        width: 17px;
+        height: 17px;
+      }
+    }
+
+    &__title {
+      font-size: 18px;
+    }
+
+    &__page {
+      padding: 0 14px 24px;
+    }
+
+    &__row {
+      font-size: 16px;
+    }
+
+    &__foot--narrow {
+      display: block;
+    }
+
+    &__row--looks {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    &__looks {
+      gap: 14px;
+    }
+
+    &__slider {
+      width: 100%;
+    }
+
+    &__wall--lg {
+      width: 112px;
+    }
+
+    &__picks {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+  }
+
+  .window.settings.is-front .settings__item[aria-selected="true"] {
+    background: none;
+    color: inherit;
+  }
+}
+
+// ── 설정이 <html> 에 적은 값을 화면에 입히기 ────────────────────
+// 값은 head.html 의 첫 스크립트가 첫 그림 전에(쪽을 옮겨도), settings.js 가 고를 때 적는다.
+
+// Dock 크기(데스크톱만): 아이콘 크기와, 창들이 비워 두는 Dock 자리. 최소화한 창의
+// 작은 그림(54px 로 그려진다)도 같은 비율로 줄인다.
+@media (min-width: 900px) {
+  html[data-dock-size] {
+    --dock-reserve: calc(var(--dock-icon) + 30px);
+
+    .dock {
+      --icon: var(--dock-icon);
+    }
+
+    .dock__thumb {
+      zoom: var(--dock-k);
+    }
+  }
+}
+
+// 떠 있는 앱 밑의 점
+html[data-dock-dots="off"] .dock__app.is-running::after {
+  content: none;
+}
+
+// 바탕의 폴더(About.txt · Apache Druid)와 날씨 위젯
+html[data-desktop-items="off"] .desktop-icons,
+html[data-desktop-widgets="off"] .weather {
+  display: none !important;
+}
+
+// 배경화면. desktop.html 이 style 로 넘긴 _config.yml 의 그림 · 색보다 앞서야 하므로 !important.
+// 잠금 화면(.lock)도 같은 것을 깐다.
+html[data-wallpaper] {
+  .wallpaper,
+  .lock {
+    background-position: center bottom !important;
+    background-size: cover !important;
+  }
+}
+
+html[data-wallpaper="monterey"] {
+  .wallpaper,
+  .lock {
+    background-color: #24135e !important;
+    background-image: url("../images/wallpaper-monterey.webp") !important;
+    background-image: -webkit-image-set(url("../images/wallpaper-monterey.webp") 1x, url("../images/wallpaper-monterey@2x.webp") 2x) !important;
+    background-image: image-set(url("../images/wallpaper-monterey.webp") 1x, url("../images/wallpaper-monterey@2x.webp") 2x) !important;
+  }
+}
+
+html[data-wallpaper="ephemeris"] {
+  .wallpaper,
+  .lock {
+    background-color: #dbe6fb !important;
+    background-image: url("../images/wallpaper.webp") !important;
+    background-image: -webkit-image-set(url("../images/wallpaper.webp") 1x, url("../images/wallpaper@2x.webp") 2x) !important;
+    background-image: image-set(url("../images/wallpaper.webp") 1x, url("../images/wallpaper@2x.webp") 2x) !important;
+  }
+}
+
+// 다크 모양이면 밤 그림
+html[data-theme="dark"][data-wallpaper="ephemeris"] {
+  .wallpaper,
+  .lock {
+    background-color: #111633 !important;
+    background-image: url("../images/wallpaper-dark.webp") !important;
+    background-image: -webkit-image-set(url("../images/wallpaper-dark.webp") 1x, url("../images/wallpaper-dark@2x.webp") 2x) !important;
+    background-image: image-set(url("../images/wallpaper-dark.webp") 1x, url("../images/wallpaper-dark@2x.webp") 2x) !important;
+  }
+}
+
+// 명령어 격자는 Grid Information 의 올리브 바탕 위에 깐다(격자는 wallgrid.js 가 그린다)
+html[data-wallpaper="grid"] {
+  .wallpaper,
+  .lock {
+    background-color: #d3d9b3 !important;
+    background-image: none !important;
+  }
+}
+
+html[data-wallpaper="color"] {
+  .wallpaper,
+  .lock {
+    background-color: var(--wall-color) !important;
+    background-image: none !important;
+  }
+}
+
+// 격자가 아닌 배경화면을 고른 동안에는 격자와 메뉴 막대의 재생 단추를 숨긴다
+html[data-wallpaper]:not([data-wallpaper="grid"]) {
+  .wallgrid,
+  .menubar__play {
+    display: none;
+  }
+}

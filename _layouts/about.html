@@ -18,7 +18,6 @@ layout: desktop
 
     <dl class="about__specs">
       <div><dt>Author</dt><dd>{{ site.author }}</dd></div>
-      <div><dt>Posts</dt><dd>{{ site.posts | size }}</dd></div>
       <div><dt>Category</dt><dd>Computer Science</dd></div>
       {%- if oldest %}
       <div><dt>First Post</dt><dd><time datetime="{{ oldest.date | date: '%Y-%m-%d' }}">{{ oldest.date | date: "%B %-d, %Y" }}</time></dd></div>

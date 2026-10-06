@@ -221,10 +221,37 @@ if (dock) {
     const { openMusic } = await busy(import('./music.js'));
     openMusic(button);
   });
+
+  $('[data-dock-mail]', dock)?.addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    const { openMail } = await busy(import('./mail.js'));
+    openMail(button);
+  });
+
+  $('[data-dock-settings]', dock)?.addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    const { openSettings } = await busy(import('./settings.js'));
+    openSettings(button);
+  });
+
+  // 다운로드 폴더: 스택을 펼치고 접는다.
+  $('[data-dock-downloads]', dock)?.addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    const { toggleDownloads } = await busy(import('./downloads.js'));
+    toggleDownloads(button);
+  });
   $('[data-dock-trash]', dock)?.addEventListener('click', () =>
-    notify('휴지통이 비어 있어요', { title: '휴지통', icon: '/assets/images/dock/trash-128.png' }),
+    notify('The Trash is empty.', { title: 'Trash', icon: '/assets/images/dock/trash-128.png' }),
   );
 }
+
+// 애플 메뉴의 '시스템 설정…', 바탕 메뉴의 '배경화면 변경…' 등에서 시스템 설정을 연다.
+// detail.pane 으로 처음 보일 칸을 고른다(예: 'wallpaper').
+addEventListener('ephemeris:settings', async (e) => {
+  const { openSettings } = await busy(import('./settings.js'));
+  openSettings($('[data-dock-settings]'), { pane: e.detail?.pane });
+});
+$('[data-open-settings]')?.addEventListener('click', () => dispatchEvent(new CustomEvent('ephemeris:settings')));
 
 // 알림 센터의 캘린더 위젯(ncenter.js)이나 Spotlight 에서 캘린더 앱을 연다.
 addEventListener('ephemeris:calendar', async (e) => {

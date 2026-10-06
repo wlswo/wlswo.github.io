@@ -1,16 +1,19 @@
 /*
- * Finder 창: 위치(응용 프로그램 · 데스크탑 · Obsidian) · 태그 · 검색 · 데스크톱 아이콘
+ * Finder 창: 위치(응용 프로그램 · 데스크탑 · 다운로드 · Obsidian) · 태그 · 검색 · 데스크톱 아이콘
  *
  * 맥의 Finder 처럼 사이드바의 위치를 오간다. 글은 빌드할 때 Obsidian 폴더에
  * 전부 내보내 두고, 여기서는 보이고 숨기는 일만 한다. 고른 위치와 태그는
  * 주소(?at=위치, ?c=태그)에 남겨 새로고침 · 뒤로 가기 · 링크 공유에서도 그대로
  * 돌아온다. 카테고리(태그)를 여는 길은 여럿이다 — Finder 사이드바, 메뉴 막대,
  * Obsidian 창의 태그. 모두 여기로 모인다.
+ * 다운로드 폴더의 파일은 Dock 의 다운로드 스택(downloads.js)과 같은 목록이다.
  */
 import { openWindow, DESKTOP } from './desktop.js';
+import { listDownloads, fileIcon, openDownload, fitLines } from './downloads.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 const win = $('[data-window="finder"]');
 const list = $('[data-scroll="finder"]');
@@ -25,7 +28,7 @@ const clear = $('[data-search-clear]');
 const icons = $$('[data-desktop-icon]');
 const baseTitle = document.title;
 
-const PLACES = { apps: 'Applications', desktop: 'Desktop', obsidian: 'Obsidian' };
+const PLACES = { apps: 'Applications', desktop: 'Desktop', downloads: 'Downloads', obsidian: 'Obsidian' };
 const views = new Map($$('[data-place-view]', win).map((v) => [v.dataset.placeView, v]));
 
 // 태그(카테고리) 이름은 Finder 사이드바가 이미 들고 있다.
@@ -53,6 +56,7 @@ function urlFor(place, category) {
   const url = new URL(history.state?.list ?? location.pathname + location.search, location.origin);
   url.searchParams.delete('c');
   url.searchParams.delete('at');
+  url.searchParams.delete('select');
   if (category) url.searchParams.set('c', category);
   else if (place !== 'apps') url.searchParams.set('at', place);
   return url.pathname + url.search;
@@ -78,7 +82,7 @@ function render() {
     empty.hidden = shown > 0;
     emptyQuery.textContent = search.value.trim();
   } else {
-    shown = $$('.ficon', views.get(place)).length;
+    shown = $$('.ficon, [data-download]', views.get(place)).length;
   }
 
   const name = category ? categories.get(category).name : PLACES[place];
@@ -108,9 +112,10 @@ function render() {
   dispatchEvent(new CustomEvent('ephemeris:category', { detail: { category, title: pageTitle } }));
 }
 
+// 창이 다 뜬 뒤에 풀리는 약속을 돌려준다(되살리는 애니메이션이 끝난 뒤에 초점을 주려고).
 function go(place, category = '') {
-  openWindow(win);
-  if (place === state.place && category === state.category) return;
+  const shown = openWindow(win);
+  if (place === state.place && category === state.category) return shown;
   state.place = place;
   state.category = category;
   const url = urlFor(place, category);
@@ -118,6 +123,7 @@ function go(place, category = '') {
   history.pushState({ ...(history.state || {}), c: category, at: place, list: url }, '', url);
   render();
   views.get(place).scrollTop = 0;
+  return shown;
 }
 
 // 태그(카테고리)를 고르면 Obsidian 폴더의 그 글만. 빈 태그('')는 Obsidian 폴더 전체.
@@ -396,6 +402,99 @@ document.addEventListener('pointerdown', (e) => {
   selectIcon(null);
 });
 
+// ── 다운로드 ────────────────────────────────────────────────────
+// Dock 의 다운로드 스택(downloads.js)과 같은 파일들. 맥의 다운로드 폴더처럼
+// '추가된 날짜' 순(새것이 위)으로 오늘 · 어제 · 지난 7일 · 지난 30일로 묶는다.
+// 받은 날짜가 오늘에서 거꾸로 세어지므로 줄은 여기서 그린다.
+// 한 번 누르면 고르고, 두 번 누르면(↩, 손가락은 한 번에) 연다 — 진짜 파일이 없으니
+// 정보 가져오기 창으로 무엇인지 보인다. ↑↓ 로 고른 줄을 옮긴다.
+const dlView = views.get('downloads');
+const dlList = $('[data-downloads-list]', win);
+let dlRows = [];
+
+function renderDownloads() {
+  if (!dlList) return;
+  const groups = new Map();
+  for (const f of listDownloads()) {
+    if (!groups.has(f.group)) groups.set(f.group, []);
+    groups.get(f.group).push(f);
+  }
+  let g = 0;
+  dlList.innerHTML = [...groups]
+    .map(
+      ([name, files]) => `<section class="year" aria-labelledby="dl-group-${++g}">
+        <h2 class="year__label" id="dl-group-${g}">${esc(name)}</h2>
+        <ol class="dlrows" role="list">${files
+          .map(
+            (f) => `<li class="dlrow"><button class="dlrow__btn" type="button" data-download="${esc(f.id)}">
+              <span class="dlrow__icon">${fileIcon(f, 18, { fixed: false })}</span>
+              <span class="dlrow__name" data-full="${esc(f.name)}" aria-hidden="true">${esc(f.name)}</span><span class="sr-only">${esc(f.name)}</span>
+              <span class="dlrow__size">${esc(f.sizeLabel)}</span>
+              <span class="dlrow__kind">${esc(f.kind)}</span>
+              <time class="dlrow__date" datetime="${f.added.toISOString()}">${esc(f.addedLabel)}</time>
+            </button></li>`,
+          )
+          .join('')}</ol>
+      </section>`,
+    )
+    .join('');
+  dlRows = $$('[data-download]', dlList);
+}
+
+// 긴 이름은 맥처럼 가운데를 줄인다(확장자가 보이게). 칸 폭이 바뀔 때마다(창 크기,
+// 위치를 오가며 보였다 숨을 때) 다시 잰다. 숨어 있으면 폭이 0 이라 건너뛴다.
+// (ResizeObserver 는 그리기 전에 부르므로 끝이 잘린 이름이 한 번 비치지 않는다.)
+if (dlView && 'ResizeObserver' in window) {
+  new ResizeObserver(() => fitLines($$('.dlrow__name', dlList))).observe(dlView);
+}
+
+function pickDownload(row, { focus = false } = {}) {
+  for (const r of dlRows) r.classList.toggle('is-selected', r === row);
+  if (!row || !focus) return;
+  row.focus({ preventScroll: true });
+  row.scrollIntoView({ block: 'nearest' });
+}
+
+// Finder 에서 보기(스택의 파일 · 'Open in Finder'): 다운로드 폴더를 열고 그 파일을 고른다.
+function revealDownload(id) {
+  const row = dlRows.find((r) => r.dataset.download === id) || null;
+  const shown = go('downloads');
+  pickDownload(row);
+  Promise.resolve(shown).then(() => {
+    if (row) pickDownload(row, { focus: true });
+    else dlView?.focus({ preventScroll: true });
+  });
+}
+addEventListener('ephemeris:reveal-download', (e) => revealDownload(e.detail?.id || ''));
+
+let dlPointer = 'mouse';
+dlList?.addEventListener('pointerdown', (e) => {
+  dlPointer = e.pointerType;
+});
+dlList?.addEventListener('click', (e) => {
+  const row = e.target.closest('[data-download]');
+  if (!row || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  pickDownload(row);
+  if (e.detail === 0 || dlPointer !== 'mouse') openDownload(row.dataset.download); // detail 0: 키보드 ↩
+});
+dlList?.addEventListener('dblclick', (e) => {
+  const row = e.target.closest('[data-download]');
+  if (row) openDownload(row.dataset.download);
+});
+dlList?.addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+  const i = dlRows.indexOf(document.activeElement);
+  const next = dlRows[i < 0 ? 0 : i + (e.key === 'ArrowDown' ? 1 : -1)];
+  e.preventDefault();
+  if (next) pickDownload(next, { focus: true });
+});
+// 빈 곳을 누르면 고른 것을 푼다.
+dlView?.addEventListener('pointerdown', (e) => {
+  if (!e.target.closest('[data-download]')) pickDownload(null);
+});
+
+renderDownloads();
+
 // ── 검색 ────────────────────────────────────────────────────────
 // 글은 Obsidian 폴더에 있다. 다른 위치에서 찾기 시작하면 그리로 옮겨 가 찾는다.
 search.addEventListener('input', () => {
@@ -435,3 +534,17 @@ document.addEventListener('keydown', (e) => {
 
 readURL();
 render();
+
+// 글 쪽의 다운로드 스택에서 넘어왔으면(/?at=downloads&select=…) 그 파일을 골라 두고,
+// 주소에서는 select 를 뗀다(새로고침 · 공유에는 위치만 남게).
+{
+  const url = new URL(location.href);
+  const wanted = url.searchParams.get('select');
+  if (wanted != null) {
+    url.searchParams.delete('select');
+    const clean = url.pathname + url.search;
+    history.replaceState({ ...(history.state || {}), list: clean }, '', clean + url.hash);
+    const row = state.place === 'downloads' && dlRows.find((r) => r.dataset.download === wanted);
+    if (row) pickDownload(row, { focus: true });
+  }
+}

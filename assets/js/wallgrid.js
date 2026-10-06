@@ -12,6 +12,10 @@
  * 평소에는 움직이지 않는다. 메뉴 막대의 재생 단추를 누르면 화면에 보이는 칸을 하나씩
  * 무작위로 골라 터미널처럼 명령어를 한 글자씩 치고 → 결과를 찍고 → 새 프롬프트를 띄운다.
  * 정지를 누를 때까지 되풀이한다.
+ *
+ * 배경화면이 격자일 때만 깔린다: 시스템 설정(settings.js)에서 'Linux Commands' 를 골랐거나,
+ * 고른 것이 없고 _config.yml 의 wallpaper_grid 가 true 일 때(desktop.html 이 그때만 불러온다).
+ * 설정에서 다른 배경화면으로 바꾸면 setGrid(false) 로 걷는다.
  */
 const wall = document.querySelector('.wallpaper');
 
@@ -188,7 +192,35 @@ function build(grid, cols, rows) {
     .join('');
 }
 
-if (wall) {
+let stopGrid = null; // 격자를 깔아 두었으면, 걷는 함수
+
+/** 명령어 격자를 깔거나 걷는다. 시스템 설정에서 배경화면을 바꿀 때 부른다. */
+export function setGrid(on) {
+  if (!wall) return;
+  if (on && !stopGrid) stopGrid = start();
+  else if (!on && stopGrid) {
+    stopGrid();
+    stopGrid = null;
+  }
+}
+
+// 재생 단추. _config.yml 의 wallpaper_grid 면 menubar.html 이 그려 두고,
+// 아니면(설정에서 격자를 고르면) 여기서 같은 모양으로 만들어 메뉴 막대 오른쪽 맨 앞에 단다.
+function playButton() {
+  const found = document.querySelector('[data-wallgrid-play]');
+  const bar = document.querySelector('.menubar__right');
+  if (found || !bar) return found;
+  bar.insertAdjacentHTML(
+    'afterbegin',
+    `<button class="menubar__item menubar__icon menubar__play" type="button" aria-pressed="false" aria-label="Play Wallpaper Commands" data-wallgrid-play>
+      <svg class="icon menubar__play-on" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.3 6.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/></svg>
+      <svg class="icon menubar__play-off" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="7.2" y="7.2" width="5.6" height="5.6" rx="0.9" fill="currentColor" stroke="none"/></svg>
+    </button>`,
+  );
+  return bar.firstElementChild;
+}
+
+function start() {
   const grid = document.createElement('div');
   grid.className = 'wallgrid';
   wall.append(grid);
@@ -205,12 +237,13 @@ if (wall) {
 
   fit();
   let timer = 0;
-  addEventListener('resize', () => {
+  const onResize = () => {
     clearTimeout(timer);
     timer = setTimeout(fit, 150);
-  });
+  };
+  addEventListener('resize', onResize);
   // ── 재생 ──────────────────────────────────────────────────────
-  const button = document.querySelector('[data-wallgrid-play]');
+  const button = playButton();
   let run = 0; // 재생할 때마다 늘린다. 값이 바뀌면 돌던 차례는 그만둔다
 
   // 기다리는 동안 정지하면 곧바로 false 로 깨운다(칸이 바로 원래대로 돌아오게)
@@ -295,12 +328,30 @@ if (wall) {
     }
   }
 
-  button?.addEventListener('click', () => {
+  const onPlay = () => {
     const on = button.getAttribute('aria-pressed') !== 'true';
     button.setAttribute('aria-pressed', String(on));
     button.setAttribute('aria-label', on ? 'Stop Wallpaper Commands' : 'Play Wallpaper Commands');
     run++;
     wake?.();
     if (on) play(run);
-  });
+  };
+  button?.addEventListener('click', onPlay);
+
+  // 걷기: 돌던 차례를 멈추고, 단추를 처음 모양으로 돌리고, 격자를 떼어 낸다.
+  // 단추는 남겨 둔다 — 다른 배경화면인 동안에는 _settings.scss 가 숨긴다.
+  return () => {
+    run++;
+    wake?.();
+    clearTimeout(timer);
+    removeEventListener('resize', onResize);
+    button?.removeEventListener('click', onPlay);
+    button?.setAttribute('aria-pressed', 'false');
+    button?.setAttribute('aria-label', 'Play Wallpaper Commands');
+    grid.remove();
+  };
 }
+
+// 처음 불러왔을 때: 고른 배경화면(없으면 _config.yml 의 것)이 격자면 바로 깐다
+const chosen = document.documentElement.dataset.wallpaper;
+setGrid(chosen ? chosen === 'grid' : wall?.dataset.default === 'grid');

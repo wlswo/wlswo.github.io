@@ -30,7 +30,7 @@ export const APPS = {
   },
   preview: {
     name: 'Preview',
-    icon: `${base}dock/file-txt-128.png`,
+    icon: `${base}dock/preview-128.png`,
     windows: ['doc'],
     about: 'Read a single post in a document window.',
     keywords: 'preview 미리보기 문서 document',
@@ -49,6 +49,14 @@ export const APPS = {
     windows: ['obsidian'],
     about: 'Read posts like notes in a vault.',
     keywords: 'obsidian 옵시디언 노트 notes vault',
+  },
+  mail: {
+    name: 'Mail',
+    icon: `${base}dock/mail-128.png`,
+    dock: '[data-dock-mail]',
+    windows: ['mail', 'compose'],
+    about: 'Write to the person behind this blog.',
+    keywords: 'mail 메일 email 이메일 contact 연락',
   },
   notes: {
     name: 'Notes',
@@ -81,6 +89,14 @@ export const APPS = {
     windows: ['music'],
     about: 'Plays SOS, the album by SZA.',
     keywords: 'spotify 스포티파이 음악 music 노래',
+  },
+  settings: {
+    name: 'System Settings',
+    icon: `${base}dock/settings-128.png`,
+    dock: '[data-dock-settings]',
+    windows: ['settings'],
+    about: 'Appearance, wallpaper, Dock and other settings.',
+    keywords: 'settings 설정 system preferences 환경설정 wallpaper 배경화면 appearance 화면 모드 dock',
   },
   calendar: {
     name: 'Calendar',

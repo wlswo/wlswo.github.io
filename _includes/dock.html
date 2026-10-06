@@ -1,8 +1,10 @@
 {%- comment -%}
   Dock. 맥의 Dock 그대로: 화면 아래 반투명 판에 앱 아이콘이 줄지어 서고,
   마우스를 대면 이름표가 뜨고, 떠 있는 앱 밑에는 작은 점이 찍힌다.
-  Finder · Obsidian(글을 노트로 읽기) · 메모 · 터미널 · 게임(개인 프로젝트) · Spotify(음악) | 휴지통.
-  구분선 오른쪽에는 최소화한 창도 선다. 아이콘 그림은 assets/images/dock/.
+  Finder · Obsidian(글을 노트로 읽기) · Mail(연락하기) · 메모 · 터미널 · 게임(개인 프로젝트) ·
+  Spotify(음악) · 시스템 설정 | 다운로드 폴더(스택) · 휴지통.
+  구분선 오른쪽에는 다운로드 폴더와 휴지통 사이에 최소화한 창도 선다(맥처럼).
+  아이콘 그림은 assets/images/dock/.
 {%- endcomment -%}
 {%- assign dock = '/assets/images/dock/' | relative_url %}
 <div class="dock" data-dock>
@@ -10,7 +12,7 @@
     <span class="dock__plate" aria-hidden="true"></span>
     <ul class="dock__apps">
       <li>
-        <a class="dock__app{% if page.layout == 'home' %} is-running{% endif %}" href="{{ '/' | relative_url }}" data-dock-finder aria-label="Finder (posts)">
+        <a class="dock__app is-running" href="{{ '/' | relative_url }}" data-dock-finder aria-label="Finder (posts)">
           <img class="dock__icon" src="{{ dock }}finder-128.png" srcset="{{ dock }}finder-128.png 1x, {{ dock }}finder-256.png 2x" alt="" draggable="false">
           <span class="dock__tip" aria-hidden="true">Finder</span>
         </a>
@@ -19,6 +21,12 @@
         <button class="dock__app" type="button" data-dock-obsidian data-folders="{{ site.data.categories | map: 'slug' | join: ' ' }}" aria-label="Obsidian (read posts as notes)">
           <img class="dock__icon" src="{{ dock }}obsidian-128.png" srcset="{{ dock }}obsidian-128.png 1x, {{ dock }}obsidian-256.png 2x" alt="" draggable="false">
           <span class="dock__tip" aria-hidden="true">Obsidian</span>
+        </button>
+      </li>
+      <li>
+        <button class="dock__app" type="button" data-dock-mail aria-label="Mail">
+          <img class="dock__icon" src="{{ dock }}mail-128.png" srcset="{{ dock }}mail-128.png 1x, {{ dock }}mail-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">Mail</span>
         </button>
       </li>
       <li>
@@ -45,9 +53,24 @@
           <span class="dock__tip" aria-hidden="true">Spotify</span>
         </button>
       </li>
+      <li>
+        <button class="dock__app" type="button" data-dock-settings aria-label="System Settings">
+          <img class="dock__icon" src="{{ dock }}settings-128.png" srcset="{{ dock }}settings-128.png 1x, {{ dock }}settings-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">System Settings</span>
+        </button>
+      </li>
     </ul>
 
     <span class="dock__sep" aria-hidden="true"></span>
+    {%- comment -%} 다운로드 폴더: 누르면 위로 스택이 펼쳐진다(downloads.js). {%- endcomment %}
+    <ul class="dock__apps">
+      <li>
+        <button class="dock__app" type="button" data-dock-downloads aria-haspopup="dialog" aria-expanded="false" aria-label="Downloads">
+          <img class="dock__icon" src="{{ dock }}downloads-128.png" srcset="{{ dock }}downloads-128.png 1x, {{ dock }}downloads-256.png 2x" alt="" draggable="false">
+          <span class="dock__tip" aria-hidden="true">Downloads</span>
+        </button>
+      </li>
+    </ul>
     <ul class="dock__windows" data-dock-windows aria-label="Minimized windows"></ul>
     <ul class="dock__apps">
       <li>
@@ -63,4 +86,4 @@
 <script type="application/json" id="projects-data">{{ site.data.projects | jsonify }}</script>
 {%- comment -%} 메모 앱의 고정 메모(_data/about_me.yml)와 터미널이 읽는 사이트 정보. {%- endcomment %}
 {%- assign latest = site.posts | first %}
-<script type="application/json" id="site-data">{"about": {{ site.data.about_me | jsonify }}, "posts": {{ site.posts | size }}, "latest": {{ latest.title | jsonify }}, "author": {{ site.author | jsonify }}, "title": {{ site.title | jsonify }}, "first": {{ site.posts.last.date | date: "%Y-%m-%d" | jsonify }}}</script>
+<script type="application/json" id="site-data">{"about": {{ site.data.about_me | jsonify }}, "posts": {{ site.posts | size }}, "latest": {{ latest.title | jsonify }}, "author": {{ site.author | jsonify }}, "email": {{ site.email | jsonify }}, "title": {{ site.title | jsonify }}, "first": {{ site.posts.last.date | date: "%Y-%m-%d" | jsonify }}}</script>

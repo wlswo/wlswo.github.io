@@ -1,0 +1,1242 @@
+// ── 메일 ────────────────────────────────────────────────────────
+// 맥(Tahoe)의 Mail(mail.js): 창 안에 떠 있는 회색 사이드바(편지함), 가운데 편지
+// 목록, 오른쪽에 읽는 판. 창 몸은 불투명한 종이다(보라빛이 비치는 유리를 쓰지
+// 않는다). 도구 막대의 단추는 Tahoe 처럼 둥근 캡슐에 담겨 떠 있다.
+// 강조색은 맥의 기본 파랑(--accent): 안 읽음 점, 고른 편지, 편지함 아이콘.
+
+// 크기 손잡이가 테두리 밖에 걸치도록 자르지 않는다. 둥근 모서리는 안쪽 판이 자른다.
+.window.mail,
+.window.compose {
+  overflow: visible;
+}
+
+.mail,
+.compose {
+  --mail-capsule: #ffffff;
+  --mail-capsule-edge: rgba(0, 0, 0, 0.09);
+  --mail-capsule-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 3px 10px -4px rgba(0, 0, 0, 0.16);
+  --mail-token: rgba(10, 100, 216, 0.12);
+  --mail-avatar: linear-gradient(180deg, #a9aeb8, #868b96); // 맥의 연락처 기본 얼굴(회색 동그라미)
+  --mail-draft: #d92d33;
+}
+
+.mail {
+  --mail-side-w: 220px;
+  --mail-list-w: 340px;
+  top: 40px;
+  left: clamp(16px, calc(50% - 560px), 50%);
+  width: clamp(640px, 78vw, 1120px);
+  height: clamp(420px, calc(100% - var(--dock-reserve) - 70px), 780px);
+  background: var(--paper);
+  container: mail / inline-size;
+
+  &__frame {
+    position: relative; // 좁은 창에서 사이드바가 목록 위에 뜰 자리
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    border-radius: inherit;
+    overflow: hidden;
+  }
+
+  // ── 사이드바: 창 가장자리에서 한 뼘 떨어져 떠 있는 판(Tahoe). 신호등이 그 위에 앉는다.
+  &__side {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    width: var(--mail-side-w);
+    min-height: 0;
+    margin: 8px 0 8px 8px;
+    border-radius: calc(var(--r-window) - 7px);
+    background: var(--finder-side);
+    box-shadow:
+      0 0 0 var(--hair) var(--sep),
+      0 4px 14px -6px rgba(0, 0, 0, 0.12);
+  }
+
+  &__chrome {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 6px 0 10px;
+  }
+
+  &__side-toggle {
+    margin-left: auto;
+  }
+
+  &__side-title,
+  &__close,
+  &__back {
+    display: none;
+  }
+
+  &__boxes {
+    flex: 1;
+    min-height: 0;
+    padding: 2px 8px 12px;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__group {
+    margin: 14px 8px 3px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-3);
+
+    &:first-child {
+      margin-top: 6px;
+    }
+  }
+
+  &__boxlist {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 30px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--ink);
+    font-size: 15px;
+    text-align: left;
+
+    .icon {
+      width: 17px;
+      height: 17px;
+      color: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    &:hover {
+      background: var(--fill);
+    }
+
+    &[aria-current] {
+      background: var(--finder-selected);
+      font-weight: 600;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      border-radius: 8px;
+    }
+  }
+
+  &__box-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__box-count {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  // ── 도구 막대
+  &__bar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    height: 56px;
+    padding: 0 12px 0 16px;
+  }
+
+  &__titles {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  &__title,
+  &__sub {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  &__sub {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+
+  // 캡슐: 단추 몇 개를 한 알약에 담는다(Tahoe 의 도구 막대)
+  &__caps {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    height: 34px;
+    padding: 0 2px;
+    border-radius: 17px;
+    background: var(--mail-capsule);
+    box-shadow:
+      0 0 0 var(--hair) var(--mail-capsule-edge),
+      var(--mail-capsule-shadow);
+  }
+
+  &__tool {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 15px;
+    background: none;
+    color: var(--ink-2);
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      stroke-width: 1.5;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--fill-2);
+      color: var(--ink);
+    }
+
+    &:disabled {
+      color: var(--ink-4);
+    }
+
+    &[aria-pressed="true"] {
+      background: var(--mail-token);
+      color: var(--accent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      border-radius: 15px;
+    }
+  }
+
+  // ── 목록
+  &__listpane {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    width: var(--mail-list-w);
+    min-width: 0;
+    min-height: 0;
+    border-right: var(--hair) solid var(--sep);
+  }
+
+  &__search {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    margin: 0 12px 8px;
+    padding: 0 12px;
+    border-radius: 16px;
+    background: var(--fill-2);
+    color: var(--ink-3);
+
+    .icon {
+      width: 15px;
+      height: 15px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      background: none;
+      color: var(--ink);
+      font-size: 14.5px;
+      outline: none;
+    }
+
+    &:focus-within {
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+  }
+
+  &__list {
+    flex: 1;
+    min-height: 0;
+    padding: 0 8px 10px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    outline: none;
+  }
+
+  &__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 14px 36px minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: start;
+    width: 100%;
+    padding: 10px 10px 11px 2px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+
+    // 편지 사이의 가는 선: 글자 줄에서 시작한다(맥처럼 얼굴 밑은 비운다)
+    & + &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 60px;
+      right: 10px;
+      border-top: var(--hair) solid var(--sep);
+    }
+
+    &.is-current::before,
+    &.is-current + &::before,
+    &:hover::before,
+    &:hover + &::before {
+      display: none;
+    }
+
+    &:hover {
+      background: var(--fill);
+    }
+
+    &.is-current {
+      background: var(--finder-selected);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      border-radius: 10px;
+    }
+  }
+
+  &__dot {
+    width: 9px;
+    height: 9px;
+    margin: 6px 0 0 5px;
+    border-radius: 50%;
+  }
+
+  &__row.is-unread &__dot {
+    background: var(--accent);
+  }
+
+  &__avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--mail-avatar);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+
+    .icon {
+      width: 19px;
+      height: 19px;
+      color: #ffffff;
+      stroke-width: 1.6;
+    }
+
+    &--post {
+      background-color: var(--c);
+      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.08));
+    }
+
+    &--lg {
+      width: 44px;
+      height: 44px;
+      font-size: 18px;
+
+      .icon {
+        width: 23px;
+        height: 23px;
+      }
+    }
+  }
+
+  &__row-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__row-top {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  &__who,
+  &__row-subject {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__who {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  &__when {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 3px;
+    font-size: 13px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+
+    &--draft {
+      color: var(--mail-draft);
+      font-weight: 600;
+    }
+  }
+
+  &__pin {
+    width: 12px;
+    height: 12px;
+  }
+
+  &__row-subject {
+    margin-top: 1px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &__row-preview {
+    display: -webkit-box;
+    margin-top: 1px;
+    overflow: hidden;
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: var(--ink-3);
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  // 목록에 초점이 있으면 고른 편지는 파란 판에 흰 글자(맥처럼), 없으면 회색 판
+  &__list:focus-within &__row.is-current {
+    background: var(--accent);
+    color: #ffffff;
+
+    .mail__when,
+    .mail__row-preview {
+      color: rgba(255, 255, 255, 0.86);
+    }
+
+    &.is-unread .mail__dot {
+      background: #ffffff;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent-ring);
+      outline-offset: 1px;
+    }
+  }
+
+  &__empty {
+    margin: 48px 16px 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  &__note {
+    margin: 12px 16px;
+    font-size: 13px;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  // ── 읽는 판
+  &__reader {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  &__bar--reader {
+    padding: 0 14px;
+  }
+
+  &__view {
+    flex: 1;
+    min-height: 0;
+    padding: 4px 32px 32px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    outline: none;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  &__none {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--ink-3);
+  }
+
+  &__msg {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  &__head {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+    padding: 6px 0 16px;
+    border-bottom: var(--hair) solid var(--sep);
+  }
+
+  &__head-top {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  &__from {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__addr {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+
+  &__date {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 3px;
+    margin: 0;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+
+  &__draft {
+    color: var(--mail-draft);
+    font-weight: 600;
+  }
+
+  &__subject {
+    margin: 2px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-wrap: pretty;
+  }
+
+  &__to {
+    margin: 2px 0 0;
+    font-size: 13.5px;
+    color: var(--ink-3);
+    overflow-wrap: anywhere;
+  }
+
+  &__body {
+    padding: 22px 0 8px;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink-body);
+
+    p {
+      margin: 0 0 14px;
+    }
+  }
+
+  &__address {
+    font-weight: 600;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 22px 0;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 18px;
+    background: var(--accent);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: var(--cursor);
+
+    .icon {
+      width: 17px;
+      height: 17px;
+      stroke-width: 1.7;
+    }
+
+    &:hover {
+      filter: brightness(1.08);
+    }
+
+    &:active {
+      filter: brightness(0.92);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      filter: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 18px;
+    }
+
+    &--plain {
+      background: var(--mail-capsule);
+      box-shadow:
+        0 0 0 var(--hair) var(--mail-capsule-edge),
+        var(--mail-capsule-shadow);
+      color: var(--ink);
+      font-weight: 500;
+
+      &:hover {
+        filter: none;
+        background: var(--paper-2);
+      }
+    }
+  }
+
+  &__sign {
+    color: var(--ink-2);
+  }
+
+  // 새 글 알림: 그 카테고리 색 띠를 두른 카드(뉴스레터 메일처럼)
+  &__card {
+    position: relative;
+    max-width: 560px;
+    margin: 4px auto 0;
+    padding: 28px 28px 28px;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--paper-2);
+    box-shadow: inset 0 0 0 var(--hair) var(--sep);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--c);
+    }
+  }
+
+  &__body &__kicker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-3);
+
+    .icon {
+      width: 15px;
+      height: 15px;
+      color: var(--c);
+      stroke-width: 1.7;
+    }
+  }
+
+  &__card-title {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+
+  &__body &__card-desc {
+    margin: 0 0 22px;
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: var(--ink-2);
+  }
+
+  &__body &__fine {
+    max-width: 560px;
+    margin: 16px auto 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  &__text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  &__muted {
+    color: var(--ink-3);
+  }
+
+  &__aside {
+    margin-top: 28px;
+    padding: 14px 16px 2px;
+    border-radius: 12px;
+    background: var(--fill);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-2);
+
+    p {
+      margin: 0;
+    }
+
+    .mail__actions {
+      margin: 12px 0;
+    }
+
+    .mail__cta {
+      height: 32px;
+      padding: 0 14px;
+      font-size: 14px;
+    }
+  }
+}
+
+// 사이드바를 접으면 신호등과 펴기 단추가 목록 막대로 옮겨 오고, 목록이 조금 넓어진다(맥처럼).
+// .mail__tool 의 display 를 이기도록 .mail 을 앞에 붙인다.
+.mail .mail__traffic-alt,
+.mail .mail__side-toggle--alt {
+  display: none;
+}
+
+.mail .mail__traffic-alt {
+  margin-right: 2px;
+}
+
+.mail .mail__side-toggle--alt {
+  margin-left: 0;
+}
+
+.mail.is-side-hidden {
+  .mail__side {
+    display: none;
+  }
+
+  .mail__listpane {
+    width: calc(var(--mail-list-w) + 40px);
+  }
+
+  .mail__traffic-alt,
+  .mail__side-toggle--alt {
+    display: flex;
+  }
+}
+
+// 창이 좁아지면 칸을 줄이고, 더 좁으면 사이드바는 접어 두었다가 펴면 목록 위에 뜬다.
+@media (min-width: 900px) {
+  @container mail (max-width: 979px) {
+    .mail__side {
+      --mail-side-w: 196px;
+    }
+
+    .mail__listpane {
+      --mail-list-w: 290px;
+    }
+  }
+
+  @container mail (max-width: 799px) {
+    .mail__side {
+      display: none;
+    }
+
+    .mail__listpane {
+      --mail-list-w: 280px;
+    }
+
+    .mail .mail__traffic-alt,
+    .mail .mail__side-toggle--alt {
+      display: flex;
+    }
+
+    // 신호등 · 사이드바 단추 · 캡슐이 한 줄을 차지하니, 편지함 이름은 그 아래 줄로
+    .mail .mail__bar--list {
+      flex-wrap: wrap;
+      height: auto;
+      row-gap: 6px;
+      padding-top: 12px;
+      padding-bottom: 8px;
+    }
+
+    .mail .mail__bar--list .mail__titles {
+      flex-basis: 100%;
+      order: 10;
+    }
+
+    .mail .mail__bar--list .mail__caps {
+      margin-left: auto;
+    }
+
+    .mail.is-side-peek .mail__side {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 5;
+      display: flex;
+      width: 220px;
+      box-shadow:
+        0 0 0 var(--hair) var(--sep),
+        0 18px 40px -10px rgba(0, 0, 0, 0.35);
+    }
+  }
+}
+
+// ── 새 메시지 창 ────────────────────────────────────────────────
+// 위에 보내기(종이비행기) · 제목 · 버리기, 그 아래 받는 사람(주인, 고칠 수 없는 토큰)과
+// 제목 칸, 나머지는 본문. 보내면 방문자의 메일 앱이 열린다.
+.compose {
+  top: 96px;
+  left: clamp(16px, calc(50% - 200px), 50%);
+  width: clamp(440px, 44vw, 640px);
+  height: clamp(380px, calc(100% - var(--dock-reserve) - 170px), 600px);
+  background: var(--paper);
+
+  &__bar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 10px;
+    height: 56px;
+    padding: 0 12px 0 18px;
+
+    .traffic {
+      margin-right: 4px;
+    }
+  }
+
+  &__cancel {
+    display: none;
+  }
+
+  &__send:not(:disabled) {
+    color: var(--accent);
+  }
+
+  &__title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__fields {
+    flex: none;
+    padding: 0 20px;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    border-bottom: var(--hair) solid var(--sep);
+    font-size: 15px;
+
+    &:first-child {
+      border-top: var(--hair) solid var(--sep);
+    }
+
+    &:focus-within {
+      border-bottom-color: var(--accent);
+    }
+  }
+
+  &__label {
+    flex: none;
+    color: var(--ink-3);
+  }
+
+  // 받는 사람 토큰: 맥의 Mail 처럼 옅은 파란 알약. 고칠 수 없다.
+  &__token {
+    display: inline-block;
+    max-width: 100%;
+    min-width: 0;
+    height: 26px;
+    padding: 0 11px;
+    overflow: hidden;
+    border-radius: 13px;
+    background: var(--mail-token);
+    color: var(--accent);
+    font-size: 14.5px;
+    line-height: 26px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  &__token-name {
+    font-weight: 600;
+  }
+
+  &__subject {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font-size: 15px;
+    outline: none;
+  }
+
+  &__body {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    padding: 16px 20px;
+    border: 0;
+    background: none;
+    color: var(--ink-body);
+    font: inherit;
+    font-size: 16px;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+
+    &::placeholder {
+      color: var(--ink-3);
+    }
+  }
+
+  &__foot {
+    flex: none;
+    padding: 9px 20px 11px;
+    border-top: var(--hair) solid var(--sep);
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+}
+
+// 뒤에 있는 창은 제목이 흐리다(맥처럼)
+.window:not(.is-front) {
+  .mail__title,
+  .compose__title {
+    opacity: 0.55;
+  }
+}
+
+// ── 다크 모양 ───────────────────────────────────────────────────
+html[data-theme="dark"] {
+  .mail,
+  .compose {
+    --mail-capsule: #2c2c2f;
+    --mail-capsule-edge: rgba(255, 255, 255, 0.12);
+    --mail-capsule-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px -4px rgba(0, 0, 0, 0.45);
+    --mail-token: rgba(10, 132, 255, 0.22);
+    --mail-avatar: linear-gradient(180deg, #8f949e, #6a6e77);
+    --mail-draft: #ff6961;
+  }
+
+  .mail__side {
+    box-shadow:
+      0 0 0 var(--hair) var(--sep),
+      0 4px 14px -6px rgba(0, 0, 0, 0.5);
+  }
+
+  .mail__card {
+    background: #252528;
+  }
+
+  .compose__token {
+    color: #4ea2ff;
+  }
+}
+
+// ── 좁은 화면: 메모 앱처럼 한 화면에 한 판씩 ────────────────────
+// 편지함 → 목록 → 편지. 위의 ‹ 로 한 칸씩 돌아온다. 처음에는 목록부터.
+@media (max-width: 899px) {
+  .mail,
+  .mail.has-frame,
+  .mail.is-zoomed,
+  .compose,
+  .compose.has-frame,
+  .compose.is-zoomed {
+    top: 6px;
+    left: var(--safe-l);
+    width: calc(100% - var(--safe-l) - var(--safe-r));
+    height: calc(100% - var(--dock-reserve) - 6px);
+  }
+
+  .mail {
+    &__side,
+    &__listpane,
+    &__reader {
+      display: none;
+    }
+
+    &[data-pane="boxes"] &__side {
+      display: flex;
+      flex: 1;
+      width: auto;
+      margin: 0;
+      border-radius: 0;
+      background: var(--paper);
+      box-shadow: none;
+    }
+
+    &[data-pane="list"] &__listpane {
+      display: flex;
+      flex: 1;
+      width: auto;
+      border-right: 0;
+    }
+
+    &[data-pane="reader"] &__reader {
+      display: flex;
+    }
+
+    &[data-pane] &__traffic-alt,
+    &[data-pane] &__side-toggle {
+      display: none;
+    }
+
+    &__chrome {
+      justify-content: flex-end;
+      height: auto;
+      padding: 10px 12px 0;
+    }
+
+    &__side-title {
+      display: block;
+      margin: 0 0 6px;
+      padding: 0 18px;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    &__boxes {
+      padding: 0 10px 16px;
+    }
+
+    &__box {
+      height: 44px;
+      font-size: 17px;
+
+      .icon {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    &__close {
+      display: grid;
+      flex: none;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: var(--fill-2);
+      color: var(--ink-2);
+
+      .icon {
+        width: 14px;
+        height: 14px;
+        stroke-width: 2;
+      }
+    }
+
+    &__back {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      gap: 1px;
+      min-width: 0;
+      height: 34px;
+      padding: 0 6px 0 0;
+      border: 0;
+      background: none;
+      color: var(--accent);
+      font-size: 17px;
+
+      .icon {
+        width: 22px;
+        height: 22px;
+        stroke-width: 2;
+      }
+    }
+
+    &__bar--list {
+      flex-wrap: wrap;
+      height: auto;
+      row-gap: 4px;
+      padding: 10px 12px 8px;
+    }
+
+    &__bar--list &__titles {
+      flex-basis: 100%;
+      order: 10;
+      padding: 0 6px;
+    }
+
+    &__bar--list &__caps {
+      margin-left: auto;
+    }
+
+    &__title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    &__sub {
+      font-size: 14px;
+    }
+
+    &__search {
+      height: 38px;
+      border-radius: 19px;
+
+      input {
+        font-size: 19px; // 16px 아래면 iOS 가 확대해 버린다
+      }
+    }
+
+    &__bar--reader {
+      padding: 0 10px;
+    }
+
+    &__view {
+      padding: 4px 18px 24px;
+    }
+
+    &__card {
+      padding: 24px 20px;
+    }
+  }
+
+  .compose {
+    &__bar {
+      padding: 0 10px 0 14px;
+    }
+
+    &__cancel {
+      display: inline-flex;
+      flex: none;
+      height: 34px;
+      padding: 0 4px;
+      border: 0;
+      background: none;
+      color: var(--accent);
+      font-size: 17px;
+    }
+
+    &__send-caps {
+      order: 3;
+    }
+
+    &__keys {
+      display: none; // 폰에는 ⌥ 가 없다
+    }
+
+    &__fields {
+      padding: 0 16px;
+    }
+
+    &__subject,
+    &__body {
+      font-size: 17px; // 16px 아래면 iOS 가 확대해 버린다
+    }
+
+    &__body {
+      padding: 14px 16px;
+    }
+  }
+}

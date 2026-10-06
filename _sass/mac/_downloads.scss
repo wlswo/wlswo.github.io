@@ -1,0 +1,667 @@
+// ── 다운로드: Dock 의 스택 ──────────────────────────────────────
+// 맥의 Dock 스택(downloads.js). 부채(fan)는 아이콘과 이름표가 Dock 아이콘에서
+// 튀어나와 오른쪽으로 휘며 쌓이고, 격자(grid)는 꼬리 달린 둥근 유리 판이 Dock
+// 아이콘에서 커지며 뜬다. 판의 모양(꼬리까지 한 몸)은 downloads.js 가 path 로 그려
+// 흐림(clip-path) · 테두리 · 그림자에 같이 쓴다.
+// Finder 의 다운로드 칸(목록 보기)과 파일 아이콘(.dlicon)도 여기에 둔다.
+
+.stack {
+  --stack-glass: rgba(242, 242, 245, 0.74);
+  --stack-edge: rgba(0, 0, 0, 0.2);
+  --stack-rim: rgba(255, 255, 255, 0.75);
+  --stack-shade: rgba(0, 0, 0, 0.3);
+  --stack-shade-near: rgba(0, 0, 0, 0.14);
+  --stack-hover: rgba(0, 0, 0, 0.075);
+  --stack-sep: rgba(0, 0, 0, 0.1);
+  // 부채의 이름표: Dock 의 이름표와 같은 판
+  --stack-tip-bg: rgba(238, 238, 240, 0.94);
+  --stack-tip-ink: #1d1d1f;
+  --stack-go-bg: rgba(255, 255, 255, 0.92);
+  --stack-go-ink: rgba(0, 0, 0, 0.72);
+  position: fixed;
+  z-index: 55; // Dock(50) 위, 메뉴 막대(60) 아래
+  color: var(--ink);
+  -webkit-user-select: none;
+  user-select: none;
+
+  // 접히는 동안은 누를 수 없다.
+  &.is-closing {
+    pointer-events: none;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+html[data-theme="dark"] .stack {
+  --stack-glass: rgba(40, 40, 44, 0.72);
+  --stack-edge: rgba(255, 255, 255, 0.2);
+  --stack-rim: rgba(255, 255, 255, 0.1);
+  --stack-shade: rgba(0, 0, 0, 0.55);
+  --stack-shade-near: rgba(0, 0, 0, 0.35);
+  --stack-hover: rgba(255, 255, 255, 0.11);
+  --stack-sep: rgba(255, 255, 255, 0.12);
+  --stack-tip-bg: rgba(44, 44, 46, 0.94);
+  --stack-tip-ink: #f5f5f7;
+  --stack-go-bg: rgba(72, 72, 76, 0.94);
+  --stack-go-ink: rgba(255, 255, 255, 0.9);
+}
+
+// 스택이 펼쳐진 동안 Dock 의 이름표는 숨기고, 누를 때 통통 튀지도 않는다(맥처럼).
+.dock__app[data-dock-downloads] {
+  &[aria-expanded="true"] .dock__tip {
+    opacity: 0;
+  }
+
+  .dock__icon.is-bouncing {
+    animation: none;
+  }
+}
+
+// 'Open in Finder' 의 동그라미 화살표
+.stack__go {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  overflow: visible;
+
+  circle {
+    fill: var(--stack-go-bg);
+    stroke: rgba(0, 0, 0, 0.12);
+    stroke-width: 0.6;
+  }
+
+  path {
+    fill: none;
+    stroke: var(--stack-go-ink);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+// ── 부채 ────────────────────────────────────────────────────────
+// 스택 상자는 Dock 아이콘 바로 위의 한 점이다(크기 없음). 항목마다 그 점에서
+// 오른쪽(--x) · 위(--y)로 떨어진 자리에 서고 --r 만큼 기운다. 처음에는 Dock 아이콘
+// 속(--from 아래)에 작게 접혀 있다가 스프링으로 튀어나온다. 아래 것부터 조금씩
+// 늦게(--i) 나온다.
+.stack--fan {
+  width: 0;
+  height: 0;
+}
+
+.stack__fan {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stack__fanitem {
+  position: absolute;
+  right: calc(-1 * (var(--x) + var(--icon) / 2));
+  bottom: var(--y);
+  transform-origin: calc(100% - var(--icon) / 2) 50%;
+  translate: calc(-1 * var(--x)) calc(var(--y) + var(--from));
+  scale: 0.25;
+  rotate: 0deg;
+  opacity: 0;
+  transition:
+    translate 0.5s var(--spring-fallback),
+    scale 0.5s var(--spring-fallback),
+    rotate 0.5s var(--spring-fallback),
+    opacity 0.14s linear;
+  transition-timing-function: var(--spring), var(--spring), var(--spring), linear;
+  transition-delay: calc(var(--i) * 14ms);
+
+  .is-open & {
+    translate: 0 0;
+    scale: 1;
+    rotate: var(--r);
+    opacity: 1;
+  }
+
+  // 접을 때는 한꺼번에, 빠르게 Dock 아이콘 속으로
+  .is-closing & {
+    transition-duration: 0.2s, 0.2s, 0.2s, 0.16s;
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    transition-delay: 0s;
+  }
+}
+
+.stack__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: right;
+  cursor: var(--cursor);
+  outline: none;
+
+  .stack__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: var(--icon);
+    height: var(--icon);
+    transition: filter 0.1s linear;
+  }
+
+  &:active .stack__icon {
+    filter: brightness(0.72);
+  }
+}
+
+// 이름표: Dock 의 이름표와 같은 반투명 알약. 고르면(마우스 · 키보드) 맥의 선택 색.
+.stack__label {
+  max-width: 260px;
+  padding: 3px 10px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: var(--stack-tip-bg);
+  box-shadow:
+    0 0 0 var(--hair) rgba(0, 0, 0, 0.18),
+    0 3px 10px -3px rgba(0, 0, 0, 0.32);
+  color: var(--stack-tip-ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+}
+
+.stack__item:focus-visible .stack__label {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+@media (hover: hover) {
+  .stack__item:hover .stack__label {
+    background: var(--accent);
+    color: #ffffff;
+  }
+}
+
+// 맨 위의 'Open in Finder': 아이콘 자리에 동그라미 화살표
+.stack__item--finder .stack__go {
+  width: 34px;
+  height: 34px;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.28));
+}
+
+// ── 격자 ────────────────────────────────────────────────────────
+// 자리(left · bottom)와 꼬리 끝(--ax)은 downloads.js 가 정한다. 상자 아래 --tail 만큼이
+// 꼬리 자리다. 꼬리 끝을 축으로 커지며 뜬다.
+.stack--grid {
+  padding-bottom: var(--tail);
+  transform-origin: var(--ax, 50%) 100%;
+  scale: 0.2;
+  opacity: 0;
+  transition:
+    scale 0.46s var(--spring-fallback),
+    opacity 0.12s linear;
+  transition-timing-function: var(--spring), linear;
+
+  &.is-open {
+    scale: 1;
+    opacity: 1;
+  }
+
+  &.is-closing {
+    scale: 0.4;
+    opacity: 0;
+    transition-duration: 0.2s, 0.18s;
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1), linear;
+  }
+}
+
+// 판의 몸: 흐린 유리를 path 모양으로 자른다(꼬리까지 한 몸이라 이음매가 없다).
+.stack__glass {
+  position: absolute;
+  inset: 0;
+  background: var(--stack-glass);
+  -webkit-backdrop-filter: blur(34px) saturate(1.8);
+  backdrop-filter: blur(34px) saturate(1.8);
+}
+
+// 그림자는 판 바깥에만 진다(속까지 비치면 유리가 탁해진다). 테두리는 머리카락 선.
+.stack__shadow,
+.stack__edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.stack__shade {
+  fill: var(--stack-shade);
+
+  &--near {
+    fill: var(--stack-shade-near);
+  }
+}
+
+.stack__edge path {
+  fill: none;
+  stroke: var(--stack-edge);
+  stroke-width: var(--hair);
+  vector-effect: non-scaling-stroke;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .stack {
+    --stack-glass: rgba(240, 240, 243, 0.97);
+  }
+
+  html[data-theme="dark"] .stack {
+    --stack-glass: rgba(42, 42, 46, 0.97);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .stack {
+    --stack-glass: var(--paper);
+  }
+
+  .stack__glass,
+  .stack__label {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.stack__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px 10px;
+}
+
+.stack__title {
+  margin: 0;
+  padding: 13px 0 6px;
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.stack__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell));
+  gap: 2px 0;
+  margin: 0;
+  padding: 2px 0 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.stack__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  height: 100%;
+  padding: 9px 5px 7px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: var(--cursor);
+  outline: none;
+
+  .stack__icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    transition: filter 0.1s linear;
+  }
+
+  &:active .stack__icon {
+    filter: brightness(0.72);
+  }
+
+  &:focus-visible {
+    background: var(--stack-hover);
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+}
+
+@media (hover: hover) {
+  .stack__cell:hover {
+    background: var(--stack-hover);
+  }
+}
+
+// 이름: 두 줄까지. 넘치면 downloads.js 가 재어 가운데를 줄인다(맥처럼).
+.stack__name {
+  display: block;
+  width: 100%;
+  max-height: 2.5em;
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.25;
+  text-align: center;
+  white-space: pre-line; // downloads.js 가 줄여 나눈 두 줄
+  overflow-wrap: anywhere;
+}
+
+.stack__foot {
+  display: flex;
+  justify-content: center;
+  margin: 2px -12px 0;
+  padding: 10px 12px 0;
+  border-top: var(--hair) solid var(--stack-sep);
+}
+
+.stack__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 6px 0 13px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--stack-hover);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: var(--cursor);
+  transition: scale 0.3s var(--spring-fallback);
+  transition-timing-function: var(--spring);
+
+  &:hover {
+    background: var(--fill-2);
+  }
+
+  &:active {
+    scale: 0.96;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+}
+
+// ── 파일 아이콘 ─────────────────────────────────────────────────
+// 크기는 --s. 그림 · 종이 위의 그림(svg)을 같은 칸에 겹쳐 둔다.
+.dlicon {
+  position: relative;
+  display: block;
+  flex: none;
+  width: var(--s, 64px);
+  height: var(--s, 64px);
+
+  > img,
+  > svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-user-drag: none;
+  }
+
+  // 그림 파일: 맥의 미리보기처럼 흰 테두리를 두른 축소판
+  &--thumb {
+    display: grid;
+    place-items: center;
+
+    > img {
+      position: static;
+      box-sizing: border-box;
+      width: 94%;
+      height: auto;
+      max-height: 94%;
+      object-fit: contain;
+      border: calc(var(--s, 64px) / 28) solid #ffffff;
+      border-radius: calc(var(--s, 64px) / 40);
+      background: #ffffff;
+      box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.2),
+        0 1px 3px rgba(0, 0, 0, 0.28);
+    }
+  }
+
+  // PDF 의 첫 쪽: 종이에 옅은 그림자
+  &--pdf > svg {
+    filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.25));
+  }
+}
+
+// ── Finder 의 다운로드 칸 ───────────────────────────────────────
+// 목록 보기: 이름 · 크기 · 종류 · 추가된 날짜. '추가된 날짜' 순(새것이 위)이고
+// 오늘 · 어제 · 지난 7일 · 지난 30일로 묶는다(맥의 다운로드 폴더 그대로).
+// 열 머리(.columns)와 묶음 머리(.year__label)는 Obsidian 칸의 것을 빌려 쓴다.
+.finder__downloads {
+  --dl-cols: 18px minmax(0, 1fr) 72px 150px 178px;
+
+  .columns {
+    grid-template-columns: var(--dl-cols);
+  }
+}
+
+// 정렬한 열: 오른쪽 끝에 작은 꺾쇠(맥처럼 아래로 = 새것이 위)
+.dlcolumns__date {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+
+  &::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin: -3px 2px 0 0;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    rotate: 45deg;
+  }
+}
+
+.dlrows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dlrow {
+  &:nth-child(even) .dlrow__btn {
+    background: var(--finder-stripe);
+  }
+
+  .dlrow__btn:hover {
+    background: var(--fill-2);
+  }
+
+  // 고른 줄: 맥의 선택 색(파랑)에 흰 글자. 창이 뒤로 가면 회색.
+  .dlrow__btn.is-selected,
+  .dlrow__btn:focus-visible {
+    outline: none;
+    background: var(--accent);
+    color: #ffffff;
+
+    .dlrow__size,
+    .dlrow__kind,
+    .dlrow__date {
+      color: rgba(255, 255, 255, 0.85);
+    }
+  }
+}
+
+.finder:not(.is-front) .dlrow .dlrow__btn.is-selected:not(:focus-visible) {
+  background: var(--finder-selected);
+  color: var(--ink);
+
+  .dlrow__size,
+  .dlrow__kind,
+  .dlrow__date {
+    color: var(--ink-2);
+  }
+}
+
+.dlrow__btn {
+  display: grid;
+  grid-template-columns: var(--dl-cols);
+  column-gap: 10px;
+  align-items: center;
+  width: 100%;
+  height: 28px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15.5px;
+  text-align: left;
+  cursor: var(--cursor);
+}
+
+.dlrow__icon {
+  display: grid;
+  place-items: center;
+
+  .dlicon {
+    --s: 18px;
+  }
+}
+
+.dlrow__name,
+.dlrow__kind {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dlrow__size,
+.dlrow__kind,
+.dlrow__date {
+  font-size: 14.5px;
+  color: var(--ink-2);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.dlrow__size {
+  text-align: right;
+}
+
+.dlcolumns__size {
+  text-align: right;
+}
+
+// 창을 좁히면 종류, 크기 순으로 접는다. 화면이 아니라 창의 폭을 본다.
+@container finder (max-width: 660px) {
+  .finder__downloads {
+    --dl-cols: 18px minmax(0, 1fr) 72px 178px;
+  }
+
+  .dlcolumns__kind,
+  .dlrow__kind {
+    display: none;
+  }
+}
+
+@container finder (max-width: 500px) {
+  .finder__downloads {
+    --dl-cols: 18px minmax(0, 1fr) 150px;
+  }
+
+  .dlcolumns__size,
+  .dlrow__size {
+    display: none;
+  }
+
+  .dlrow__date {
+    font-size: 13.5px;
+  }
+}
+
+// ── 좁은 화면 ───────────────────────────────────────────────────
+@media (max-width: 899px) {
+  // Finder: 줄마다 이름 한 줄, 그 아래 크기와 날짜. 아이콘은 조금 크게.
+  .dlrow__btn {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    row-gap: 2px;
+    height: auto;
+    padding: 9px 14px;
+  }
+
+  .dlrow__icon {
+    grid-row: 1 / 3;
+
+    .dlicon {
+      --s: 30px;
+    }
+  }
+
+  .dlrow__name {
+    grid-column: 2 / 4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .dlrow__size,
+  .dlrow__date {
+    display: block;
+    grid-row: 2;
+    font-size: 13.5px;
+  }
+
+  .dlrow__size {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .dlrow__date {
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  .dlrow__kind {
+    display: none;
+  }
+
+  // 폰의 위치 칸이 넷이 되었다: 글자를 조금 줄여 한 줄에 담는다.
+  .finder__places a {
+    padding-right: 2px;
+    padding-left: 2px;
+    font-size: 13.5px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  // 스택: 손가락으로 누르기 좋게 칸을 조금 넓힌다.
+  .stack__cell {
+    padding: 8px 3px 7px;
+
+    .stack__icon {
+      width: 56px;
+      height: 56px;
+
+      .dlicon {
+        --s: 56px !important;
+      }
+    }
+  }
+
+  .stack__name {
+    font-size: 12.5px;
+  }
+}

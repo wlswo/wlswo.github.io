@@ -8,7 +8,8 @@ layout: desktop
   창(druid.js · /druid/)으로 열린다.
 
   Finder 는 맥처럼 사이드바의 위치를 오간다: 응용 프로그램(Dock 의 앱들),
-  데스크탑(About.txt), Obsidian(글이 텍스트 파일로 줄지은 폴더). 카테고리는
+  데스크탑(About.txt), 다운로드(Dock 의 다운로드 스택과 같은 파일들),
+  Obsidian(글이 텍스트 파일로 줄지은 폴더). 카테고리는
   '태그'로, 누르면 Obsidian 폴더의 그 글만 보인다. 주소는 ?at=위치, ?c=태그.
   보이고 숨기는 일은 finder.js 가 맡고, 스크립트가 없으면 글 목록이 보인다.
 {%- endcomment %}
@@ -45,6 +46,7 @@ layout: desktop
       <ul class="finder__items">
         <li><a class="finder__item" href="{{ '/' | relative_url }}" data-place="apps" aria-current="true">{% include icon.html name="apps" %}<span class="finder__label">Applications</span></a></li>
         <li><a class="finder__item" href="{{ '/' | relative_url }}?at=desktop" data-place="desktop">{% include icon.html name="desktop" %}<span class="finder__label">Desktop</span></a></li>
+        <li><a class="finder__item" href="{{ '/' | relative_url }}?at=downloads" data-place="downloads">{% include icon.html name="download" %}<span class="finder__label">Downloads</span></a></li>
         <li>
           <a class="finder__item" href="{{ '/' | relative_url }}?at=obsidian" data-place="obsidian">
             {% include icon.html name="folder" %}<span class="finder__label">Obsidian</span><span class="finder__count">{{ site.posts | size }}</span>
@@ -97,10 +99,11 @@ layout: desktop
           {% include icon.html name="clear" %}
         </button>
       </div>
-      {%- comment -%} 폰에는 사이드바가 없다. 그 자리를 이 세 칸이 맡는다. {%- endcomment %}
+      {%- comment -%} 폰에는 사이드바가 없다. 그 자리를 이 네 칸이 맡는다. {%- endcomment %}
       <nav class="finder__places" aria-label="Locations" data-no-drag>
         <a href="{{ '/' | relative_url }}" data-place="apps" aria-current="true">Applications</a>
         <a href="{{ '/' | relative_url }}?at=desktop" data-place="desktop">Desktop</a>
+        <a href="{{ '/' | relative_url }}?at=downloads" data-place="downloads">Downloads</a>
         <a href="{{ '/' | relative_url }}?at=obsidian" data-place="obsidian">Obsidian</a>
       </nav>
     </header>
@@ -127,12 +130,26 @@ layout: desktop
       </ul>
     </div>
 
+    {%- comment -%}
+      다운로드: Dock 의 다운로드 스택과 같은 파일들을 목록 보기로(이름 · 크기 · 종류 ·
+      추가된 날짜). 받은 날짜를 오늘에서 거꾸로 세므로 줄은 finder.js 가 그린다.
+    {%- endcomment %}
+    <div class="finder__place finder__list finder__downloads" tabindex="0" role="region" data-place-view="downloads" aria-label="Downloads" hidden>
+      <div class="columns dlcolumns" aria-hidden="true">
+        <span class="columns__name">Name</span>
+        <span class="dlcolumns__size">Size</span>
+        <span class="dlcolumns__kind">Kind</span>
+        <span class="dlcolumns__date">Date Added</span>
+      </div>
+      <div data-downloads-list></div>
+    </div>
+
     {%- comment -%} Obsidian 폴더: 글이 텍스트 파일로 줄지어 선다(목록 보기). {%- endcomment %}
-    <div class="finder__place finder__list" tabindex="0" role="region" data-scroll="finder" data-place-view="obsidian" aria-label="Obsidian 폴더의 글" hidden>
+    <div class="finder__place finder__list" tabindex="0" role="region" data-scroll="finder" data-place-view="obsidian" aria-label="Posts in the Obsidian folder" hidden>
       <div class="columns" aria-hidden="true">
-        <span class="columns__name">이름</span>
-        <span class="columns__cat">카테고리</span>
-        <span class="columns__date">날짜</span>
+        <span class="columns__name">Name</span>
+        <span class="columns__cat">Category</span>
+        <span class="columns__date">Date</span>
       </div>
 
       {%- assign years = site.posts | group_by_exp: "p", "p.date | date: '%Y'" %}

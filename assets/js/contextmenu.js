@@ -12,7 +12,6 @@
  * 키보드로는 초점이 간 항목에서 ContextMenu 키나 ⇧F10 으로 연다.
  */
 import { notify, openWindow } from './windows.js';
-import { getAppearance, setAppearance } from './theme.js';
 import { iconInfo, renameIcon, revealInFinder } from './macos.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -71,10 +70,24 @@ function itemsFor(target) {
   const row = target.closest('.row__link');
   if (row) return linkItems(row, () => row.click());
   const app = target.closest('.dock__app');
+  // 다운로드 폴더(스택): 맥처럼 '보기 방식'을 고른다(downloads.js 가 기억한다).
+  if (app?.matches('[data-dock-downloads]')) {
+    let view = 'auto';
+    try {
+      view = localStorage.getItem('ephemeris:stack-view') || 'auto';
+    } catch {}
+    const pick = (v) => () => import('./downloads.js').then((m) => m.setStackView(v));
+    return [
+      { label: 'Open', run: () => app.click() },
+      '-',
+      { label: 'View Content as Fan', radio: view === 'fan', run: pick('fan') },
+      { label: 'View Content as Grid', radio: view === 'grid', run: pick('grid') },
+      { label: 'View Content as Automatic', radio: view === 'auto', run: pick('auto') },
+    ];
+  }
   if (app) return app.href ? linkItems(app, () => app.click()) : [{ label: 'Open', run: () => app.click() }];
   if (target === workspace) {
     const finder = $('[data-window="finder"]');
-    const a = getAppearance();
     return [
       {
         label: 'Open Finder',
@@ -86,9 +99,10 @@ function itemsFor(target) {
         : []),
       { label: 'Spotlight Search', run: () => $('[data-open-spotlight]')?.click() },
       '-',
-      { label: 'Appearance: Auto', radio: a === 'auto', run: () => setAppearance('auto') },
-      { label: 'Appearance: Light', radio: a === 'light', run: () => setAppearance('light') },
-      { label: 'Appearance: Dark', radio: a === 'dark', run: () => setAppearance('dark') },
+      {
+        label: 'Change Wallpaper…',
+        run: () => dispatchEvent(new CustomEvent('ephemeris:settings', { detail: { pane: 'wallpaper' } })),
+      },
     ];
   }
   return null;

@@ -9,6 +9,48 @@
       } catch (e) {}
     })();
   </script>
+  {%- comment -%}
+    시스템 설정(assets/js/settings.js)에서 고른 Dock 크기 · 확대 · 점, 바탕의 폴더 · 위젯,
+    배경화면도 첫 그림 전에 <html> 에 적어 둔다. 모양은 _settings.scss 가 이 값을 보고 입힌다.
+    배경화면의 밝기(메뉴 막대 글자색)는 body 가 생기면 desktop.html 이 옮겨 단다.
+    아무것도 고르지 않았으면 _config.yml 의 것이 그대로 쓰인다.
+  {%- endcomment %}
+  <script>
+    (function () {
+      try {
+        var root = document.documentElement;
+        var get = function (k) { return localStorage.getItem('ephemeris:' + k); };
+        var size = Number(get('dock-size'));
+        if (size >= 44 && size <= 72) {
+          root.setAttribute('data-dock-size', '');
+          root.style.setProperty('--dock-icon', size + 'px');
+          root.style.setProperty('--dock-k', String(size / 62));
+        }
+        ['dock-magnify', 'dock-dots', 'desktop-items', 'desktop-widgets'].forEach(function (k) {
+          if (get(k) === 'off') root.setAttribute('data-' + k, 'off');
+        });
+        // 배경화면: 그림이면 그 이름, 단색이면 'color:#rrggbb'. 밝기 표는 settings.js 의 WALLS 와 맞춘다.
+        var w = (get('wallpaper') || '').toLowerCase();
+        var tone = { monterey: 'dark', ephemeris: 'auto', grid: 'light' }[w];
+        var hex = /^color:(#[0-9a-f]{6})$/.exec(w);
+        if (hex) {
+          // 밝은 색이면 검은 글자, 어두우면 흰 글자(WCAG 상대 휘도)
+          var l = 0, k = [0.2126, 0.7152, 0.0722];
+          for (var i = 0; i < 3; i++) {
+            var c = parseInt(hex[1].substr(1 + i * 2, 2), 16) / 255;
+            l += k[i] * (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+          }
+          tone = l > 0.179 ? 'light' : 'dark';
+          root.style.setProperty('--wall-color', hex[1]);
+          w = 'color';
+        }
+        if (tone) {
+          root.setAttribute('data-wallpaper', w);
+          root.setAttribute('data-wall-tone', tone);
+        }
+      } catch (e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#ffffff">
