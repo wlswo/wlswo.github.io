@@ -503,6 +503,52 @@ html.is-still .battery__level {
   font-weight: 600;
 }
 
+// 색 고르기(RunCat 의 Colors): 맥 메뉴의 태그 색처럼 동그라미 한 줄.
+// 고른 색은 바깥에 고리를 두르고, 'Menu Bar' 는 검정 · 흰색 반반.
+.menu__swatches {
+  display: flex;
+  gap: 7px;
+  padding: 3px 10px 7px;
+}
+
+.menu__swatch {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--swatch, #8e8e93);
+  box-shadow: inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.22);
+
+  &--auto {
+    background: linear-gradient(135deg, #1d1d1f 50%, #ffffff 50%);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      box-shadow:
+        inset 0 0 0 var(--hair) rgba(0, 0, 0, 0.22),
+        0 0 0 2px var(--menu-ring, rgba(0, 0, 0, 0.18));
+    }
+  }
+
+  // 고른 색: 틈을 두고 고리(판 색과 상관없이 보이게 outline 으로)
+  &[aria-checked="true"] {
+    outline: 1.5px solid var(--ink-2);
+    outline-offset: 2px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+html[data-theme="dark"] .menu__swatch {
+  --menu-ring: rgba(255, 255, 255, 0.28);
+}
+
 .menu__info--title {
   color: var(--ink);
 

@@ -10,6 +10,7 @@
 const canvas = document.querySelector('[data-runcat]');
 const loadLabel = document.querySelector('[data-runcat-load]');
 const toggle = document.querySelector('[data-runcat-toggle]');
+const swatches = Array.from(document.querySelectorAll('[data-runcat-color]'));
 const button = canvas?.closest('button');
 
 const W = 30;
@@ -28,7 +29,7 @@ const store = {
 
 // ── 그림 ────────────────────────────────────────────────────────
 // 달리는 고양이 다섯 장(assets/images/runcat/, 검은 그림에 투명 바탕, 2배 크기)을
-// 번갈아 넘긴다. 바탕이 밝든 어둡든 주황으로 칠해 그린다.
+// 번갈아 넘긴다. 메뉴의 Colors 에서 고른 색으로 칠해 그린다(기본은 흰색).
 const FRAMES = [0, 1, 2, 3, 4].map((i) => {
   const img = new Image();
   img.src = `${canvas?.dataset.runcatSrc || '/assets/images/runcat/'}classic-cat-frame-${i}.png`;
@@ -36,7 +37,13 @@ const FRAMES = [0, 1, 2, 3, 4].map((i) => {
 });
 const tint = document.createElement('canvas');
 
-const INK = '#ff9500'; // 주황 고양이
+// 고양이 색: '#rrggbb' 이거나 'menubar'(메뉴 막대 글자색을 따른다 — 배경화면이
+// 바뀌면 검정 · 흰색이 바뀌므로 그릴 때마다 읽는다).
+const COLOR_KEY = 'ephemeris:runcat-color';
+const DEFAULT_COLOR = '#ffffff';
+let color = store.get(COLOR_KEY) || DEFAULT_COLOR;
+if (!swatches.some((s) => s.dataset.runcatColor === color)) color = DEFAULT_COLOR;
+const ink = () => (color === 'menubar' ? getComputedStyle(button || document.body).color : color);
 
 function drawCat(ctx, t, running) {
   ctx.clearRect(0, 0, W, H);
@@ -51,7 +58,7 @@ function drawCat(ctx, t, running) {
   const g = tint.getContext('2d');
   g.drawImage(img, 0, 0);
   g.globalCompositeOperation = 'source-in';
-  g.fillStyle = INK;
+  g.fillStyle = ink();
   g.fillRect(0, 0, tint.width, tint.height);
   // 그림은 63×36 — 30×18 칸에 비율대로 맞춘다
   const k = Math.min(W / img.naturalWidth, H / img.naturalHeight);
@@ -150,6 +157,20 @@ if (canvas) {
     store.set('ephemeris:runcat', resting ? 'rest' : 'run');
     sync();
   });
+
+  // 색 고르기: 메뉴는 열어 둔 채(data-keep-open) 바로 다시 그려 보여 준다.
+  const markColor = () => {
+    for (const s of swatches) s.setAttribute('aria-checked', String(s.dataset.runcatColor === color));
+  };
+  for (const s of swatches) {
+    s.addEventListener('click', () => {
+      color = s.dataset.runcatColor;
+      store.set(COLOR_KEY, color);
+      markColor();
+      sync();
+    });
+  }
+  markColor();
   // 아무 입력 없이 12초가 지나면 고양이도 쉰다. 글을 읽는 내내 캔버스를
   // 다시 그리지 않게. 손을 대면 곧바로 다시 달린다.
   const IDLE_MS = 12000;
@@ -170,6 +191,11 @@ if (canvas) {
   }
   addEventListener('ephemeris:still', sync);
   addEventListener('ephemeris:theme', sync);
+  // 'Menu Bar' 색은 배경화면의 밝기(data-wallpaper-tone)를 따라 바뀌므로, 배경화면을 바꾸면 다시 그린다.
+  new MutationObserver(() => color === 'menubar' && sync()).observe(document.body, {
+    attributes: true,
+    attributeFilter: ['data-wallpaper-tone'],
+  });
   document.addEventListener('visibilitychange', sync);
   reducedMotion.addEventListener('change', sync);
 

@@ -129,6 +129,24 @@
         </div>
         <div class="menu__sep" role="separator"></div>
         <button class="menu__item" role="menuitemcheckbox" aria-checked="false" type="button" data-runcat-toggle>Let the Cat Rest</button>
+        <div class="menu__sep" role="separator"></div>
+        {%- comment -%}
+          고양이 색. 맥 메뉴의 태그 색 고르기처럼 동그라미 한 줄(runcat.js).
+          'Menu Bar' 는 원조 RunCat 처럼 메뉴 막대 글자색(배경에 따라 검정 · 흰색)을 따른다.
+        {%- endcomment %}
+        <p class="menu__label" id="runcat-colors">Colors</p>
+        <div class="menu__swatches" role="group" aria-labelledby="runcat-colors">
+          <button class="menu__swatch menu__swatch--auto" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="menubar" data-keep-open aria-label="Menu Bar" title="Menu Bar"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="true" type="button" data-runcat-color="#ffffff" data-keep-open aria-label="White" title="White" style="--swatch: #ffffff"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="#ff9500" data-keep-open aria-label="Orange" title="Orange" style="--swatch: #ff9500"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="#ff3b30" data-keep-open aria-label="Red" title="Red" style="--swatch: #ff3b30"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="#ffcc00" data-keep-open aria-label="Yellow" title="Yellow" style="--swatch: #ffcc00"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="#28cd41" data-keep-open aria-label="Green" title="Green" style="--swatch: #28cd41"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="#007aff" data-keep-open aria-label="Blue" title="Blue" style="--swatch: #007aff"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="#af52de" data-keep-open aria-label="Purple" title="Purple" style="--swatch: #af52de"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="#ff2d55" data-keep-open aria-label="Pink" title="Pink" style="--swatch: #ff2d55"></button>
+          <button class="menu__swatch" role="menuitemradio" aria-checked="false" type="button" data-runcat-color="#8e8e93" data-keep-open aria-label="Graphite" title="Graphite" style="--swatch: #8e8e93"></button>
+        </div>
       </div>
     </div>
     {%- comment -%}
