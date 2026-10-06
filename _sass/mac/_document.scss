@@ -160,6 +160,16 @@
     color: var(--ink-3);
   }
 
+  // 할 일 목록(- [ ] / - [x]): 글머리 점 대신 체크 상자만
+  .task-list-item {
+    list-style: none;
+
+    .task-list-item-checkbox {
+      margin: 0 0.45em 0 -1.3em;
+      vertical-align: -0.1em;
+    }
+  }
+
   img {
     display: block;
     max-width: 100%;
