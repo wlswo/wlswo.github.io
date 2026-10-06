@@ -3,7 +3,7 @@ layout: desktop
 ---
 {%- comment -%}
   About: 맥의 '이 Mac에 관하여' 창. 가운데 블로그의 아이콘, 이름, 한 줄 소개, 그리고
-  사양 대신 이 블로그의 몇 가지 숫자. 소개 글은 about/index.md 의 본문이다.
+  사양 대신 이 블로그의 몇 가지 숫자. 소개 글은 about/index.md 의 본문이다(비어 있으면 감춘다).
   이 창은 크기를 바꾸지 않고, 초록 단추(확대)도 맥처럼 꺼져 있다.
 {%- endcomment -%}
 {%- assign newest = site.posts | first %}
@@ -26,9 +26,12 @@ layout: desktop
       {%- endif %}
     </dl>
 
+    {%- assign intro = content | strip %}
+    {%- if intro != '' %}
     <div class="about__text">
       {{ content }}
     </div>
+    {%- endif %}
 
     <div class="about__actions">
       <a class="button" href="{{ '/feed.xml' | relative_url }}">RSS 구독</a>
