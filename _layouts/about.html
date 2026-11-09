@@ -22,6 +22,16 @@ layout: desktop
       {%- if site.desktop.about_category %}
       <div><dt>Category</dt><dd>{{ site.desktop.about_category }}</dd></div>
       {%- endif %}
+      {%- comment -%}
+        _data/projects.yml 에서 about: true 인 앱. 게임 창은 스크립트가 그려 검색엔진이 못 보니,
+        앱 페이지로 가는 일반 링크를 여기 둔다(바탕의 About.txt → 이 창 → 앱 페이지).
+      {%- endcomment %}
+      {%- assign own_apps = site.data.projects | where: "about", true %}
+      {%- if own_apps.size > 0 %}
+      <div><dt>Apps</dt><dd>
+        {%- for app in own_apps %}<a href="{{ app.url }}" lang="ko">{{ app.name }}</a>{% unless forloop.last %} · {% endunless %}{% endfor -%}
+      </dd></div>
+      {%- endif %}
       {%- if oldest %}
       <div><dt>First Post</dt><dd><time datetime="{{ oldest.date | date: '%Y-%m-%d' }}">{{ oldest.date | date: "%B %-d, %Y" }}</time></dd></div>
       <div><dt>Latest Post</dt><dd><a href="{{ newest.url | relative_url }}" lang="ko">{{ newest.title }}</a></dd></div>
